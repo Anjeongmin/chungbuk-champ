@@ -25,6 +25,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
 #app {
   position: fixed; left: 50%; top: 50%;
   width: 393px; height: 852px;
+  touch-action: manipulation;
   transform-origin: center center;
   overflow: hidden;
   background: linear-gradient(180deg, #c6e6fb 0%, #e3f3f6 55%, #d7f0de 100%);
@@ -35,7 +36,7 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .screen {
   position: absolute; inset: 0;
   display: flex; flex-direction: column;
-  padding: 20px 24px calc(var(--safe-b) + 24px);
+  padding: 16px 24px 46px;
   overflow: hidden;
   animation: in .35s cubic-bezier(.2,.8,.2,1);
 }
@@ -432,3 +433,25 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .wx-chip b { font-weight: 800; color: var(--navy); } .wx-chip em { font-style: normal; font-weight: 800; color: var(--blue); }
 .fog { z-index: 6; }
 .wx-chip.low { left: 17px; top: 165px; }
+
+/* 폰 꽉 채우기 */
+.shot-screen { justify-content: flex-start !important; align-items: center; background: #cfe9fb; }
+.shot-screen::before { content: ""; position: absolute; inset: -30px; background: var(--shotbg) center / cover; filter: blur(18px); z-index: 0; }
+.shot { z-index: 1; }
+.gmap { position: absolute; left: 0; top: 0; width: 388px; height: 852px; transform-origin: top left; overflow: hidden; background: #c9ea8f; }
+.with-nav { padding-bottom: 116px; }
+.float-cta { padding-bottom: 40px !important; }
+.terms .skip { top: 22px; }
+.terms .terms-mole { margin-top: 30px; }
+
+/* 이미지 화면: 폭 꽉 채움 + 하단 고정 */
+.shot-screen { display: flex; flex-direction: column; align-items: stretch !important; overflow: hidden; background: var(--shotbot, #fff); }
+.shot-screen::before { display: none; }
+.shot-screen.scroll { overflow-y: auto; scrollbar-width: none; }
+.shot-screen.scroll::-webkit-scrollbar { display: none; }
+.shot { position: relative; flex: none; overflow: hidden; }
+.shot > img { position: absolute; left: 0; top: 0; }
+.shot-foot { position: sticky; bottom: 0; flex: none; margin-top: auto; overflow: hidden; z-index: 3; }
+.shot-foot > img { position: absolute; left: 0; width: 393px; height: auto; pointer-events: none; }
+.gmap .gcard { top: auto !important; bottom: 127px; }
+.gmap .map-nav { bottom: 0; }

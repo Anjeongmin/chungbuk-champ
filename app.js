@@ -57,22 +57,37 @@
     if (isBack) el.classList.add("back");
     after[name]?.(el);
     el.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
-    setBackdrop(el);
+    setBackdrop(el); fitScreen(el);
+  }
+  function fitScreen(el) {
+    if (!el || el.classList.contains("shot-screen")) return;
+    el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = "";
+    const need = el.scrollHeight, have = el.clientHeight;
+    if (need <= have + 2) return;
+    const z = Math.max(0.72, have / need);
+    Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
   }
   function setBackdrop(el) {
     const bd = document.getElementById("backdrop"); if (!bd) return;
     const im = el.querySelector(".shot > img");
     bd.style.backgroundImage = im ? `url("${im.getAttribute("src")}")` : "";
+    if (im) el.style.setProperty("--shotbg", `url("${im.getAttribute("src")}")`);
   }
 
   // 화면을 393×852 캔버스에 딱 맞추기 (스크롤 없이)
-  const fit = (w, h) => { const k = Math.min(393 / w, 852 / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
+  // 휴대폰 폭에 꽉 맞추고, 높이는 휴대폰 화면 높이만큼 (데스크톱은 폰 프레임)
+  let APPH = 852;
+  const fit = (w, h) => { const k = Math.min(393 / w, APPH / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
   function scaleApp() {
     const vw = window.visualViewport?.width || innerWidth, vh = window.visualViewport?.height || innerHeight;
-    const k = Math.min(vw / 393, vh / 852);
+    let k, h;
+    if (vw >= 500) { k = Math.min(vw / 393, vh / 852, 1.2); h = 852; } else { k = vw / 393; h = Math.round(vh / k); }
+    const changed = Math.abs(h - APPH) > 4; APPH = h;
+    app.style.height = h + "px";
     app.style.transform = `translate(-50%, -50%) scale(${k})`;
+    if (changed && stack.length) rerender(app.firstElementChild);
   }
-  scaleApp(); addEventListener("resize", scaleApp); window.visualViewport?.addEventListener("resize", scaleApp);
+  addEventListener("resize", () => scaleApp()); window.visualViewport?.addEventListener("resize", () => scaleApp());
 
   // ── screens ──
   const TERMS = [["필수", "서비스 이용약관"], ["필수", "개인정보 수집·이용 동의"], ["필수", "위치기반서비스 이용약관"], ["선택", "마케팅 정보 수신 동의"]];
@@ -97,8 +112,8 @@
       </section>`;
     },
     onboarding: () => `
-      <section class="screen shot-screen onb2"><div class="shot" style="${fit(393, 840)}">
-        <img src="screens/onboarding.jpg" alt="충북챔 · 나에게 맞는 충북 여행 처방" draggable="false">
+      <section class="screen shot-screen onb2"><div class="shot" style="width:393px;height:${APPH}px">
+        <img src="screens/onboarding.jpg" style="width:393px;height:100%;object-fit:cover;object-position:50% 40%" alt="충북챔 · 나에게 맞는 충북 여행 처방" draggable="false">
         <button class="hot" aria-label="시작" style="inset:0"></button>
         <span class="onb-hint">화면을 눌러 시작하기</span>
       </div></section>`,
@@ -337,13 +352,34 @@
   };
   const FILE = { loginEmail: "login-email", cheongjuSheet: "cheongju-sheet", stampDone: "stamp-done", cheongjuDone: "cheongju-done", courseEdit: "course-edit", exploreCourse: "explore-course", diagAgain: "diag-again" };
   const pct = (v, t) => (v / t * 100).toFixed(3) + "%";
+  // 이미지 위쪽 상태바(시간·배터리) 38pt 잘라냄 → 좌표도 같이 이동
+  const CUT = 38, META = { "cheongju-done": 814, "cheongju-sheet": 814, cheongju: 814, "course-edit": 841, coursemap: 878.7, "diag-again": 853, "explore-course": 814, explore: 814, home: 814, "login-email": 788, login: 788, mycourse: 814, mypage: 827, rediag: 840, settings: 816, "stamp-done": 814, stampbook: 814 };
+  for (const [name, d] of Object.entries(IMG)) { const f = d.img || FILE[name] || name; d.h = META[f] || d.h - CUT; d.hot.forEach((h) => { h.y -= CUT; if (h.y < 0) { h.h += h.y; h.y = 0; } }); }
+  // 화면 분할: split 아래(버튼·카드·탭바)는 화면 바닥에 고정, 위쪽은 폭에 꽉 맞춤
+  // mode "clip" = 지도처럼 위쪽을 잘라서 보여줌, "scroll" = 필요하면 위쪽만 살짝 스크롤
+  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "clip"], exploreCourse: [628, "clip"],
+    cheongju: [484, "clip"], cheongjuDone: [460, "clip"], cheongjuSheet: [430, "clip"], stampDone: [570], mycourse: [770], coursemap: [760, "clip"],
+    courseEdit: [770], mypage: [774] };
+  for (const [n, [y, m]] of Object.entries(SPLIT)) { IMG[n].split = y - CUT; IMG[n].mode = m || "scroll"; }
+  const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
   for (const [name, d] of Object.entries(IMG)) {
     const src = `screens/${d.img || FILE[name] || name}.jpg`;
-    screens[name] = () => `
-      <section class="screen shot-screen"><div class="shot" style="${fit(d.w, d.h)}">
-        <img src="${src}" alt="" draggable="false">
-        ${d.hot.map((h, i) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${pct(h.x, d.w)};top:${pct(h.y, d.h)};width:${pct(h.w, d.w)};height:${pct(h.h, d.h)}"></button>`).join("")}
-      </div></section>`;
+    screens[name] = () => {
+      const k = 393 / d.w, sp = d.split || d.h, top = d.hot.map((h, i) => [h, i]).filter(([h]) => h.y < sp), foot = d.hot.map((h, i) => [h, i]).filter(([h]) => h.y >= sp);
+      const footH = (d.h - sp) * k, clipH = Math.max(120, APPH - footH), clip = d.mode?.startsWith("clip") ? `max-height:${clipH}px;` : "";
+      const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
+      return `
+      <section class="screen shot-screen ${d.mode || ""}">
+        <div class="shot" style="width:393px;height:${(sp * k).toFixed(1)}px;${clip}">
+          <img src="${src}" alt="" draggable="false" style="width:393px;height:auto;top:${off.toFixed(1)}px">
+          ${top.map(([h, i]) => hotBtn(h, i, k, -off / k)).join("")}
+        </div>
+        ${d.split ? `<div class="shot-foot" style="height:${footH.toFixed(1)}px">
+          <img src="${src}" alt="" draggable="false" style="top:${(-sp * k).toFixed(1)}px">
+          ${foot.map(([h, i]) => hotBtn(h, i, k, sp)).join("")}
+        </div>` : ""}
+      </section>`;
+    };
   }
   // 이미지 미리 불러오기 (화면 전환 시 깜빡임 방지)
   window.addEventListener("load", () => setTimeout(() => Object.entries(IMG).forEach(([n, d]) => { new Image().src = `screens/${d.img || FILE[n] || n}.jpg`; }), 800));
@@ -572,7 +608,7 @@
   screens.goesan = () => {
     const g = S.gs, cur = GS[g.cur], isDone = g.done.includes(g.cur), all = g.done.length === GS.length;
     return `
-    <section class="screen shot-screen"><div class="shot gmap" style="${fit(388, 852)}">
+    <section class="screen shot-screen"><div class="shot" style="width:393px;height:${APPH}px"><div class="gmap" style="height:${(APPH * 388 / 393 + 38).toFixed(0)}px;transform:scale(${(393 / 388).toFixed(4)}) translateY(-38px)">
       <img class="gbg" src="screens/goesan-map.jpg" alt="" draggable="false">
       ${GS.map((p, i) => `
         <button class="gplace ${i === g.cur ? "cur" : ""}" data-p="${i}" style="left:${p.px}px;top:${p.py - 30}px">
@@ -593,7 +629,7 @@
         <div class="gbtns"><button class="cta gstamp" data-act="gstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="gsave">🔖</button></div>
       </div>
       ${navBar("탐험")}
-    </div></section>`;
+    </div></div></section>`;
   };
   after.goesan = (el) => {
     el.querySelectorAll("[data-p]").forEach((b) => (b.onclick = () => { S.gs.cur = +b.dataset.p; rerender(el); }));
@@ -642,6 +678,7 @@
     const n = app.firstElementChild; n.style.animation = "none"; n.scrollTop = y;
     after[name]?.(n);
     n.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
+    setBackdrop(n); fitScreen(n);
   }
 
   for (const [n, place] of [["explore", "충북"], ["exploreCourse", "충북"], ["cheongju", "청주"], ["cheongjuDone", "청주"], ["cheongjuSheet", "청주"], ["goesan", "괴산"]]) {
@@ -649,5 +686,7 @@
     after[n] = (el) => { orig(el); addWeather(el.querySelector(".shot"), place); };
   }
 
+  scaleApp();
+  window.__go = (n) => { stack.length = 0; S.done = true; go(n); };
   go("onboarding");
 })();
