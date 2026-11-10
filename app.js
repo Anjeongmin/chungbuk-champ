@@ -910,54 +910,48 @@
     { name: "초정행궁", img: "l-chojeong", box: [172, 376, 87, 94], dist: "9.4km · 차 15분", rate: "4.6", stamp: "assets/mc/s2.png" },
     { name: "초정스파텔", img: "l-spa", box: [49, 390, 100, 94], dist: "9.6km · 차 16분", rate: "4.5", stamp: "assets/mc/s3.png" },
   ];
-  S.cj = { cur: 0, done: [2, 3], moleAt: null };
+  S.cj = { cur: 0, done: [2, 3] }; CJ[2].baked = CJ[3].baked = true; // 초정행궁·초정스파텔은 그림에 도장 핀이 이미 있음
+  // 청주 지도 — 괴산과 같은 방식: 장소 누르면 이름표 파란 테두리 + 두더지가 그 장소로 이동 + 카드 바뀜
+  const CJL = [[124.5, 364.5], [259, 348.5], [212.5, 457], [99, 471]]; // 그림 속 이름표 가운데(피그마 좌표)
   function cjMap(el, name) {
-    const g = S.cj;
-    // 두더지 굴(원래 자리) + 둥둥 떠다니는 두더지: 장소를 누를 때마다 그 장소로 폴짝 이동
-    overlay(el, name, 116, 206, 40, 18, '<i class="cj-hole"></i>', "cj-holeo").style.pointerEvents = "none";
-    const moleAt = (i) => { if (i == null) return [117, 178]; const [x, y, w] = CJ[i].box; return [x + w / 2 - 19, y - 40]; };
-    const [mx, my] = moleAt(g.moleAt);
-    const mo = overlay(el, name, mx, my, 38, 45, '<img class="cj-mole" src="assets/cj/mole.png" alt="두더지">', "cj-moleo");
+    const g = S.cj, sh = el.querySelector(".shot"), K = sh.offsetWidth / IMG[name].w;
+    // 괴산과 같은 상단 머리(뒤로 화살표·경로)
+    const head = overlay(el, name, 20, 65, 200, 44, `<div class="ghead cjhead"><button class="gback" data-act="cjback">‹</button><span class="gcrumb">충청북도 <b>›</b> <strong>청주</strong></span></div>`, "cj-head");
+    head.querySelector('[data-act="cjback"]').onclick = () => tabGo("탐험");
+    const moleAt = (i) => { const [x, y, w] = CJ[i].box; return [x + w * 0.62, y - 12]; };
+    const [mx, my] = moleAt(g.cur);
+    const mo = overlay(el, name, mx, my, 38, 34, '<img class="gmole cjmole" src="assets/map/mole-slot.png" alt="">', "cj-moleo");
     mo.style.pointerEvents = "none";
-    const sh = el.querySelector(".shot"), K = sh.offsetWidth / IMG[name].w;
-    const places = CJ.map((p, i) => {
-      const [x, y, w, h] = p.box;
-      const o = overlay(el, name, x - 4, y - 4, w + 8, h + 8, `<img class="cj-lm" src="assets/cj/${p.img}.png" alt="${p.name}">`, "cj-place");
-      o.onclick = () => select(i, true); return o;
-    });
+    const labels = CJ.map((p, i) => overlay(el, name, CJL[i][0] - 70, CJL[i][1] - 15, 140, 30, `<span class="glabel cjlabel">${p.name}</span>`, "cj-labelo"));
+    labels.forEach((l) => (l.style.pointerEvents = "none"));
+    const pins = CJ.map((p, i) => { const [x, y] = p.box; const o = overlay(el, name, x - 6, y + 22, 31, 36, '<img class="gpin" src="assets/map/pin.png" alt="도장 완료">', "cj-pino"); o.style.pointerEvents = "none"; return o; });
+    const places = CJ.map((p, i) => { const [x, y, w, h] = p.box; const o = overlay(el, name, x - 6, y - 10, w + 12, h + 16, "", "cj-place"); o.onclick = () => select(i, true); return o; });
     const tr = overlay(el, name, 137, 111, 188, 100, "", "cj-treasure");
-    tr.onclick = () => { tr.classList.remove("shake"); void tr.offsetWidth; tr.classList.add("shake"); toast(g.done.length === CJ.length ? "보물이 열렸어요! 스탬프북에서 확인해요" : `도장 ${CJ.length - g.done.length}곳 더 찍으면 보물이 열려요`); };
+    tr.onclick = () => toast(g.done.length === CJ.length ? "보물이 열렸어요! 스탬프북에서 확인해요" : `도장 ${CJ.length - g.done.length}곳 더 찍으면 보물이 열려요`);
     const card = overlay(el, name, 31, 512, 327, 226, "", "cj-card");
     const chip = overlay(el, name, 17, 123, 107, 32, `<span class="cj-count"></span>`, "cj-chip"); chip.style.pointerEvents = "none";
     function select(i, user) {
-      const again = g.cur === i && user; g.cur = i;
-      places.forEach((o, k) => {
-        o.classList.toggle("cur", k === i);
-        o.querySelector(".cj-ring")?.remove(); o.querySelector(".cj-pop")?.remove();
-        if (k === i) o.querySelector(".ov-in").insertAdjacentHTML("beforeend", `<i class="cj-ring"></i><span class="cj-pop">${g.done.includes(k) ? "✓ " : "📍 "}${CJ[k].name}</span>`);
-      });
-      if (again) { const o = places[i]; o.classList.remove("hop"); void o.offsetWidth; o.classList.add("hop"); }
-      if (user && g.moleAt !== i) {
-        g.moleAt = i; const [nx, ny] = moleAt(i);
-        mo.style.left = (nx * K).toFixed(1) + "px"; mo.style.top = ((ny - 38) * K).toFixed(1) + "px";
-        mo.classList.remove("jump"); void mo.offsetWidth; mo.classList.add("jump");
-      }
+      g.cur = i;
+      labels.forEach((l, k) => l.querySelector(".glabel").classList.toggle("cur", k === i));
+      pins.forEach((o, k) => (o.style.display = g.done.includes(k) && !CJ[k].baked ? "" : "none"));
+      const [nx, ny] = moleAt(i);
+      mo.style.left = (nx * K).toFixed(1) + "px"; mo.style.top = ((ny - 38) * K).toFixed(1) + "px";
       const p = CJ[i], isDone = g.done.includes(i);
       card.querySelector(".ov-in").innerHTML = `
-        <div class="cjcard" ${user ? 'style="animation:cjSwap .35s both"' : ""}>
-          <div class="gcard-top"><span class="gtag">${isDone ? "도장 완료" : "현재 장소"}</span><span class="grate">★ ${p.rate}</span></div>
+        <div class="cjcard">
+          <div class="gcard-top"><span class="gtag">${isDone ? "도장 완료" : g.done.length > 2 ? "다음 장소" : "현재 장소"}</span><span class="grate">★ ${p.rate}</span></div>
           <h3>${p.name}</h3><p>🚶 → ${p.dist}</p>
-          <div class="gbtns"><button class="cta gstamp" data-act="cjstamp" ${isDone ? "disabled" : ""}>${isDone ? "✓ 도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="cjsave">🔖</button></div>
+          <div class="gbtns"><button class="cta gstamp" data-act="cjstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="cjsave">🔖</button></div>
         </div>`;
-      card.querySelector('[data-act="cjsave"]').onclick = (e) => { e.currentTarget.classList.toggle("on"); toast(e.currentTarget.classList.contains("on") ? "저장했어요" : "저장을 취소했어요"); };
+      card.querySelector('[data-act="cjsave"]').onclick = () => toast("저장했어요");
       card.querySelector('[data-act="cjstamp"]').onclick = () => { if (!g.done.includes(g.cur)) g.done.push(g.cur); go("cjStampDone"); };
       chip.querySelector(".cj-count").textContent = `${g.done.length + 1} / 5곳`;
     }
     select(g.cur, false);
   }
   // 청주 지도의 원래 '장소 → 시트' 넓은 버튼과 카드 버튼은 코드 요소가 대신함
-  IMG.cheongju.hot = IMG.cheongju.hot.filter((h) => !(h.go === "cheongjuSheet" || h.go === "stampDone" || h.fn === "bookmark"));
-  IMG.cheongjuDone.hot = IMG.cheongjuDone.hot.filter((h) => !(h.go === "stampDone" || h.fn === "bookmark"));
+  IMG.cheongju.hot = IMG.cheongju.hot.filter((h) => !(h.go === "cheongjuSheet" || h.go === "stampDone" || h.fn === "bookmark" || h.back));
+  IMG.cheongjuDone.hot = IMG.cheongjuDone.hot.filter((h) => !(h.go === "stampDone" || h.fn === "bookmark" || h.reset));
   chain("cheongju", (el) => cjMap(el, "cheongju"));
   chain("cheongjuDone", (el) => cjMap(el, "cheongjuDone"));
   screens.cjStampDone = () => {
