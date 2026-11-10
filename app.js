@@ -24,7 +24,7 @@
     ["마이", '<circle cx="12" cy="8" r="4.5" fill="currentColor"/><path d="M3.5 21a8.5 8.5 0 0117 0z" fill="currentColor"/>'],
   ];
 
-  const mole = (cls = "") => `<img class="mole ${cls}" src="assets/mole.png" alt="두더지" draggable="false">`;
+  const mole = (cls = "", v = "") => `<img class="mole ${cls}" src="assets/mole${v ? "-" + v : ""}.png" alt="두더지" draggable="false">`;
   const hill = '<div class="hill"></div>';
   const cloud = (x, y, w) => `<div class="cloud" style="left:${x}px;top:${y}px;width:${w}px;height:${w * 0.42}px"></div>`;
   const dots = (n) => `<div class="dots">${Array.from({ length: 7 }, (_, i) => `<i class="${i + 1 === n ? "on" : ""}"></i>`).join("")}</div>`;
@@ -75,7 +75,27 @@
   scaleApp(); addEventListener("resize", scaleApp); window.visualViewport?.addEventListener("resize", scaleApp);
 
   // ── screens ──
+  const TERMS = [["필수", "서비스 이용약관"], ["필수", "개인정보 수집·이용 동의"], ["필수", "위치기반서비스 이용약관"], ["선택", "마케팅 정보 수신 동의"]];
+  S.terms = [false, false, false, false];
+  const ck = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
   const screens = {
+    terms: () => {
+      const all = S.terms.every(Boolean), req = S.terms.slice(0, 3).every(Boolean);
+      return `
+      <section class="screen terms">${hill}
+        ${cloud(28, 52, 46)}${cloud(290, 92, 58)}
+        <button class="skip" data-act="skip">건너뛰기</button>
+        ${mole("terms-mole", "clip")}
+        <div class="bubble center"><h1>시작하기 전에<br>약관을 확인해 주세요</h1></div>
+        <div class="tcard">
+          <button class="tall ${all ? "on" : ""}" data-t="all"><i class="tck">${ck}</i><b>전체 동의 (선택 항목 포함)</b></button>
+          <hr>
+          ${TERMS.map(([k, t], i) => `<button class="trow ${S.terms[i] ? "on" : ""}" data-t="${i}"><i class="tck">${ck}</i><span><em class="${k === "필수" ? "req" : "sel"}">[${k}]</em>${t}</span><svg class="chev" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="#c4cfdc" stroke-width="2.4" stroke-linecap="round"><path d="M9 6l6 6-6 6"/></svg></button>`).join("")}
+        </div>
+        <div class="spacer"></div>
+        <button class="cta" data-act="agree" ${req ? "" : "disabled"}>동의하고 시작하기 ${req ? I.chev : ""}</button>
+      </section>`;
+    },
     onboarding: () => `
       <section class="screen shot-screen onb2"><div class="shot" style="${fit(393, 840)}">
         <img src="screens/onboarding.jpg" alt="충북챔 · 나에게 맞는 충북 여행 처방" draggable="false">
@@ -101,7 +121,7 @@
     age: () => `
       <section class="screen">${hill}
         ${top(1)}
-        ${mole("bob")}
+        ${mole("bob", "q")}
         ${bubble("나이가<br>어떻게 되세요?", "나이에 맞는 처방을 내려드려요")}
         <div class="sheet">${sheetHead()}
           ${D.ages.map((a) => `<button class="opt ${S.age === a.id ? "on" : ""}" data-age="${a.id}"><span class="radio"></span><span><b>${a.label}</b><small>${a.sub}</small></span></button>`).join("")}
@@ -122,7 +142,7 @@
       return `
       <section class="screen">${hill}
         ${top(2)}
-        ${mole("sm bob")}
+        ${mole("sm bob", "lens")}
         ${bubble(title, sub)}
         <div class="sheet">${sheetHead("아픈 곳을 눌러요")}
           <div class="body-wrap ${S.part ? "picked" : ""}">
@@ -142,7 +162,7 @@
       return `
       <section class="screen">${hill}
         ${top(2)}
-        ${mole("bob")}
+        ${mole("bob", "clip")}
         ${bubble("어떻게<br>불편하세요?", "가장 가까운 증상을 골라주세요")}
         <div class="sheet">${sheetHead()}
           ${a.symptoms.map((s) => `<button class="opt ${S.symptom === s ? "on" : ""}" data-sym="${s}"><span class="radio"></span><span><b>${s}</b></span></button>`).join("")}
@@ -155,7 +175,7 @@
     ...Object.fromEntries(D.questions.map((q, i) => [`q${i + 3}`, () => `
       <section class="screen">${hill}
         ${top(i + 3)}
-        ${mole("bob")}
+        ${mole("bob", "q")}
         ${bubble(q.title.replace("\n", "<br>"), q.sub)}
         <div class="sheet">${sheetHead()}
           ${q.options.map((o) => `<button class="opt ${S.ans[q.key] === o ? "on" : ""}" data-ans="${q.key}" data-val="${o}"><span class="radio"></span><span><b>${o}</b></span></button>`).join("")}
@@ -266,20 +286,10 @@
   const BACK = { x: 14, y: 46, w: 56, h: 56, back: true };
   const IMG = {
     login: { w: 393, h: 852, hot: [
-      { x: 24, y: 550, w: 345, h: 60, go: "terms0" }, { x: 24, y: 618, w: 345, h: 60, go: "terms0" },
+      { x: 24, y: 550, w: 345, h: 60, go: "terms" }, { x: 24, y: 618, w: 345, h: 60, go: "terms" },
       { x: 24, y: 686, w: 345, h: 60, go: "loginEmail" } ] },
     loginEmail: { w: 393, h: 852, hot: [ { ...BACK, x: 12, y: 48 },
-      { x: 46, y: 540, w: 301, h: 62, go: "terms0" }, { x: 210, y: 642, w: 80, h: 34, go: "terms0" } ] },
-    terms0: { w: 393, h: 840, hot: [
-      { x: 49, y: 429, w: 295, h: 56, go: "terms1", replace: true }, { x: 40, y: 515, w: 310, h: 135, go: "terms2", replace: true },
-      { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true }, { x: 300, y: 86, w: 80, h: 44, go: "diagnose", reset: true } ] },
-    terms1: { img: "terms-1", w: 393, h: 840, hot: [
-      { x: 49, y: 429, w: 295, h: 56, go: "terms0", replace: true }, { x: 40, y: 515, w: 310, h: 175, go: "terms2", replace: true },
-      { x: 24, y: 732, w: 345, h: 64, go: "diagnose", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "diagnose", reset: true } ] },
-    terms2: { img: "terms-2", w: 393, h: 844, hot: [
-      { x: 49, y: 429, w: 295, h: 56, go: "terms1", replace: true }, { x: 40, y: 515, w: 310, h: 135, go: "terms0", replace: true },
-      { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true },
-      { x: 24, y: 735, w: 345, h: 64, go: "diagnose", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "diagnose", reset: true } ] },
+      { x: 46, y: 540, w: 301, h: 62, go: "terms" }, { x: 210, y: 642, w: 80, h: 34, go: "terms" } ] },
     home: { w: 393, h: 852, tab: "홈", hot: [
       { x: 48, y: 440, w: 297, h: 58, go: "cheongju" }, { x: 290, y: 543, w: 90, h: 40, go: "stampbook" },
       { x: 24, y: 590, w: 345, h: 110, go: "stampbook" }, { x: 24, y: 255, w: 345, h: 140, go: "explore" }, ...TAB(770) ] },
@@ -325,7 +335,7 @@
     settings: { w: 375, h: 854, hot: [ { x: 18, y: 52, w: 52, h: 52, back: true },
       { x: 24, y: 175, w: 327, h: 215, fn: "soon" }, { x: 24, y: 475, w: 327, h: 140, fn: "soon" } ] },
   };
-  const FILE = { loginEmail: "login-email", terms0: "terms-0", cheongjuSheet: "cheongju-sheet", stampDone: "stamp-done", cheongjuDone: "cheongju-done", courseEdit: "course-edit", exploreCourse: "explore-course", diagAgain: "diag-again" };
+  const FILE = { loginEmail: "login-email", cheongjuSheet: "cheongju-sheet", stampDone: "stamp-done", cheongjuDone: "cheongju-done", courseEdit: "course-edit", exploreCourse: "explore-course", diagAgain: "diag-again" };
   const pct = (v, t) => (v / t * 100).toFixed(3) + "%";
   for (const [name, d] of Object.entries(IMG)) {
     const src = `screens/${d.img || FILE[name] || name}.jpg`;
@@ -371,6 +381,17 @@
 
   // ── per-screen wiring ──
   const after = {
+    terms: (el) => {
+      el.querySelectorAll("[data-t]").forEach((b) => (b.onclick = (e) => {
+        if (e.target.closest(".chev")) return toast("약관 내용은 준비 중이에요");
+        const t = b.dataset.t;
+        if (t === "all") { const v = !S.terms.every(Boolean); S.terms = S.terms.map(() => v); }
+        else S.terms[+t] = !S.terms[+t];
+        rerender(el);
+      }));
+      el.querySelector('[data-act="agree"]').onclick = () => { stack.length = 0; go("diagnose"); };
+      el.querySelector('[data-act="skip"]').onclick = () => { stack.length = 0; go("diagnose"); };
+    },
     onboarding: (el) => {
       let moved = false;
       const next = () => { if (moved) return; moved = true; clearTimeout(t); go("login", { replace: true }); };
@@ -400,7 +421,7 @@
     rx: (el) => {
       const stamp = el.querySelector("#stamp"), paper = el.querySelector("#paper");
       // 처방이 나오면 스크롤 없이 바로: 가운데 '쾅' → 도장 자리로
-      render._timer = setTimeout(() => stamp.isConnected && slamStamp(stamp, paper), 900);
+      render._timer = setTimeout(() => stamp.isConnected && slamStamp(stamp, paper), 1000);
       el.querySelector('[data-act="places"]').onclick = () => go("places");
     },
     places: (el) => {
@@ -427,6 +448,57 @@
   };
   wireImg();
 
+
+  // ── 오늘 날씨 (청주 기준, open-meteo) → 탐험 지도에 반영 ──
+  const WX_NAME = { clear: "맑음", cloud: "구름 많음", fog: "안개", rain: "비", snow: "눈", storm: "뇌우" };
+  const WX_ICON = { clear: "☀️", cloud: "⛅", fog: "🌫️", rain: "🌧️", snow: "❄️", storm: "⛈️" };
+  const codeToWx = (c) => c <= 1 ? "clear" : c <= 3 ? "cloud" : c <= 48 ? "fog" : (c >= 71 && c <= 77) || c === 85 || c === 86 ? "snow" : c >= 95 ? "storm" : "rain";
+  const WX = { ready: null, data: null };
+  WX.ready = (async () => {
+    const force = new URLSearchParams(location.search).get("weather");
+    if (force && WX_NAME[force]) return (WX.data = { type: force, temp: 12, day: true, forced: true });
+    try { const c = JSON.parse(sessionStorage.getItem("cbwx") || "null"); if (c && Date.now() - c.t < 30 * 60e3) return (WX.data = c.d); } catch (e) {}
+    try {
+      const r = await fetch("https://api.open-meteo.com/v1/forecast?latitude=36.64&longitude=127.49&current=temperature_2m,weather_code,is_day&timezone=Asia%2FSeoul");
+      const j = await r.json(); const cur = j.current;
+      WX.data = { type: codeToWx(cur.weather_code), temp: Math.round(cur.temperature_2m), day: !!cur.is_day };
+      try { sessionStorage.setItem("cbwx", JSON.stringify({ t: Date.now(), d: WX.data })); } catch (e) {}
+    } catch (e) { const h = new Date().getHours(); WX.data = { type: "clear", temp: null, day: h >= 6 && h < 19 }; }
+    return WX.data;
+  })();
+  function addWeather(shot, place = "청주") {
+    if (!shot) return;
+    WX.ready.then((w) => {
+      if (!shot.isConnected) return;
+      const layer = document.createElement("div"); layer.className = `wx wx-${w.type} ${w.day ? "day" : "night"}`;
+      layer.innerHTML = `<div class="wx-tint"></div>${w.type === "clear" && w.day ? '<div class="wx-sun"></div>' : ""}${w.type === "cloud" || w.type === "fog" ? '<div class="wx-cl c1"></div><div class="wx-cl c2"></div><div class="wx-cl c3"></div>' : ""}${w.type === "fog" ? '<div class="wx-haze"></div>' : ""}${w.type === "storm" ? '<div class="wx-flash"></div>' : ""}<canvas width="393" height="852"></canvas>`;
+      shot.insertBefore(layer, shot.firstElementChild.nextSibling);
+      const chip = document.createElement("button"); chip.className = "wx-chip";
+      chip.innerHTML = `<span>${w.day || w.type !== "clear" ? WX_ICON[w.type] : "🌙"}</span><b>오늘 ${place} ${w.day || w.type !== "clear" ? WX_NAME[w.type] : "맑은 밤"}</b>${w.temp != null ? `<em>${w.temp}°</em>` : ""}`;
+      chip.onclick = () => toast(wxTip(w)); if (place !== "충북") chip.classList.add("low"); shot.appendChild(chip);
+      const n = w.type === "rain" ? 110 : w.type === "storm" ? 160 : w.type === "snow" ? 70 : !w.day ? 40 : 0;
+      if (n) particles(layer.querySelector("canvas"), w.type, n, w.day);
+    });
+  }
+  const wxTip = (w) => ({ clear: "맑은 날! 평지 산책하기 딱 좋아요", cloud: "구름이 많아요 · 걷기엔 선선해요", fog: "안개가 꼈어요 · 천천히 둘러봐요", rain: "비가 와요 · 우산 챙기고 실내 코스도 좋아요", snow: "눈이 와요 · 미끄럼 주의!", storm: "천둥번개가 쳐요 · 오늘은 실내 코스 추천" })[w.type];
+  function particles(cv, type, n, day) {
+    const ctx = cv.getContext("2d"), W = 393, H = 852;
+    const P = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 0, r: 0, s: Math.random() }));
+    P.forEach((p) => { p.v = type === "snow" ? 0.4 + p.s * 0.9 : type === "clear" ? 0 : 7 + p.s * 6; p.r = type === "snow" ? 1.5 + p.s * 2.6 : 1; });
+    let t = 0;
+    (function loop() {
+      if (!cv.isConnected) return;
+      t++; ctx.clearRect(0, 0, W, H);
+      for (const p of P) {
+        if (type === "snow") { p.y += p.v; p.x += Math.sin((t + p.s * 300) / 40) * 0.5; ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); }
+        else if (type === "clear") { const a = 0.3 + 0.7 * Math.abs(Math.sin((t / 60) + p.s * 6)); if (p.y < H * 0.55) { ctx.fillStyle = `rgba(255,255,230,${a})`; ctx.beginPath(); ctx.arc(p.x, p.y * 0.55, 0.8 + p.s * 1.4, 0, 7); ctx.fill(); } }
+        else { p.y += p.v; p.x -= p.v * 0.18; ctx.strokeStyle = "rgba(210,232,255,.75)"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 2.2, p.y - 12); ctx.stroke(); }
+        if (p.y > H + 12) { p.y = -12; p.x = Math.random() * (W + 60); }
+      }
+      requestAnimationFrame(loop);
+    })();
+  }
+
   // ── 처방 도장: 화면 가운데 '쾅' → 원래 도장 자리로 이동 ──
   function slamStamp(stamp, paper) {
     const big = stamp.cloneNode(true);
@@ -439,16 +511,16 @@
     big.style.left = cx - 52 + "px"; big.style.top = cy - 52 + "px";
     const flash = document.createElement("div"); flash.className = "stamp-flash"; app.appendChild(flash);
     big.animate([
-      { transform: "rotate(-12deg) scale(4)", opacity: 0 },
-      { transform: "rotate(-12deg) scale(1.6)", opacity: 1, offset: 0.22 },
-      { transform: "rotate(-12deg) scale(1.9)", opacity: 1, offset: 0.3 },
-      { transform: "rotate(-12deg) scale(1.9)", opacity: 1, offset: 0.62 },
+      { transform: "rotate(-12deg) scale(3.2)", opacity: 0 },
+      { transform: "rotate(-12deg) scale(1.75)", opacity: 1, offset: 0.1 },
+      { transform: "rotate(-12deg) scale(1.95)", opacity: 1, offset: 0.16 },
+      { transform: "rotate(-12deg) scale(1.9)", opacity: 1, offset: 0.55 },
       { transform: `translate(${tx - cx}px, ${ty - cy}px) rotate(-12deg) scale(1)`, opacity: 1 },
-    ], { duration: 1500, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }).onfinish = () => {
+    ], { duration: 1400, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }).onfinish = () => {
       stamp.classList.add("placed"); big.remove(); flash.remove();
       paper.classList.add("shake"); navigator.vibrate?.(30);
     };
-    setTimeout(() => { flash.classList.add("on"); navigator.vibrate?.(50); }, 300);
+    setTimeout(() => { flash.classList.add("on"); navigator.vibrate?.(50); }, 130);
   }
 
   // ── 안개가 서서히 걷히는 연출 ──
@@ -570,6 +642,11 @@
     const n = app.firstElementChild; n.style.animation = "none"; n.scrollTop = y;
     after[name]?.(n);
     n.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
+  }
+
+  for (const [n, place] of [["explore", "충북"], ["exploreCourse", "충북"], ["cheongju", "청주"], ["cheongjuDone", "청주"], ["cheongjuSheet", "청주"], ["goesan", "괴산"]]) {
+    const orig = after[n];
+    after[n] = (el) => { orig(el); addWeather(el.querySelector(".shot"), place); };
   }
 
   go("onboarding");

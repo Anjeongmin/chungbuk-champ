@@ -388,3 +388,47 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .float-cta { position: absolute !important; left: 0; right: 0; bottom: 0; margin: 0; padding: 14px 24px 22px; }
 /* 화면 바깥 여백: 현재 화면을 흐리게 깔아서 꽉 차 보이게 */
 #backdrop { position: fixed; inset: -40px; z-index: -1; background: linear-gradient(180deg, #c6e6fb, #d7f0de); background-size: cover; background-position: center; filter: blur(22px) saturate(1.1); transition: background-image .3s; }
+
+/* 약관 동의 (코드) */
+.terms { align-items: center; }
+.terms .skip { position: absolute !important; right: 24px; top: 60px; color: var(--gray); font-size: 15px; z-index: 3 !important; }
+.terms .terms-mole { width: 124px; margin: 66px auto 10px; }
+.bubble.center { width: 100%; text-align: center; padding: 24px; }
+.bubble.center::after { display: none; }
+.bubble.center h1 { font-size: 20px; }
+.tcard { width: 100%; margin-top: 30px; background: #fff; border-radius: 26px; padding: 22px; box-shadow: 0 6px 18px rgba(11,43,94,.08); }
+.tall { width: 100%; display: flex; align-items: center; gap: 14px; padding: 15px 16px; border-radius: 99px; background: #f6f8fb; border: 1.5px solid transparent; transition: .15s; }
+.tall.on { background: #eef7ff; border-color: var(--blue); }
+.tall b { font-size: 15px; font-weight: 800; }
+.tcard hr { border: 0; border-top: 1px solid #e6ecf2; margin: 16px 0 6px; }
+.trow { width: 100%; display: flex; align-items: center; gap: 12px; padding: 11px 0; text-align: left; }
+.trow span { flex: 1; font-size: 15px; }
+.trow em { font-style: normal; font-weight: 800; margin-right: 2px; } .trow em.req { color: var(--blue); } .trow em.sel { color: #7b8796; }
+.tck { flex: none; width: 26px; height: 26px; border-radius: 50%; border: 2px solid #cfd8e3; background: #fff; display: grid; place-items: center; transition: .15s; }
+.tck svg { opacity: 0; transition: .15s; }
+.on > .tck { background: var(--blue); border-color: var(--blue); } .on > .tck svg { opacity: 1; }
+.terms .cta { margin-top: 18px; }
+
+/* 날씨 */
+.wx { position: absolute; inset: 0 0 84px 0; pointer-events: none; overflow: hidden; }
+.wx canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.wx-tint { position: absolute; inset: 0; }
+.wx-rain .wx-tint, .wx-storm .wx-tint { background: linear-gradient(180deg, rgba(60,90,130,.32), rgba(60,90,130,.12)); }
+.wx-snow .wx-tint { background: linear-gradient(180deg, rgba(235,244,255,.35), rgba(255,255,255,.1)); }
+.wx-cloud .wx-tint { background: rgba(120,140,160,.12); }
+.wx-fog .wx-tint { background: rgba(235,240,245,.35); }
+.wx.night .wx-tint { background: linear-gradient(180deg, rgba(10,25,70,.55), rgba(20,40,90,.3)); }
+.wx-sun { position: absolute; right: -90px; top: -90px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(255,240,170,.75) 0, rgba(255,226,120,.25) 40%, rgba(255,220,120,0) 70%); animation: sunpulse 5s ease-in-out infinite; }
+@keyframes sunpulse { 50% { transform: scale(1.12); opacity: .8; } }
+.wx-cl { position: absolute; width: 260px; height: 120px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.75), rgba(255,255,255,0) 70%); animation: drift 26s linear infinite; }
+.wx-cl.c1 { top: 200px; left: -260px; } .wx-cl.c2 { top: 420px; left: -260px; animation-delay: -9s; animation-duration: 32s; } .wx-cl.c3 { top: 600px; left: -260px; animation-delay: -18s; }
+@keyframes drift { to { transform: translateX(660px); } }
+.wx-cloud .wx-cl { background: radial-gradient(ellipse, rgba(90,110,130,.22), rgba(90,110,130,0) 70%); }
+.wx-haze { position: absolute; inset: -20%; background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,.55), transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.5), transparent 55%); animation: hz 12s ease-in-out infinite alternate; }
+@keyframes hz { to { transform: translateX(40px); } }
+.wx-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 7s infinite; }
+@keyframes flash { 0%, 90%, 94%, 100% { opacity: 0; } 91%, 93% { opacity: .55; } }
+.wx-chip { position: absolute; left: 180px; top: 123px; z-index: 4; height: 32px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 99px; background: rgba(255,255,255,.95); box-shadow: 0 3px 10px rgba(11,43,94,.12); font-size: 13px; animation: pop .35s; }
+.wx-chip b { font-weight: 800; color: var(--navy); } .wx-chip em { font-style: normal; font-weight: 800; color: var(--blue); }
+.fog { z-index: 6; }
+.wx-chip.low { left: 17px; top: 165px; }
