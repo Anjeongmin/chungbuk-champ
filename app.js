@@ -110,7 +110,9 @@
       // 사파리처럼 아래에 홈 표시줄 공간이 없으면, 디자인 탭바 밑 빈 여백(홈 표시줄 자리)을 잘라 탭바를 바닥에 붙임
       NAVCUT = safeB < 8 ? 28 : 0;
       // 화면 전체(상태바·홈 표시줄 영역까지) 꽉 채움: 실제 고정 레이어 높이를 재서 사용
-      const full = Math.max(vh, fullProbe.getBoundingClientRect().height || 0);
+      // 홈 화면 앱(전체 화면)에서는 아이폰이 높이를 상태바만큼 짧게 알려주는 버그가 있어 기기 화면 높이를 직접 씀
+      const isApp = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+      const full = Math.max(vh, fullProbe.getBoundingClientRect().height || 0, isApp ? Math.max(screen.height, screen.width) * (innerWidth < innerHeight ? 1 : 0) : 0);
       k = vw / 393; h = Math.round(full / k);
       SAFET = safe / k; app.style.setProperty("--safe-t", (safe / k).toFixed(1) + "px"); app.style.setProperty("--safe-b", (safeB / k).toFixed(1) + "px");
       Object.assign(app.style, { left: "0", top: "0", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });

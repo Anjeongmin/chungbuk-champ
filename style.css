@@ -502,3 +502,5 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 /* 상태바 영역까지 꽉 채운 상태에서 코드 화면 내용은 상태바 아래부터 */
 #app { --safe-t: 0px; }
 .screen:not(.shot-screen) { padding-top: calc(16px + var(--safe-t)); }
+/* 홈 화면 앱: 문서 자체도 기기 화면 전체 높이로 */
+@media (display-mode: standalone) { html, body { height: 100vh; min-height: -webkit-fill-available; } }
