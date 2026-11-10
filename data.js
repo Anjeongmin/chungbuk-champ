@@ -52,13 +52,13 @@ window.CB = {
   // 처방 장소 (지금은 모든 증상 공통 — 증상별로 바꾸려면 prescriptions에 places 배열 추가)
   // img: assets 폴더의 이미지 파일명 (없으면 색 배경으로 대체됨)
   places: [
-    { id: 1, name: "산막이옛길",     area: "괴산",       tag: "평지 산책",     icon: "place-1.png", photo: "photo-1.jpg",
-      tip: "허리가 뻐근할 땐 평지를 천천히 걸어요!", loc: "괴산군",   time: "약 30분", level: "쉬움", tone: "#dff1ff" },
-    { id: 2, name: "의림지 둘레길",   area: "제천",       tag: "그늘 많은 숲길", icon: "place-2.png", photo: "photo-2.jpg",
-      tip: "그늘진 숲길에서 쉬엄쉬엄 걸어요!",         loc: "제천시",   time: "약 40분", level: "쉬움", tone: "#e3f6e6" },
-    { id: 3, name: "탄금호 무지개길", area: "충주",       tag: "물가 평지 코스", icon: "place-3.png", photo: "photo-3.jpg",
-      tip: "물가를 따라 평평하게 이어지는 길이에요!",   loc: "충주시",   time: "약 50분", level: "쉬움", tone: "#e6f7fb" },
-    { id: 4, name: "대청호 오백리길", area: "청주 · 옥천", tag: "잔잔한 호수 풍경", icon: "place-4.png", photo: "photo-4.jpg",
-      tip: "잔잔한 호수를 보며 천천히 걸어요!",         loc: "청주시",   time: "약 60분", level: "보통", tone: "#fff6dc" },
+    { id: 1, name: "문광저수지",   area: "괴산", tag: "물가 평지 코스",  icon: "place-1.jpg", photo: "photo-1.jpg",
+      tip: "허리가 뻐근할 땐 평지를 천천히 걸어요!", loc: "괴산군", time: "약 30분", level: "쉬움", tone: "#dff1ff" },
+    { id: 2, name: "의림지 둘레길", area: "제천", tag: "그늘 많은 숲길",  icon: "place-2.jpg", photo: "photo-2.jpg",
+      tip: "그늘진 숲길에서 쉬엄쉬엄 걸어요!",       loc: "제천시", time: "약 40분", level: "쉬움", tone: "#e3f6e6" },
+    { id: 3, name: "삼기저수지",   area: "증평", tag: "물가 평지 코스",  icon: "place-3.jpg", photo: "photo-3.jpg",
+      tip: "물가를 따라 평평하게 이어지는 길이에요!", loc: "증평군", time: "약 40분", level: "쉬움", tone: "#e6f7fb" },
+    { id: 4, name: "초평호",       area: "진천", tag: "잔잔한 호수 풍경", icon: "place-4.jpg", photo: "photo-4.jpg",
+      tip: "잔잔한 호수를 보며 천천히 걸어요!",       loc: "진천군", time: "약 50분", level: "쉬움", tone: "#fff6dc" },
   ],
 };

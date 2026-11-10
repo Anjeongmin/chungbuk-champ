@@ -24,7 +24,7 @@
     ["마이", '<circle cx="12" cy="8" r="4.5" fill="currentColor"/><path d="M3.5 21a8.5 8.5 0 0117 0z" fill="currentColor"/>'],
   ];
 
-  const mole = (cls = "") => `<img class="mole ${cls}" src="assets/mole.svg" alt="두더지" draggable="false">`;
+  const mole = (cls = "") => `<img class="mole ${cls}" src="assets/mole.png" alt="두더지" draggable="false">`;
   const hill = '<div class="hill"></div>';
   const cloud = (x, y, w) => `<div class="cloud" style="left:${x}px;top:${y}px;width:${w}px;height:${w * 0.42}px"></div>`;
   const dots = (n) => `<div class="dots">${Array.from({ length: 7 }, (_, i) => `<i class="${i + 1 === n ? "on" : ""}"></i>`).join("")}</div>`;
@@ -224,7 +224,7 @@
         <div class="photo"><img src="assets/${p.photo}" alt="${p.name}" onerror="this.remove()"><span class="rxtag">처방 ${p.id}</span>${on ? `<span class="check">${I.check}</span>` : ""}</div>
         <div class="place-name"><h1>${p.name}</h1><span>${p.area}</span></div>
         <span class="chip" style="align-self:flex-start">${p.tag}</span>
-        <div class="tip"><span class="av"><img src="assets/mole.svg" alt=""></span><div><small>두더지 한마디</small><p>${p.tip}</p></div></div>
+        <div class="tip"><span class="av"><img src="assets/mole.png" alt=""></span><div><small>두더지 한마디</small><p>${p.tip}</p></div></div>
         <div class="facts"><div><small>위치</small><b>${p.loc}</b></div><div><small>걷는 시간</small><b>${p.time}</b></div><div><small>난이도</small><b>${p.level}</b></div></div>
         <div class="spacer"></div>
         <div class="bottom-row"><button class="round" data-act="map" aria-label="지도">${I.map}</button><button class="cta ${on ? "ghost" : ""}" data-act="toggle">${on ? "코스에서 빼기" : "코스에 담기"}</button></div>
@@ -239,9 +239,115 @@
         <p>${S.symptom} 처방, 충북에서 받아가세요</p>
         <div class="saved">${[...S.picked].map((id) => { const p = D.places.find((x) => x.id === id); return `<div>${p.name}<span>${p.area}</span></div>`; }).join("")}</div>
         <div class="spacer"></div>
-        <button class="cta" data-act="restart">처음부터 다시 진단하기</button>
+        <button class="cta" data-act="home">홈으로 가기</button>
+        <button class="cta ghost" data-act="mycourse" style="margin-top:14px">내 코스 보기</button>
       </section>`,
   };
+
+  // ── 피그마에서 렌더한 화면 (이미지 + 누르는 영역) ──
+  // 좌표는 피그마 프레임 기준(pt). go: 이동할 화면 / fn: 동작
+  const TAB = (y) => [
+    { x: 24, y, w: 70, h: 52, tab: "진단" }, { x: 94, y, w: 70, h: 52, tab: "탐험" },
+    { x: 164, y, w: 70, h: 52, tab: "홈" }, { x: 234, y, w: 70, h: 52, tab: "내 코스" }, { x: 304, y, w: 70, h: 52, tab: "마이" },
+  ];
+  const BACK = { x: 14, y: 46, w: 56, h: 56, back: true };
+  const IMG = {
+    login: { w: 393, h: 852, hot: [
+      { x: 24, y: 550, w: 345, h: 60, go: "terms0" }, { x: 24, y: 618, w: 345, h: 60, go: "terms0" },
+      { x: 24, y: 686, w: 345, h: 60, go: "loginEmail" } ] },
+    loginEmail: { w: 393, h: 852, hot: [ { ...BACK, x: 12, y: 48 },
+      { x: 46, y: 540, w: 301, h: 62, go: "terms0" }, { x: 210, y: 642, w: 80, h: 34, go: "terms0" } ] },
+    terms0: { w: 393, h: 840, hot: [
+      { x: 49, y: 429, w: 295, h: 56, go: "terms1", replace: true }, { x: 40, y: 515, w: 310, h: 135, go: "terms2", replace: true },
+      { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true }, { x: 300, y: 86, w: 80, h: 44, go: "home", reset: true } ] },
+    terms1: { img: "terms-1", w: 393, h: 840, hot: [
+      { x: 49, y: 429, w: 295, h: 56, go: "terms0", replace: true }, { x: 40, y: 515, w: 310, h: 175, go: "terms2", replace: true },
+      { x: 24, y: 732, w: 345, h: 64, go: "home", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "home", reset: true } ] },
+    terms2: { img: "terms-2", w: 393, h: 844, hot: [
+      { x: 49, y: 429, w: 295, h: 56, go: "terms1", replace: true }, { x: 40, y: 515, w: 310, h: 135, go: "terms0", replace: true },
+      { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true },
+      { x: 24, y: 735, w: 345, h: 64, go: "home", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "home", reset: true } ] },
+    home: { w: 393, h: 852, tab: "홈", hot: [
+      { x: 48, y: 440, w: 297, h: 58, go: "cheongju" }, { x: 290, y: 543, w: 90, h: 40, go: "stampbook" },
+      { x: 24, y: 590, w: 345, h: 110, go: "stampbook" }, { x: 24, y: 255, w: 345, h: 140, go: "explore" }, ...TAB(770) ] },
+    diagAgain: { img: "diag-again", w: 393, h: 891, tab: "진단", hot: [
+      { x: 25, y: 416, w: 342, h: 56, fn: "newDiag" }, { x: 24, y: 505, w: 345, h: 110, fn: "showRx" },
+      { x: 24, y: 670, w: 345, h: 90, go: "rediag" }, ...TAB(808) ] },
+    rediag: { w: 393, h: 878, hot: [ { ...BACK, x: 20, y: 44, w: 48, h: 48 },
+      { x: 26, y: 676, w: 342, h: 60, fn: "newDiag" }, { x: 26, y: 748, w: 342, h: 56, go: "home", reset: true } ] },
+    explore: { w: 393, h: 852, tab: "탐험", hot: [
+      { x: 30, y: 420, w: 100, h: 70, go: "cheongju" }, { x: 20, y: 380, w: 120, h: 50, go: "cheongju" },
+      { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, { x: 30, y: 200, w: 320, h: 180, fn: "fog" },
+      { x: 60, y: 490, w: 240, h: 130, fn: "fog" }, ...TAB(780) ] },
+    exploreCourse: { img: "explore-course", w: 393, h: 852, tab: "탐험", hot: [
+      { x: 30, y: 420, w: 100, h: 70, go: "cheongju" }, { x: 20, y: 380, w: 120, h: 50, go: "cheongju" },
+      { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, { x: 24, y: 632, w: 345, h: 112, go: "coursemap" },
+      { x: 30, y: 200, w: 320, h: 180, fn: "fog" }, ...TAB(780) ] },
+    cheongju: { w: 388, h: 852, tab: "탐험", hot: [ { x: 20, y: 64, w: 44, h: 46, back: true },
+      { x: 56, y: 650, w: 174, h: 58, go: "stampDone" }, { x: 242, y: 650, w: 91, h: 60, fn: "bookmark" },
+      { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, { x: 40, y: 250, w: 280, h: 200, go: "cheongjuSheet" }, ...TAB(778) ] },
+    cheongjuSheet: { img: "cheongju-sheet", w: 388, h: 852, hot: [ { x: 20, y: 64, w: 44, h: 46, back: true },
+      { x: 56, y: 726, w: 174, h: 58, go: "stampDone" }, { x: 242, y: 726, w: 91, h: 60, fn: "bookmark" },
+      { x: 0, y: 120, w: 330, h: 340, back: true } ] },
+    stampDone: { img: "stamp-done", w: 393, h: 852, hot: [ { ...BACK, x: 14, y: 48 },
+      { x: 20, y: 740, w: 112, h: 56, go: "cheongjuDone", replace: true }, { x: 146, y: 740, w: 227, h: 56, go: "cheongjuDone", replace: true },
+      { x: 20, y: 650, w: 353, h: 62, go: "cheongjuDone", replace: true } ] },
+    cheongjuDone: { img: "cheongju-done", w: 388, h: 852, tab: "탐험", hot: [ { x: 20, y: 64, w: 44, h: 46, go: "explore", reset: true },
+      { x: 56, y: 650, w: 174, h: 58, go: "stampDone" }, { x: 242, y: 650, w: 91, h: 60, fn: "bookmark" },
+      { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, ...TAB(778) ] },
+    stampbook: { w: 393, h: 852, hot: [ { ...BACK, x: 14, y: 48 },
+      { x: 270, y: 592, w: 100, h: 36, fn: "newDiag" }, { x: 70, y: 575, w: 300, h: 70, fn: "newDiag" } ] },
+    mycourse: { w: 393, h: 852, tab: "내 코스", hot: [
+      { x: 24, y: 130, w: 345, h: 62, go: "coursemap" }, { x: 24, y: 222, w: 345, h: 140, go: "coursemap" },
+      { x: 24, y: 372, w: 345, h: 140, go: "coursemap" }, { x: 24, y: 522, w: 345, h: 140, go: "coursemap" },
+      { x: 24, y: 687, w: 345, h: 52, fn: "newDiag" }, ...TAB(770) ] },
+    coursemap: { w: 375, h: 917, tab: "내 코스", hot: [ { x: 18, y: 85, w: 52, h: 52, back: true },
+      { x: 24, y: 771, w: 242, h: 56, go: "cheongju" }, { x: 278, y: 771, w: 73, h: 56, go: "courseEdit" }, ...TAB(835).map((t) => ({ ...t, x: t.x * 375 / 393, w: 66 })) ] },
+    courseEdit: { img: "course-edit", w: 375, h: 879, hot: [ { x: 18, y: 62, w: 52, h: 52, back: true },
+      { x: 24, y: 783, w: 117, h: 56, back: true }, { x: 153, y: 783, w: 198, h: 56, fn: "saveOrder" } ] },
+    mypage: { w: 393, h: 865, tab: "마이", hot: [
+      { x: 320, y: 52, w: 54, h: 54, go: "settings" }, { x: 24, y: 300, w: 345, h: 180, fn: "showRx" },
+      { x: 24, y: 496, w: 345, h: 56, go: "mycourse", reset: true }, { x: 40, y: 660, w: 200, h: 60, go: "stampbook" },
+      { x: 149, y: 254, w: 96, h: 36, fn: "soon" }, ...TAB(784) ] },
+    settings: { w: 375, h: 854, hot: [ { x: 18, y: 52, w: 52, h: 52, back: true },
+      { x: 24, y: 175, w: 327, h: 215, fn: "soon" }, { x: 24, y: 475, w: 327, h: 140, fn: "soon" } ] },
+  };
+  const FILE = { loginEmail: "login-email", terms0: "terms-0", cheongjuSheet: "cheongju-sheet", stampDone: "stamp-done", cheongjuDone: "cheongju-done", courseEdit: "course-edit", exploreCourse: "explore-course", diagAgain: "diag-again" };
+  const pct = (v, t) => (v / t * 100).toFixed(3) + "%";
+  for (const [name, d] of Object.entries(IMG)) {
+    const src = `screens/${d.img || FILE[name] || name}.jpg`;
+    screens[name] = () => `
+      <section class="screen shot-screen"><div class="shot" style="aspect-ratio:${d.w}/${d.h}">
+        <img src="${src}" alt="" draggable="false">
+        ${d.hot.map((h, i) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${pct(h.x, d.w)};top:${pct(h.y, d.h)};width:${pct(h.w, d.w)};height:${pct(h.h, d.h)}"></button>`).join("")}
+      </div></section>`;
+  }
+  // 이미지 미리 불러오기 (화면 전환 시 깜빡임 방지)
+  window.addEventListener("load", () => setTimeout(() => Object.entries(IMG).forEach(([n, d]) => { new Image().src = `screens/${d.img || FILE[n] || n}.jpg`; }), 800));
+
+  const TABS = { "진단": () => (S.done ? "diagAgain" : "diagnose"), "탐험": () => (S.done ? "exploreCourse" : "explore"), "홈": () => "home", "내 코스": () => "mycourse", "마이": () => "mypage" };
+  function tabGo(t) { stack.length = 0; go(TABS[t]()); }
+  const FN = {
+    newDiag: () => { Object.assign(S, { age: null, part: null, symptom: null, ans: {}, picked: new Set(), placeId: null }); go("age"); },
+    showRx: () => {
+      if (!S.symptom) Object.assign(S, { age: "40-50", part: "waist", symptom: "허리 뻐근함", ans: { pick: "직접 찾아서 발견함", energy: "걸으며 움직이기", scene: "자연", plan: "대강만 정함", with: "혼자" } });
+      go("rx");
+    },
+    fog: () => toast("안개에 가려진 지역이에요 · 청주를 눌러보세요"),
+    bookmark: () => toast("저장했어요"),
+    saveOrder: () => { back(); toast("탐험 순서를 저장했어요"); },
+    soon: () => toast("준비 중인 기능이에요"),
+  };
+  function wireImg() { for (const [name, d] of Object.entries(IMG)) {
+    after[name] = (el) => el.querySelectorAll(".hot").forEach((b) => (b.onclick = () => {
+      const h = d.hot[+b.dataset.i];
+      if (h.tab) return tabGo(h.tab);
+      if (h.back) return stack.length > 1 ? back() : tabGo("홈");
+      if (h.fn) return FN[h.fn]();
+      if (h.reset) { stack.length = 0; return go(h.go); }
+      go(h.go, { replace: !!h.replace });
+    }));
+  } }
 
   const ageLabel = () => D.ages.find((a) => a.id === S.age)?.label.replace("–", "-") || "";
   const rx = () => D.prescriptions[S.symptom] || { course: "맞춤 코스", how: "내 속도대로", line: "오늘은 나를 위한 여행을 떠나요" };
@@ -252,10 +358,10 @@
 
   // ── per-screen wiring ──
   const after = {
-    onboarding: (el) => el.addEventListener("click", () => go("diagnose")),
+    onboarding: (el) => el.addEventListener("click", () => go("login")),
     diagnose: (el) => {
       el.querySelector('[data-act="begin"]').onclick = () => go("age");
-      el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => b.dataset.tab !== "진단" && toast(`'${b.dataset.tab}' 화면은 준비 중이에요`)));
+      el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => b.dataset.tab !== "진단" && tabGo(b.dataset.tab)));
     },
     age: (el) => wireOpts(el, "[data-age]", (b) => (S.age = b.dataset.age, S.symptom = null), "age"),
     body: (el) => {
@@ -302,15 +408,15 @@
         const id = S.placeId; S.picked.has(id) ? S.picked.delete(id) : S.picked.add(id);
         toast(S.picked.has(id) ? "코스에 담았어요" : "코스에서 뺐어요"); rerender(el);
       };
-      el.querySelector('[data-act="map"]').onclick = () => toast("탐험 지도는 준비 중이에요");
+      el.querySelector('[data-act="map"]').onclick = () => go("coursemap");
     },
     done: (el) => {
-      el.querySelector('[data-act="restart"]').onclick = () => {
-        Object.assign(S, { age: null, part: null, symptom: null, ans: {}, picked: new Set(), placeId: null });
-        stack.length = 0; go("diagnose");
-      };
+      S.done = true;
+      el.querySelector('[data-act="home"]').onclick = () => tabGo("홈");
+      el.querySelector('[data-act="mycourse"]').onclick = () => tabGo("내 코스");
     },
   };
+  wireImg();
 
   function wireOpts(el, sel, set, name) {
     el.querySelectorAll(sel).forEach((b) => (b.onclick = () => { set(b); rerender(el); }));
