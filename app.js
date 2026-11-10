@@ -283,13 +283,13 @@
     rediag: { w: 393, h: 878, hot: [ { ...BACK, x: 20, y: 44, w: 48, h: 48 },
       { x: 26, y: 676, w: 342, h: 60, fn: "newDiag" }, { x: 26, y: 748, w: 342, h: 56, go: "home", reset: true } ] },
     explore: { w: 393, h: 852, tab: "탐험", hot: [
-      { x: 30, y: 420, w: 100, h: 70, go: "cheongju" }, { x: 20, y: 380, w: 120, h: 50, go: "cheongju" },
-      { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, { x: 30, y: 200, w: 320, h: 180, fn: "fog" },
-      { x: 60, y: 490, w: 240, h: 130, fn: "fog" }, ...TAB(780) ] },
+      { x: 30, y: 230, w: 320, h: 160, fn: "fog" }, { x: 60, y: 470, w: 240, h: 150, fn: "fog" },
+      { x: 317, y: 61, w: 52, h: 52, go: "stampbook" },
+      { x: 22, y: 392, w: 112, h: 98, fn: "zoomCheongju" }, { x: 100, y: 345, w: 106, h: 76, fn: "zoomGoesan" }, ...TAB(780) ] },
     exploreCourse: { img: "explore-course", w: 393, h: 852, tab: "탐험", hot: [
-      { x: 30, y: 420, w: 100, h: 70, go: "cheongju" }, { x: 20, y: 380, w: 120, h: 50, go: "cheongju" },
+      { x: 30, y: 230, w: 320, h: 160, fn: "fog" }, { x: 60, y: 470, w: 240, h: 140, fn: "fog" },
       { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, { x: 24, y: 632, w: 345, h: 112, go: "coursemap" },
-      { x: 30, y: 200, w: 320, h: 180, fn: "fog" }, ...TAB(780) ] },
+      { x: 22, y: 392, w: 112, h: 92, fn: "zoomCheongju" }, { x: 100, y: 345, w: 106, h: 76, fn: "zoomGoesan" }, ...TAB(780) ] },
     cheongju: { w: 388, h: 852, tab: "탐험", hot: [ { x: 20, y: 64, w: 44, h: 46, back: true },
       { x: 56, y: 650, w: 174, h: 58, go: "stampDone" }, { x: 242, y: 650, w: 91, h: 60, fn: "bookmark" },
       { x: 317, y: 61, w: 52, h: 52, go: "stampbook" }, { x: 40, y: 250, w: 280, h: 200, go: "cheongjuSheet" }, ...TAB(778) ] },
@@ -340,7 +340,7 @@
       if (!S.symptom) Object.assign(S, { age: "40-50", part: "waist", symptom: "허리 뻐근함", ans: { pick: "직접 찾아서 발견함", energy: "걸으며 움직이기", scene: "자연", plan: "대강만 정함", with: "혼자" } });
       go("rx");
     },
-    fog: () => toast("안개에 가려진 지역이에요 · 청주를 눌러보세요"),
+    fog: () => toast("안개에 가려진 지역이에요 · 청주나 괴산을 눌러보세요"),
     bookmark: () => toast("저장했어요"),
     saveOrder: () => { back(); toast("탐험 순서를 저장했어요"); },
     soon: () => toast("준비 중인 기능이에요"),
@@ -396,11 +396,9 @@
       let done = false;
       const check = () => {
         if (done) return;
-        const r = stamp.getBoundingClientRect();
-        if (r.top < window.innerHeight - 140) {
-          done = true; stamp.classList.add("hit"); paper.classList.add("shake");
-          navigator.vibrate?.(40);
-        }
+        const r = stamp.getBoundingClientRect(), a = app.getBoundingClientRect(), k = a.width / 393;
+        const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
+        if (nearBottom && el.scrollTop > 40) { done = true; slamStamp(stamp, paper); }
       };
       el.addEventListener("scroll", check, { passive: true });
       setTimeout(check, 500);
@@ -429,6 +427,133 @@
     },
   };
   wireImg();
+
+  // ── 처방 도장: 화면 가운데 '쾅' → 원래 도장 자리로 이동 ──
+  function slamStamp(stamp, paper) {
+    const big = stamp.cloneNode(true);
+    big.removeAttribute("id"); big.className = "stamp stamp-fly";
+    app.appendChild(big);
+    const appBox = app.getBoundingClientRect(), k = appBox.width / 393;
+    const t = stamp.getBoundingClientRect();
+    const tx = (t.left - appBox.left) / k + t.width / k / 2, ty = (t.top - appBox.top) / k + t.height / k / 2;
+    const cx = 393 / 2, cy = 852 / 2 - 40;
+    big.style.left = cx - 52 + "px"; big.style.top = cy - 52 + "px";
+    const flash = document.createElement("div"); flash.className = "stamp-flash"; app.appendChild(flash);
+    big.animate([
+      { transform: "rotate(-12deg) scale(4)", opacity: 0 },
+      { transform: "rotate(-12deg) scale(1.6)", opacity: 1, offset: 0.22 },
+      { transform: "rotate(-12deg) scale(1.9)", opacity: 1, offset: 0.3 },
+      { transform: "rotate(-12deg) scale(1.9)", opacity: 1, offset: 0.62 },
+      { transform: `translate(${tx - cx}px, ${ty - cy}px) rotate(-12deg) scale(1)`, opacity: 1 },
+    ], { duration: 1500, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }).onfinish = () => {
+      stamp.classList.add("placed"); big.remove(); flash.remove();
+      paper.classList.add("shake"); navigator.vibrate?.(30);
+    };
+    setTimeout(() => { flash.classList.add("on"); navigator.vibrate?.(50); }, 300);
+  }
+
+  // ── 안개가 서서히 걷히는 연출 ──
+  function fogReveal(el, cx = 194, cy = 380) {
+    const f = document.createElement("div"); f.className = "fog";
+    const puffs = [[-40, 80], [120, 40], [260, 90], [-60, 260], [90, 230], [250, 250], [-30, 440], [140, 420], [280, 460], [20, 620], [200, 600], [60, 330], [190, 330]];
+    f.innerHTML = '<div class="haze"></div>' + puffs.map(([x, y], i) => `<img src="assets/map/fog.png" alt="" style="left:${x}px;top:${y}px;--d:${i * 70}ms">`).join("") +
+      '<div class="fog-msg">☁ 안개가 걷히는 중…</div>';
+    el.appendChild(f);
+    f.querySelectorAll("img").forEach((im) => {
+      const x = parseFloat(im.style.left) + 90, y = parseFloat(im.style.top) + 80;
+      const dx = (x - cx) * 1.6, dy = (y - cy) * 1.3;
+      im.animate([{ transform: "translate(0,0) scale(1)", opacity: 1 }, { transform: `translate(${dx}px, ${dy}px) scale(1.5)`, opacity: 0 }],
+        { duration: 2600, delay: 350 + parseInt(im.style.getPropertyValue("--d")), easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
+    });
+    f.querySelector(".haze").animate([{ opacity: 1 }, { opacity: 0 }], { duration: 2400, delay: 500, easing: "ease-out", fill: "forwards" });
+    f.querySelector(".fog-msg").animate([{ opacity: 0 }, { opacity: 1, offset: .2 }, { opacity: 1, offset: .7 }, { opacity: 0 }], { duration: 2600, fill: "forwards" });
+    setTimeout(() => f.remove(), 3600);
+  }
+  // 청주 지도에 들어갈 때도 안개 연출
+  const _cj = after.cheongju;
+  after.cheongju = (el) => { _cj(el); if (!S.seen?.cheongju) { (S.seen ||= {}).cheongju = true; fogReveal(el.querySelector(".shot"), 150, 420); } };
+
+  // ── 충북 지도에서 지역 누르면 확대 후 이동 ──
+  FN.zoomCheongju = () => zoomTo(70, 425, "cheongju");
+  FN.zoomGoesan = () => zoomTo(150, 376, "goesan");
+  function zoomTo(x, y, target) {
+    const img = app.querySelector(".shot img");
+    if (!img) return go(target);
+    img.style.transformOrigin = `${x / 393 * 100}% ${y / 852 * 100}%`;
+    img.animate([{ transform: "scale(1)" }, { transform: "scale(2.6)", filter: "blur(1px)" }], { duration: 650, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" })
+      .onfinish = () => go(target);
+  }
+
+  // ── 괴산 지역 지도 (청주와 같은 방식으로 클릭) ──
+  const GS = [
+    { name: "고산정 소나무숲 산책로", short: "고산정", lm: 1, px: 58.2, py: 420.2, ly: 458.7, pin: [113, 389] , dist: "120m · 도보 2분" },
+    { name: "문광저수지", short: "문광저수지", lm: 2, px: 171.6, py: 406.3, ly: 444.7, pin: [226, 375], dist: "350m · 도보 5분" },
+    { name: "성불산 산림휴양단지", short: "성불산 휴양단지", lm: 3, px: 83.7, py: 313.7, ly: 351.9, pin: [138, 283], dist: "1.2km · 차 4분" },
+    { name: "자연드림", short: "자연드림", lm: 4, px: 217.9, py: 297.5, ly: 334.8, pin: [272, 267], dist: "2.4km · 차 7분" },
+  ];
+  S.gs = { cur: 0, done: [] };
+  const navBar = (on) => `<nav class="nav map-nav">${nav.map(([n, p]) => `<button class="${n === on ? "on" : ""}" data-tab="${n}"><svg viewBox="0 0 24 24">${p}</svg>${n}</button>`).join("")}</nav>`;
+  screens.goesan = () => {
+    const g = S.gs, cur = GS[g.cur], isDone = g.done.includes(g.cur), all = g.done.length === GS.length;
+    return `
+    <section class="screen shot-screen"><div class="shot gmap" style="${fit(388, 852)}">
+      <img class="gbg" src="screens/goesan-map.jpg" alt="" draggable="false">
+      ${GS.map((p, i) => `
+        <button class="gplace ${i === g.cur ? "cur" : ""}" data-p="${i}" style="left:${p.px}px;top:${p.py - 30}px">
+          <img class="gbase" src="assets/map/base.png" alt=""><img class="glm" src="assets/map/lm-${p.lm}.png" alt="">
+        </button>
+        <span class="glabel ${i === g.cur ? "cur" : ""}" style="left:${p.px + 45.5}px;top:${p.ly}px">${p.short}</span>
+        ${g.done.includes(i) ? `<img class="gpin" src="assets/map/pin.png" alt="도장 완료" style="left:${p.pin[0]}px;top:${p.pin[1]}px">` : ""}`).join("")}
+      <span class="glabel treasure" style="left:282px;top:146px">${all ? "보물 열림!" : "마지막 보물"}</span>
+      <img class="gmole" src="assets/map/mole-slot.png" alt="" style="left:${GS[g.cur].px + 62}px;top:${GS[g.cur].py - 22}px">
+      <div class="ghead"><button class="gback" data-act="gback">‹</button><span class="gcrumb">충청북도 <b>›</b> <strong>괴산</strong></span></div>
+      <div class="gchip"><i></i><span>이번 코스<b>${g.done.length} / ${GS.length}곳</b></span></div>
+      <button class="gbook" data-act="gbook"><svg viewBox="0 0 24 24" width="26" height="26"><path d="M6 3h11a2 2 0 012 2v16l-3-2-3 2-3-2-3 2V5a2 2 0 012-2z" fill="#0081ee"/></svg>${g.done.length ? `<em>${g.done.length}</em>` : ""}</button>
+      <div class="gctrl"><button>⌖</button><button>＋</button><button>－</button></div>
+      <div class="gcard">
+        <div class="gcard-top"><span class="gtag">${isDone ? "도장 완료" : g.done.length ? "다음 장소" : "현재 장소"}</span><span class="grate">★ 4.8</span></div>
+        <h3>${cur.name}</h3>
+        <p>🚶 → ${cur.dist}</p>
+        <div class="gbtns"><button class="cta gstamp" data-act="gstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="gsave">🔖</button></div>
+      </div>
+      ${navBar("탐험")}
+    </div></section>`;
+  };
+  after.goesan = (el) => {
+    el.querySelectorAll("[data-p]").forEach((b) => (b.onclick = () => { S.gs.cur = +b.dataset.p; rerender(el); }));
+    el.querySelector('[data-act="gback"]').onclick = () => tabGo("탐험");
+    el.querySelector('[data-act="gbook"]').onclick = () => go("stampbook");
+    el.querySelector('[data-act="gsave"]').onclick = () => toast("저장했어요");
+    el.querySelector('[data-act="gstamp"]').onclick = () => { if (!S.gs.done.includes(S.gs.cur)) S.gs.done.push(S.gs.cur); go("gstampDone"); };
+    el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => tabGo(b.dataset.tab)));
+    if (!S.seen?.goesan) { (S.seen ||= {}).goesan = true; fogReveal(el.querySelector(".shot"), 150, 400); }
+  };
+  screens.gstampDone = () => {
+    const g = S.gs, i = g.done[g.done.length - 1], p = GS[i];
+    const next = GS.findIndex((_, j) => !g.done.includes(j));
+    return `
+    <section class="screen gsd">
+      <div class="title-row"><button class="back-btn" data-act="back" aria-label="뒤로">${I.back}</button><h1 style="text-align:center;margin-right:52px">스탬프</h1></div>
+      <div class="gsd-stamp"><img src="assets/map/stamp-goesan-${p.lm}.png" alt="${p.name} 우표"><span class="zzan">짠!</span></div>
+      ${mole("gsd-mole")}
+      <h2 class="gsd-title">스탬프<b>완료!</b></h2>
+      <div class="gsd-name"><b>${p.name}</b><span>☁ 안개가 걷혔어요</span></div>
+      <div class="gsd-course"><div><b>이번 코스</b><b class="blue">${g.done.length} / ${GS.length}곳</b></div>
+        <ol>${GS.map((q, j) => `<li class="${g.done.includes(j) ? (j === i ? "now" : "ok") : ""}"><i>${g.done.includes(j) ? "✓" : "?"}</i><span>${g.done.includes(j) ? q.short.split(" ")[0] : "???"}</span></li>`).join("")}</ol>
+      </div>
+      <div class="spacer"></div>
+      <div class="gsd-next">${next >= 0 ? `<b>다음은 ${GS[next].short}!</b><span>가서 또 도장 찍자</span>` : `<b>괴산 코스 완주! 보물이 열렸어요</b><span>스탬프북에서 확인해 보세요</span>`}</div>
+      <div class="bottom-row"><button class="cta ghost" data-act="close" style="flex:.6">닫기</button><button class="cta" data-act="nextp">${next >= 0 ? "다음 장소 보기" : "스탬프북 보기"}</button></div>
+    </section>`;
+  };
+  after.gstampDone = (el) => {
+    const g = S.gs, next = GS.findIndex((_, j) => !g.done.includes(j));
+    el.querySelector(".gsd-stamp img").animate([{ transform: "rotate(-4deg) scale(2.2)", opacity: 0 }, { transform: "rotate(-4deg) scale(.94)", opacity: 1, offset: .6 }, { transform: "rotate(-4deg) scale(1)" }], { duration: 650, easing: "cubic-bezier(.2,1.4,.4,1)" });
+    navigator.vibrate?.(40);
+    const backToMap = () => { stack.pop(); render("goesan", true); toast(`${GS[g.done[g.done.length - 1]].short} 스탬프 완료!`); };
+    el.querySelector('[data-act="close"]').onclick = backToMap;
+    el.querySelector('[data-act="nextp"]').onclick = () => { if (next >= 0) { g.cur = next; backToMap(); } else go("stampbook"); };
+  };
 
   function wireOpts(el, sel, set, name) {
     el.querySelectorAll(sel).forEach((b) => (b.onclick = () => { set(b); rerender(el); }));

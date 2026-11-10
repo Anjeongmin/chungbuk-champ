@@ -289,7 +289,7 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 /* 피그마 렌더 화면 */
 .shot-screen { padding: 0; background: #cfe9fb; }
 .shot { position: relative; width: 100%; flex: none; }
-.shot img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; pointer-events: none; }
+.shot > img { display: block; width: 100%; height: 100%; user-select: none; -webkit-user-drag: none; pointer-events: none; }
 .hot { position: absolute; border-radius: 14px; z-index: 2; }
 .hot:active { background: rgba(0, 129, 238, .14); }
 .onb-hint { position: absolute; left: 0; right: 0; bottom: 9%; text-align: center; font-size: 13px; color: #7f93ab; animation: blink 1.6s ease-in-out infinite; pointer-events: none; z-index: 3; }
@@ -298,3 +298,74 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .rx-screen::-webkit-scrollbar { display: none; }
 .shot-screen { align-items: center; justify-content: center; }
 .shot { flex: none; }
+
+/* 처방 도장: 가운데 쾅 → 제자리 */
+.stamp.placed { opacity: .9; transform: rotate(-12deg) scale(1); }
+.stamp-fly { position: absolute; z-index: 60; right: auto; opacity: 0; filter: drop-shadow(0 6px 14px rgba(229,72,77,.25)); }
+.stamp-flash { position: absolute; inset: 0; z-index: 55; pointer-events: none; background: radial-gradient(circle at 50% 45%, rgba(255,255,255,.0), rgba(11,43,94,.0)); transition: background .25s; }
+.stamp-flash.on { background: radial-gradient(circle at 50% 45%, rgba(255,240,240,.55) 0, rgba(255,255,255,0) 55%); }
+
+/* 안개 걷힘 */
+.fog { position: absolute; inset: 0; z-index: 40; pointer-events: none; overflow: hidden; }
+.fog .haze { position: absolute; inset: 0; background: radial-gradient(ellipse at 45% 45%, rgba(255,255,255,.85), rgba(240,247,252,.95) 70%); }
+.fog img { position: absolute; width: 190px; filter: drop-shadow(0 8px 10px rgba(80,110,90,.18)); }
+.fog-msg { position: absolute; left: 50%; top: 46%; transform: translate(-50%, -50%); padding: 10px 18px; border-radius: 99px; background: rgba(255,255,255,.95); color: var(--blue); font-weight: 800; font-size: 15px; box-shadow: 0 4px 14px rgba(11,43,94,.12); white-space: nowrap; }
+
+/* 괴산 지역 지도 */
+.gmap { overflow: hidden; background: #c9ea8f; }
+.gmap .gbg { position: absolute; left: 0; top: 0; width: 388px; height: 840px; }
+.gplace { position: absolute; width: 91px; height: 76px; padding: 0; }
+.gplace .gbase { position: absolute; left: 0; bottom: 0; width: 91px; }
+.gplace .glm { position: absolute; left: 50%; bottom: 20px; width: 50px; transform: translateX(-50%); transition: transform .2s; }
+.gplace.cur .glm { transform: translateX(-50%) translateY(-3px) scale(1.08); }
+.glabel { position: absolute; transform: translateX(-50%); padding: 4px 12px; background: #fff; border-radius: 99px; color: var(--navy); font-size: 14px; font-weight: 800; white-space: nowrap; box-shadow: 0 2px 6px rgba(11,43,94,.15); pointer-events: none; border: 2px solid #fff; }
+.glabel.cur { border-color: var(--blue); color: var(--blue); }
+.glabel.treasure { background: #ff9d3c; border-color: #ff9d3c; color: #fff; }
+.gpin { position: absolute; width: 31px; animation: pop .35s; }
+.gmole { position: absolute; width: 38px; transition: left .5s, top .5s; animation: bob 2.4s ease-in-out infinite; pointer-events: none; }
+.ghead { position: absolute; left: 20px; top: 65px; width: 200px; height: 44px; background: #fff; border-radius: 99px; display: flex; align-items: center; gap: 10px; padding: 0 12px; box-shadow: 0 3px 10px rgba(11,43,94,.1); }
+.gback { width: 28px; height: 28px; border-radius: 50%; background: #e3f0fd; color: var(--blue); font-size: 20px; font-weight: 900; line-height: 26px; }
+.gcrumb { font-size: 13px; color: var(--gray); } .gcrumb b { margin: 0 4px; } .gcrumb strong { font-size: 16px; color: var(--navy); }
+.gchip { position: absolute; left: 20px; top: 123px; height: 34px; padding: 0 16px 0 10px; background: #fff; border-radius: 99px; display: flex; align-items: center; gap: 10px; box-shadow: 0 3px 10px rgba(11,43,94,.1); }
+.gchip i { width: 20px; height: 20px; border-radius: 50%; border: 3px solid var(--blue); }
+.gchip span { font-size: 10px; color: var(--gray); line-height: 1.1; } .gchip b { display: block; font-size: 14px; color: var(--navy); }
+.gbook { position: absolute; right: 19px; top: 61px; width: 52px; height: 52px; border-radius: 16px; background: #fff; display: grid; place-items: center; box-shadow: 0 3px 10px rgba(11,43,94,.1); }
+.gbook em { position: absolute; right: -6px; top: -6px; width: 20px; height: 20px; border-radius: 50%; background: #ff6b8a; color: #fff; font-style: normal; font-size: 12px; font-weight: 800; display: grid; place-items: center; border: 2px solid #fff; }
+.gctrl { position: absolute; right: 9px; top: 362px; display: flex; flex-direction: column; gap: 8px; }
+.gctrl button { width: 40px; height: 40px; border-radius: 12px; background: #fff; font-size: 20px; color: var(--navy); box-shadow: 0 3px 10px rgba(11,43,94,.1); }
+.gcard { position: absolute; left: 31px; top: 512px; width: 327px; padding: 22px 24px 24px; background: #fff; border-radius: 30px; box-shadow: 0 8px 24px rgba(11,43,94,.12); }
+.gcard-top { display: flex; justify-content: space-between; align-items: center; }
+.gtag { padding: 5px 12px; border-radius: 99px; background: #e3f0fd; color: var(--blue); font-size: 12px; font-weight: 800; }
+.grate { font-weight: 800; color: var(--navy); } 
+.gcard h3 { margin-top: 14px; font-size: 22px; font-weight: 900; }
+.gcard p { margin-top: 6px; color: var(--gray); font-size: 14px; }
+.gbtns { display: flex; gap: 12px; margin-top: 18px; }
+.gbtns .cta { flex: 1; height: 52px; font-size: 17px; }
+.gsave { width: 91px; height: 52px; border-radius: 99px; border: 2px solid #dbe5ef; font-size: 18px; }
+.map-nav { position: absolute !important; bottom: 0; }
+
+/* 괴산 스탬프 완료 */
+.gsd { align-items: center; text-align: center; }
+.gsd .title-row { width: 100%; }
+.gsd-stamp { position: relative; margin-top: 14px; }
+.gsd-stamp img { width: 190px; transform: rotate(-4deg); filter: drop-shadow(0 10px 18px rgba(11,43,94,.18)); }
+.zzan { position: absolute; right: -36px; bottom: 20px; padding: 8px 14px; background: #fff; border-radius: 18px; font-weight: 900; color: var(--blue); font-size: 18px; box-shadow: 0 4px 12px rgba(11,43,94,.12); }
+.gsd .gsd-mole { position: absolute !important; z-index: 2 !important; left: 4px; top: 238px; width: 96px; margin: 0; }
+.gsd-title { margin-top: 10px; font-size: 30px; font-weight: 900; } .gsd-title b { color: var(--blue); }
+.gsd-name { margin-top: 6px; display: flex; gap: 8px; align-items: center; justify-content: center; } .gsd-name b { font-size: 17px; }
+.gsd-name span { padding: 3px 10px; border-radius: 99px; background: #e9f7ee; color: #2f9b62; font-size: 12px; font-weight: 700; }
+.gsd-course { margin-top: 16px; width: 100%; padding: 14px 18px; background: #fff; border-radius: 22px; box-shadow: 0 4px 14px rgba(11,43,94,.06); }
+.gsd-course > div { display: flex; justify-content: space-between; } .gsd-course .blue { color: var(--blue); }
+.gsd-course ol { list-style: none; display: flex; justify-content: space-between; margin-top: 12px; }
+.gsd-course li { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; color: var(--gray); width: 70px; }
+.gsd-course li i { width: 40px; height: 40px; border-radius: 50%; border: 2px dashed #c9d6e6; display: grid; place-items: center; font-style: normal; font-weight: 900; color: #9fb1c8; }
+.gsd-course li.ok i { background: var(--blue); border: 0; color: #fff; } .gsd-course li.now i { background: #4fc49a; border: 0; color: #fff; }
+.gsd-course li.ok, .gsd-course li.now { color: var(--navy); }
+.gsd-next { width: 100%; padding: 14px 18px; background: #f2f8ff; border-radius: 18px; text-align: left; margin-bottom: 14px; }
+.gsd-next b { display: block; font-size: 16px; } .gsd-next span { font-size: 12px; color: var(--gray); }
+.gsd .bottom-row { width: 100%; }
+.gsd .bottom-row .cta.ghost { flex: 0 0 112px; }
+.gsd .bottom-row .cta { flex: 1; }
+.shot .fog img { height: auto; }
+.gmap > .gmole { width: 38px; height: auto; display: block; }
+.gmap > .gpin { width: 31px; height: auto; display: block; }
