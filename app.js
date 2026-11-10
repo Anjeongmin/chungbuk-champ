@@ -63,7 +63,7 @@
   function fitScreen(el) {
     const ft = el?.querySelector(".shot-top[data-focus]");
     if (ft) requestAnimationFrame(() => { ft.scrollTop = Math.max(0, +ft.dataset.focus - ft.clientHeight / 2); });
-    if (!el || el.classList.contains("shot-screen")) return;
+    if (!el || el.classList.contains("shot-screen") || el.classList.contains("mc")) return;
     el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = ""; el.classList.remove("scrolly");
     // 배경 언덕(.hill)처럼 일부러 밖으로 나간 장식은 빼고 실제 내용 높이만 잼
     const have = el.clientHeight, pb = parseFloat(getComputedStyle(el).paddingBottom) || 0;
@@ -78,7 +78,7 @@
   }
   // 이미지가 늦게 로드되면 높이가 바뀌니 한 번 더 맞춤
   function refit(el) {
-    if (!el || el.classList.contains("shot-screen")) return;
+    if (!el || el.classList.contains("shot-screen") || el.classList.contains("mc")) return;
     el.querySelectorAll("img").forEach((im) => { if (!im.complete) im.addEventListener("load", () => el.isConnected && fitScreen(el), { once: true }); });
     document.fonts?.ready.then(() => el.isConnected && fitScreen(el));
   }
@@ -733,6 +733,61 @@
   for (const [n, place] of [["explore", "충북"], ["exploreCourse", "충북"], ["cheongju", "청주"], ["cheongjuDone", "청주"], ["cheongjuSheet", "청주"], ["goesan", "괴산"]]) {
     const orig = after[n];
     after[n] = (el) => { orig(el); addWeather(el.querySelector(".shot"), place); };
+  }
+
+  // ── 내 코스: 코드로 다시 만든 화면 (폭 꽉 채움 · 높이에 맞춰 간격 조절 · 움직임) ──
+  const MC = [
+    { id: "cur", title: "허리 뻐근함 · 평지 산책", sub: "청주 → 괴산 · 장소 5곳 · 2시간 30분", badge: ["탐험 중 3/5", "ing"], stamps: [1, 2, 3], slots: ["cloud", "cloud"], go: "coursemap" },
+    { id: "done", title: "목 결림 · 풍경 감상", sub: "단양 → 제천 · 장소 5곳 · 4시간 15분", badge: ["탐험 완료", "done"], stamps: [4, 5, 6, 7, 8], slots: [], go: "stampbook" },
+    { id: "arc", title: "만성 피로 · 느린 여행", sub: "보은 → 옥천 · 장소 5곳 · 3시간", badge: ["보관", "arc"], stamps: [], slots: ["q", "q", "q", "q", "q"] },
+  ];
+  screens.mycourse = () => `
+    <section class="screen mc with-nav">
+      <header class="mc-head"><h1>내 코스</h1><div class="mc-cloud cloud"></div></header>
+      <div class="mc-pick">
+        <button class="mc-drop" data-act="drop"><span>코스 지도를 펼쳐볼까?</span><i>▼</i></button>
+        <div class="mc-panel"><div class="mc-panel-in">
+          <p><b>허리 뻐근함 · 평지 산책</b>을 진행 중이에요</p>
+          <div class="mc-route">${["수암골", "상당산성", "청남대", "문의문화재단지", "산막이옛길"].map((n, i) => `<span class="${i < 3 ? "ok" : ""}" style="--d:${i * 70}ms">${n}</span>`).join("<em></em>")}</div>
+          <button class="mc-open" data-act="map">코스 지도 펼치기 →</button>
+        </div></div>
+      </div>
+      <div class="mc-list">
+        ${MC.map((c, ci) => `
+        <button class="mc-card" data-c="${ci}" style="--ci:${ci}">
+          <div class="mc-top"><div><b>${c.title}</b><small>${c.sub}</small></div><span class="mc-badge ${c.badge[1]}">${c.badge[0]}</span></div>
+          <div class="mc-track ${c.id}">
+            <i class="mc-line" style="--w:${c.stamps.length ? (c.stamps.length === 5 ? 100 : (c.stamps.length - 0.5) / 5 * 100) : 0}%"></i>
+            ${c.stamps.map((n, i) => `<img class="mc-stamp" src="assets/mc/s${n}.png" alt="" style="--si:${ci * 3 + i}">`).join("")}
+            ${c.slots.map((t, i) => `<span class="mc-slot" style="--si:${ci * 3 + c.stamps.length + i}"><img src="assets/mc/${t}.png" alt=""></span>`).join("")}
+          </div>
+        </button>`).join("")}
+      </div>
+      <button class="mc-new" data-act="new"><i>+</i><b>새 처방 받기</b><small>진단 시작</small></button>
+      ${navBar("내 코스")}
+    </section>`;
+  after.mycourse = (el) => {
+    el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => tabGo(b.dataset.tab)));
+    const pick = el.querySelector(".mc-pick");
+    el.querySelector('[data-act="drop"]').onclick = () => { pick.classList.toggle("open"); };
+    el.querySelector('[data-act="map"]').onclick = () => go("coursemap");
+    el.querySelector('[data-act="new"]').onclick = (e) => { e.currentTarget.classList.add("tap"); setTimeout(FN.newDiag, 260); };
+    el.querySelectorAll(".mc-card").forEach((b) => (b.onclick = () => {
+      const c = MC[+b.dataset.c];
+      if (!c.go) { b.classList.remove("shake"); void b.offsetWidth; b.classList.add("shake"); return toast("보관된 코스예요 · 다시 진단하면 새로 열려요"); }
+      el.classList.add("leaving"); b.classList.add("picked");
+      setTimeout(() => go(c.go), 420);
+    }));
+    fitMc(el);
+  };
+  // 키가 짧은 화면(사파리 등)에서는 카드 높이·간격을 단계적으로 줄여서 한 화면에 (글자 크기는 그대로)
+  function fitMc(el) {
+    el.classList.remove("c1", "c2", "c3", "c4");
+    for (const c of ["", "c1", "c2", "c3", "c4"]) {
+      if (c) el.classList.add(c);
+      const nav = el.querySelector(".nav"), last = el.querySelector(".mc-new");
+      if (last.getBoundingClientRect().bottom <= nav.getBoundingClientRect().top - 10) return;
+    }
   }
 
   // 아이폰 사파리(홈 화면 앱이 아닐 때): 한 번 위로 쓸어올리면 사파리 도구막대가 접혀 화면이 커짐
