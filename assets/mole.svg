@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 180" width="200" height="180">
+  <!-- body -->
+  <path d="M38 150V62C38 28 66 4 100 4s62 24 62 58v88z" fill="#EB9B5A"/>
+  <path d="M38 150V62C38 36 52 16 70 8 56 22 50 40 50 62v88z" fill="#D88A4B" opacity=".55"/>
+  <!-- bandage -->
+  <g transform="translate(120 30) rotate(-35)">
+    <rect x="-13" y="-5" width="26" height="10" rx="3" fill="#fff"/>
+    <rect x="-5" y="-13" width="10" height="26" rx="3" fill="#fff"/>
+  </g>
+  <!-- cheeks -->
+  <ellipse cx="62" cy="70" rx="17" ry="9" fill="#E24A4A"/>
+  <ellipse cx="138" cy="70" rx="17" ry="9" fill="#E24A4A"/>
+  <!-- eyes -->
+  <circle cx="78" cy="65" r="8" fill="#111"/>
+  <circle cx="122" cy="65" r="8" fill="#111"/>
+  <circle cx="80.5" cy="62.5" r="2.2" fill="#fff"/>
+  <circle cx="124.5" cy="62.5" r="2.2" fill="#fff"/>
+  <!-- nose -->
+  <circle cx="100" cy="74" r="5" fill="#E24A4A"/>
+  <circle cx="98.5" cy="72.5" r="1.4" fill="#fff" opacity=".8"/>
+  <!-- dirt -->
+  <g fill="#5C3A17">
+    <circle cx="28" cy="140" r="27"/>
+    <circle cx="60" cy="126" r="30"/>
+    <circle cx="86" cy="150" r="29"/>
+    <circle cx="117" cy="124" r="30"/>
+    <circle cx="140" cy="150" r="28"/>
+    <circle cx="172" cy="138" r="27"/>
+  </g>
+</svg>
