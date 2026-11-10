@@ -771,3 +771,4 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .gbtns .gstamp.stamped { background: #e7f6ef; color: #16946b; box-shadow: 0 8px 0 #c9eadb; animation: stampDone .45s cubic-bezier(.3,1.6,.5,1); }
 .gbtns .gstamp.stamped .stamp-ok { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #16946b; color: #fff; font-size: 13px; animation: mcPop .4s cubic-bezier(.3,1.6,.5,1); }
 @keyframes stampDone { 0% { transform: scale(.92); } 100% { transform: scale(1); } }
+.home-logo .cb-logo { display: block; width: 66px; height: 46px; filter: drop-shadow(0 3px 6px rgba(51,154,241,.18)); }
