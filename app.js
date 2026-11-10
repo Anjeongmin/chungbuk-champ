@@ -852,9 +852,10 @@
       if (to !== idx) { const [m] = order.splice(idx, 1); order.splice(to, 0, m); paint(true); navigator.vibrate?.(8); }
     }
     list.addEventListener("touchmove", (e) => { if (drag) e.preventDefault(); }, { passive: false });
-    el.querySelector('[data-act="back"]').onclick = () => back();
-    el.querySelector('[data-act="cancel"]').onclick = () => back();
-    el.querySelector('[data-act="save"]').onclick = () => { S.order = [...order]; back(); toast("탐험 순서를 저장했어요"); };
+    const leave = () => (stack.length > 1 ? back() : go("coursemap", { replace: true }));
+    el.querySelector('[data-act="back"]').onclick = leave;
+    el.querySelector('[data-act="cancel"]').onclick = leave;
+    el.querySelector('[data-act="save"]').onclick = () => { S.order = [...order]; leave(); toast("탐험 순서를 저장했어요"); };
     const mi = el.querySelector(".ce-map img"); if (mi.complete) fitCe(el); else mi.onload = () => fitCe(el);
   };
   function fitCe(el) {
