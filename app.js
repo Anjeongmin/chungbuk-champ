@@ -62,17 +62,15 @@
   // ── screens ──
   const screens = {
     onboarding: () => `
-      <section class="screen onb" data-act="start">
-        ${cloud(40, 90, 46)}${cloud(268, 150, 60)}${cloud(60, 290, 38)}
-        ${mole("bob")}
-        <img class="logo" src="assets/logo.svg" alt="충북챔">
-        <p>나에게 맞는 충북 여행 처방</p>
-        <span class="hint">화면을 눌러 시작하기</span>
-      </section>`,
+      <section class="screen shot-screen onb2"><div class="shot" style="aspect-ratio:393/840">
+        <img src="screens/onboarding.jpg" alt="충북챔 · 나에게 맞는 충북 여행 처방" draggable="false">
+        <button class="hot" aria-label="시작" style="inset:0"></button>
+        <span class="onb-hint">화면을 눌러 시작하기</span>
+      </div></section>`,
 
     diagnose: () => `
-      <section class="screen with-nav">
-        <h1 class="page-title">진단</h1>
+      <section class="screen ${S.done ? "with-nav" : ""}">
+        <h1 class="page-title">${S.done ? "진단" : "첫 진단"}</h1>
         <div class="intro">${mole("bob")}${bubble("나의 여행 증상을<br>진단해볼까요?", "질문 7개 · 약 3분 · 코스 5곳")}</div>
         <div class="card">
           <h2>처방은 이렇게 나와요</h2>
@@ -82,7 +80,7 @@
         </div>
         <div class="spacer"></div>
         <button class="cta" data-act="begin">진단 시작하기 ${I.chev}</button>
-        <nav class="nav">${nav.map(([n, p], i) => `<button class="${i === 0 ? "on" : ""}" data-tab="${n}"><svg viewBox="0 0 24 24">${p}</svg>${n}</button>`).join("")}</nav>
+        ${S.done ? `<nav class="nav">${nav.map(([n, p], i) => `<button class="${i === 0 ? "on" : ""}" data-tab="${n}"><svg viewBox="0 0 24 24">${p}</svg>${n}</button>`).join("")}</nav>` : ""}
       </section>`,
 
     age: () => `
@@ -259,14 +257,14 @@
       { x: 46, y: 540, w: 301, h: 62, go: "terms0" }, { x: 210, y: 642, w: 80, h: 34, go: "terms0" } ] },
     terms0: { w: 393, h: 840, hot: [
       { x: 49, y: 429, w: 295, h: 56, go: "terms1", replace: true }, { x: 40, y: 515, w: 310, h: 135, go: "terms2", replace: true },
-      { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true }, { x: 300, y: 86, w: 80, h: 44, go: "home", reset: true } ] },
+      { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true }, { x: 300, y: 86, w: 80, h: 44, go: "diagnose", reset: true } ] },
     terms1: { img: "terms-1", w: 393, h: 840, hot: [
       { x: 49, y: 429, w: 295, h: 56, go: "terms0", replace: true }, { x: 40, y: 515, w: 310, h: 175, go: "terms2", replace: true },
-      { x: 24, y: 732, w: 345, h: 64, go: "home", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "home", reset: true } ] },
+      { x: 24, y: 732, w: 345, h: 64, go: "diagnose", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "diagnose", reset: true } ] },
     terms2: { img: "terms-2", w: 393, h: 844, hot: [
       { x: 49, y: 429, w: 295, h: 56, go: "terms1", replace: true }, { x: 40, y: 515, w: 310, h: 135, go: "terms0", replace: true },
       { x: 40, y: 650, w: 310, h: 40, go: "terms1", replace: true },
-      { x: 24, y: 735, w: 345, h: 64, go: "home", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "home", reset: true } ] },
+      { x: 24, y: 735, w: 345, h: 64, go: "diagnose", reset: true }, { x: 300, y: 86, w: 80, h: 44, go: "diagnose", reset: true } ] },
     home: { w: 393, h: 852, tab: "홈", hot: [
       { x: 48, y: 440, w: 297, h: 58, go: "cheongju" }, { x: 290, y: 543, w: 90, h: 40, go: "stampbook" },
       { x: 24, y: 590, w: 345, h: 110, go: "stampbook" }, { x: 24, y: 255, w: 345, h: 140, go: "explore" }, ...TAB(770) ] },
@@ -358,7 +356,12 @@
 
   // ── per-screen wiring ──
   const after = {
-    onboarding: (el) => el.addEventListener("click", () => go("login")),
+    onboarding: (el) => {
+      let moved = false;
+      const next = () => { if (moved) return; moved = true; clearTimeout(t); go("login", { replace: true }); };
+      const t = setTimeout(next, 2600);
+      el.addEventListener("click", next);
+    },
     diagnose: (el) => {
       el.querySelector('[data-act="begin"]').onclick = () => go("age");
       el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => b.dataset.tab !== "진단" && tabGo(b.dataset.tab)));
