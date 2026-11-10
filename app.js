@@ -738,6 +738,18 @@
     after[n] = (el) => { orig(el); addWeather(el.querySelector(".shot"), place); };
   }
 
+  // 아이폰 사파리(홈 화면 앱이 아닐 때): 한 번 위로 쓸어올리면 사파리 도구막대가 접혀 화면이 커짐
+  const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+  const standalone = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
+  if (isIOS && !standalone) {
+    document.documentElement.classList.add("ios-browser");
+    const hint = document.createElement("div"); hint.className = "fs-hint"; hint.textContent = "↑ 화면을 위로 살짝 밀면 전체 화면";
+    const h0 = innerHeight; let shown = false;
+    setTimeout(() => { if (innerHeight <= h0 + 20) { document.body.appendChild(hint); shown = true; } }, 3000);
+    const done = () => { if (innerHeight > h0 + 20 || scrollY > 30) { hint.remove(); } };
+    addEventListener("scroll", done, { passive: true }); addEventListener("resize", done);
+    setTimeout(() => hint.remove(), 15000);
+  }
   scaleApp();
   // '나만 보기' 같은 토글 스위치
   app.addEventListener("click", (e) => {

@@ -485,3 +485,9 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 .shot .tgl.on { background: var(--blue); }
 .shot .tgl.on i { left: calc(100% - var(--kn) - 3px); }
 .rx-screen.scrolly { overflow-y: auto !important; }
+
+/* 아이폰 사파리: 화면을 위로 쓸어올리면 사파리 도구막대가 접히도록 문서를 살짝 스크롤 가능하게 */
+html.ios-browser, html.ios-browser body { overflow-x: hidden; overflow-y: auto; height: auto; min-height: 100%; overscroll-behavior: auto; }
+html.ios-browser body { min-height: calc(100vh + 400px); }
+.fs-hint { position: fixed; left: 50%; top: calc(54px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 80; padding: 9px 16px; border-radius: 99px; background: rgba(11,43,94,.88); color: #fff; font-size: 13px; font-weight: 700; white-space: nowrap; pointer-events: none; animation: fsh 2.4s ease-in-out infinite; }
+@keyframes fsh { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -6px); } }
