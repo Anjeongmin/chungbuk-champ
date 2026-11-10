@@ -750,3 +750,6 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 .shot > .ov.cj-moleo { z-index: 6; }
 .shot > .ov.cj-head { z-index: 7; }
 .cjlabel { padding: 5px 15px !important; border-width: 2.5px !important; }
+/* 누른 뒤 네모 표시가 남지 않게 (아이폰에서 :active·포커스 박스가 남는 문제) */
+.hot:active, .hot:focus { background: transparent !important; }
+button:focus, button:focus-visible, .ov:focus { outline: none; }
