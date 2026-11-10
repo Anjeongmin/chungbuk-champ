@@ -434,8 +434,10 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 .screen.shot-screen { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0; overflow: hidden; background: #fff; }
 .shot-screen::before { display: none; }
 .shot-screen > .shot-top { flex: 1 1 auto; min-height: 0; overflow: hidden; }
-.shot-screen.scroll > .shot-top { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
-.shot-screen.scroll > .shot-top::-webkit-scrollbar { display: none; }
+.shot-screen.map > .shot-top, .shot-screen.scroll > .shot-top { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
+.shot-screen.map > .shot-top::-webkit-scrollbar, .shot-screen.scroll > .shot-top::-webkit-scrollbar { display: none; }
+.shot-screen > .shot-head { position: relative; flex: none; overflow: hidden; z-index: 4; }
+.shot-head > img { position: absolute; left: 0; top: 0; width: 393px; height: auto; pointer-events: none; }
 .shot-screen .shot { position: relative; flex: none; overflow: hidden; }
 .shot-screen .shot > img { position: absolute; left: 0; top: 0; }
 .shot-screen > .shot-foot { position: relative; flex: none; overflow: hidden; z-index: 3; }

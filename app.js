@@ -61,6 +61,8 @@
     setBackdrop(el); fitScreen(el); refit(el);
   }
   function fitScreen(el) {
+    const ft = el?.querySelector(".shot-top[data-focus]");
+    if (ft) requestAnimationFrame(() => { ft.scrollTop = Math.max(0, +ft.dataset.focus - ft.clientHeight / 2); });
     if (!el || el.classList.contains("shot-screen")) return;
     el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = "";
     const need = el.scrollHeight, have = el.clientHeight;
@@ -373,22 +375,28 @@
   for (const [name, d] of Object.entries(IMG)) { const f = d.img || FILE[name] || name; d.h = META[f] || d.h - CUT; d.hot.forEach((h) => { h.y -= CUT; if (h.y < 0) { h.h += h.y; h.y = 0; } }); }
   // 화면 분할: split 아래(버튼·카드·탭바)는 화면 바닥에 고정, 위쪽은 폭에 꽉 맞춤
   // mode "clip" = 지도처럼 위쪽을 잘라서 보여줌, "scroll" = 필요하면 위쪽만 살짝 스크롤
-  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "clip"], exploreCourse: [628, "clip"],
-    cheongju: [484, "clip"], cheongjuDone: [460, "clip"], cheongjuSheet: [430, "clip"], stampDone: [628], mycourse: [770], coursemap: [760, "clip"],
+  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "map", 116, 380], exploreCourse: [628, "map", 116, 400],
+    cheongju: [510, "map", 114, 300], cheongjuDone: [460, "map", 114, 300], cheongjuSheet: [430, "map", 114, 300], stampDone: [628], mycourse: [770], coursemap: [760, "map", 272, 460],
     courseEdit: [770], mypage: [774] };
-  for (const [n, [y, m]] of Object.entries(SPLIT)) { IMG[n].split = y - CUT; IMG[n].mode = m || "scroll"; }
+  for (const [n, [y, m, hd, fy]] of Object.entries(SPLIT)) { Object.assign(IMG[n], { split: y - CUT, mode: m || "scroll", head: hd ? hd - CUT : 0, focus: fy ? fy - CUT : 0 }); }
   const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
   for (const [name, d] of Object.entries(IMG)) {
     const src = `screens/${d.img || FILE[name] || name}.jpg`;
     screens[name] = () => {
-      const k = 393 / d.w, sp = d.split || d.h, top = d.hot.map((h, i) => [h, i]).filter(([h]) => h.y < sp), foot = d.hot.map((h, i) => [h, i]).filter(([h]) => h.y >= sp);
-      const footH = (d.h - sp) * k, clipH = Math.max(120, APPH - footH), clip = d.mode?.startsWith("clip") ? `max-height:${clipH}px;` : "";
+      const k = 393 / d.w, sp = d.split || d.h, hd = d.head || 0;
+      const all = d.hot.map((h, i) => [h, i]);
+      const head = all.filter(([h]) => h.y < hd), top = all.filter(([h]) => h.y >= hd && h.y < sp), foot = all.filter(([h]) => h.y >= sp);
+      const footH = (d.h - sp) * k, clipH = Math.max(120, APPH - footH), clip = d.mode === "clipb" ? `max-height:${clipH}px;` : "";
       const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
       return `
       <section class="screen shot-screen ${d.mode || ""}">
-        <div class="shot-top"><div class="shot" style="width:393px;height:${(sp * k).toFixed(1)}px;${clip}">
-          <img src="${src}" alt="" draggable="false" style="width:393px;height:auto;top:${off.toFixed(1)}px">
-          ${top.map(([h, i]) => hotBtn(h, i, k, -off / k)).join("")}
+        ${hd ? `<div class="shot-head" style="height:${(hd * k).toFixed(1)}px">
+          <img src="${src}" alt="" draggable="false">
+          ${head.map(([h, i]) => hotBtn(h, i, k)).join("")}
+        </div>` : ""}
+        <div class="shot-top" ${d.focus ? `data-focus="${((d.focus - hd) * k).toFixed(0)}"` : ""}><div class="shot" style="width:393px;height:${((sp - hd) * k).toFixed(1)}px;${clip}">
+          <img src="${src}" alt="" draggable="false" style="width:393px;height:auto;top:${(off - hd * k).toFixed(1)}px">
+          ${top.map(([h, i]) => hotBtn(h, i, k, hd - off / k)).join("")}
         </div></div>
         ${d.split ? `<div class="shot-foot" style="height:${footH.toFixed(1)}px">
           <img src="${src}" alt="" draggable="false" style="top:${(-sp * k).toFixed(1)}px">
@@ -611,7 +619,7 @@
   function zoomTo(x, y, target) {
     const img = app.querySelector(".shot img");
     if (!img) return go(target);
-    img.style.transformOrigin = `${x / 393 * 100}% ${y / 852 * 100}%`;
+    img.style.transformOrigin = `${x / 393 * 100}% ${(y - CUT) / 814 * 100}%`;
     img.animate([{ transform: "scale(1)" }, { transform: "scale(2.6)", filter: "blur(1px)" }], { duration: 650, easing: "cubic-bezier(.5,0,.3,1)", fill: "forwards" })
       .onfinish = () => go(target);
   }
