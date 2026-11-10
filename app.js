@@ -65,10 +65,14 @@
     if (ft) requestAnimationFrame(() => { ft.scrollTop = Math.max(0, +ft.dataset.focus - ft.clientHeight / 2); });
     if (!el || el.classList.contains("shot-screen")) return;
     el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = ""; el.classList.remove("scrolly");
-    const need = el.scrollHeight, have = el.clientHeight;
+    // 배경 언덕(.hill)처럼 일부러 밖으로 나간 장식은 빼고 실제 내용 높이만 잼
+    const have = el.clientHeight, pb = parseFloat(getComputedStyle(el).paddingBottom) || 0;
+    let need = 0;
+    for (const c of el.children) { const cs = getComputedStyle(c); if (c.classList.contains("hill") || cs.position === "absolute" || cs.display === "none") continue; need = Math.max(need, c.offsetTop + c.offsetHeight); }
+    const sp = el.querySelector(":scope > .spacer"); need += pb - (sp ? Math.max(0, sp.offsetHeight - 20) : 0);
     if (need <= have + 2) return;
     // 조금 넘치면 살짝 축소, 많이 넘치면 축소 + 스크롤
-    const z = el.classList.contains("rx-screen") ? Math.max(0.8, have / need) : 1; // 처방전만 살짝 축소, 나머지는 원래 크기 + 스크롤
+    const z = have / need; // 스크롤 없이 한 화면에 맞춤
     Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
     if (need * z > have + 2) el.classList.add("scrolly");
   }
@@ -104,7 +108,7 @@
       Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });
     }
     const changed = Math.abs(h - APPH) > 4; APPH = h;
-    app.classList.toggle("short", false);
+    app.classList.toggle("short", h < 760); // 사파리처럼 키가 짧으면 여백 먼저 줄이기
     app.style.height = h + "px";
     if (changed && stack.length) rerender(app.firstElementChild);
   }
@@ -381,6 +385,7 @@
   const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "map", 116, 380], exploreCourse: [771, "map", 116, 400],
     cheongju: [521, "map", 114, 300], cheongjuDone: [535, "map", 114, 300], cheongjuSheet: [466, "map", 114, 300], stampDone: [628], mycourse: [770], coursemap: [760, "map", 272, 460],
     courseEdit: [770], mypage: [774] };
+  for (const n of ["settings", "stampbook", "loginEmail"]) IMG[n].mode = "scroll";
   IMG.exploreCourse.mapImg = "screens/explore-course-map.jpg";
   IMG.exploreCourse.card = { y0: 630 - CUT, y1: 754 - CUT, x0: 22, x1: 371, r: 26 };
   IMG.mypage.toggle = { x: 299 , y: 590 - CUT, w: 36, h: 20, label: "나만 보기" };
@@ -398,7 +403,7 @@
       const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
       // 목록 화면: 조금 넘치면 통째로 살짝 줄여서 한 화면에 (양옆은 배경색으로 이어짐)
       let s = 1;
-      if (d.mode === "scroll" && !hd) { const f = (APPH - footH) / (sp * k); if (f < 1 && f >= 0.98) s = f; } // 원래 크기 유지 (넘치면 스크롤)
+      if (d.mode === "scroll" && !hd) { const f = (APPH - footH) / (sp * k); if (f < 1) s = f; } // 스크롤 없이 한 화면에
       const K = k * s, topH = (sp - hd) * K;
       const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${((d.toggle.y - hd) * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `
