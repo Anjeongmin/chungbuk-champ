@@ -638,9 +638,6 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 .cj-place { cursor: pointer; z-index: 5; }
 .cj-place .ov-in { display: grid; place-items: center; }
 .cj-lm { position: absolute; inset: 4px; width: calc(100% - 8px); height: calc(100% - 8px); object-fit: contain; transition: transform .25s cubic-bezier(.3,1.6,.5,1); filter: drop-shadow(0 3px 4px rgba(20,80,40,.18)); }
-.cj-place:active .cj-lm { transform: scale(.94); }
-.cj-place.cur .cj-lm { animation: cjHop 2.2s ease-in-out infinite; }
-.cj-place.hop .cj-lm { animation: cjBig .5s cubic-bezier(.3,1.6,.5,1); }
 @keyframes cjHop { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
 @keyframes cjBig { 40% { transform: scale(1.14) translateY(-6px); } }
 .cj-ring { position: absolute; left: 50%; top: 44%; width: 92%; height: 58%; transform: translate(-50%, -50%); border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 3px var(--blue); animation: cjRing 1.6s ease-out infinite; pointer-events: none; }
@@ -753,3 +750,4 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 /* 누른 뒤 네모 표시가 남지 않게 (아이폰에서 :active·포커스 박스가 남는 문제) */
 .hot:active, .hot:focus { background: transparent !important; }
 button:focus, button:focus-visible, .ov:focus { outline: none; }
+.cjmole { animation: bob 2.2s ease-in-out infinite !important; }
