@@ -51,11 +51,34 @@
     stack.pop();
     render(stack[stack.length - 1].name, true);
   }
+  // ── 하나로 통일된 하단 탭바 (모든 화면 같은 위치·모양) ──
+  const TABNAMES = ["진단", "탐험", "홈", "내 코스", "마이"];
+  const tabIcon = (n, on) => { let p = window.TABICON[n]; if (on) p = p.replace(/#BFCCDD/g, "#0081EE").replace(/data-accent([^>]*?)fill="[^"]*"/, 'data-accent$1fill="#FF4D3D"'); return `<svg viewBox="0 0 28 28" fill="none">${p}</svg>`; };
+  const tabbar = document.createElement("nav"); tabbar.id = "tabbar";
+  tabbar.innerHTML = TABNAMES.map((n) => `<button data-tab="${n}"><span class="ti off">${tabIcon(n, false)}</span><span class="ti on">${tabIcon(n, true)}</span><b>${n}</b></button>`).join("");
+  tabbar.addEventListener("click", (e) => { const b = e.target.closest("[data-tab]"); if (b) tabGo(b.dataset.tab); });
+  const CODED_TAB = { mycourse: "내 코스", goesan: "탐험" };
+  function screenTab(name) {
+    if (name in CODED_TAB) return CODED_TAB[name];
+    if (name === "diagnose") return S.done ? "진단" : null;
+    const d = IMG[name]; return d && d.navTop ? d.tab || null : null;
+  }
+  function syncTabbar(name) {
+    const t = screenTab(name);
+    if (!tabbar.isConnected) app.appendChild(tabbar);
+    tabbar.classList.toggle("show", !!t);
+    tabbar.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.tab === t));
+  }
+  function swapScreen(html) {
+    [...app.children].forEach((c) => c !== tabbar && c.remove());
+    app.insertAdjacentHTML("afterbegin", html);
+  }
   function render(name, isBack) {
     clearInterval(render._timer); clearTimeout(render._timer);
-    app.innerHTML = screens[name]();
+    swapScreen(screens[name]());
     const el = app.firstElementChild;
     if (isBack) el.classList.add("back");
+    syncTabbar(name);
     after[name]?.(el);
     el.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
     setBackdrop(el); fitScreen(el); refit(el);
@@ -72,6 +95,7 @@
     const sp = el.querySelector(":scope > .spacer"); need += pb - (sp ? Math.max(0, sp.offsetHeight - 20) : 0);
     if (need <= have + 2) return;
     // 조금 넘치면 살짝 축소, 많이 넘치면 축소 + 스크롤
+    if (el.classList.contains("rx-screen")) { el.classList.add("scrolly"); return; } // 처방전은 원래 크기로 스크롤
     const z = have / need; // 스크롤 없이 한 화면에 맞춤
     Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
     if (need * z > have + 2) el.classList.add("scrolly");
@@ -91,7 +115,7 @@
 
   // 화면을 393×852 캔버스에 딱 맞추기 (스크롤 없이)
   // 휴대폰 폭에 꽉 맞추고, 높이는 휴대폰 화면 높이만큼 (데스크톱은 폰 프레임)
-  let APPH = 852, NAVCUT = 0, SAFET = 0;
+  let APPH = 852, NAVCUT = 0, SAFET = 0, NAVH = 64;
   const fit = (w, h) => { const k = Math.min(393 / w, APPH / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
   const probe = document.createElement("div");
   probe.style.cssText = "position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
@@ -114,12 +138,13 @@
       const isApp = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
       const full = Math.max(vh, fullProbe.getBoundingClientRect().height || 0, isApp ? Math.max(screen.height, screen.width) * (innerWidth < innerHeight ? 1 : 0) : 0);
       k = vw / 393; h = Math.round(full / k);
-      SAFET = safe / k; app.style.setProperty("--safe-t", (safe / k).toFixed(1) + "px"); app.style.setProperty("--safe-b", (safeB / k).toFixed(1) + "px");
+      SAFET = safe / k; app.style.setProperty("--safe-t", (safe / k).toFixed(1) + "px"); NAVH = Math.round(58 + Math.max(6, safeB / k)); app.style.setProperty("--safe-b", (safeB / k).toFixed(1) + "px");
       Object.assign(app.style, { left: "0", top: "0", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });
     }
-    const changed = Math.abs(h - APPH) > 4 || NAVCUT !== scaleApp._nc; scaleApp._nc = NAVCUT; APPH = h;
+    const changed = Math.abs(h - APPH) > 4 || NAVCUT !== scaleApp._nc || NAVH !== scaleApp._nh; scaleApp._nc = NAVCUT; scaleApp._nh = NAVH; APPH = h;
     app.classList.toggle("short", h < 760); // 사파리처럼 키가 짧으면 여백 먼저 줄이기
     app.style.height = h + "px";
+    app.style.setProperty("--navh", NAVH + "px");
     if (/debug/.test(location.search)) { let dbg = document.getElementById("dbg"); if (!dbg) { dbg = document.createElement("div"); dbg.id = "dbg"; dbg.style.cssText = "position:fixed;left:8px;top:50%;z-index:999;background:#000c;color:#fff;font:12px/1.5 monospace;padding:8px;border-radius:8px;pointer-events:none"; document.body.appendChild(dbg); }
       dbg.textContent = `inner ${innerWidth}x${innerHeight} | screen ${screen.width}x${screen.height} | fixed ${Math.round(fullProbe.getBoundingClientRect().height)} | app ${h} | safe ${getComputedStyle(probe).paddingTop}/${getComputedStyle(probe).paddingBottom} | ${navigator.standalone ? "앱" : "사파리"}`; }
     if (changed && stack.length) rerender(app.firstElementChild);
@@ -167,7 +192,7 @@
         </div>
         <div class="spacer"></div>
         <button class="cta" data-act="begin">진단 시작하기 ${I.chev}</button>
-        ${S.done ? `<nav class="nav">${nav.map(([n, p], i) => `<button class="${i === 0 ? "on" : ""}" data-tab="${n}"><svg viewBox="0 0 24 24">${p}</svg>${n}</button>`).join("")}</nav>` : ""}
+
       </section>`,
 
     age: () => `
@@ -398,6 +423,7 @@
     cheongju: [521, "map", 114, 300], cheongjuDone: [535, "map", 114, 300], cheongjuSheet: [466, "map", 114, 300], stampDone: [628], mycourse: [770], coursemap: [760, "map", 272, 460],
     courseEdit: [770], mypage: [774] };
   for (const n of ["settings", "stampbook", "loginEmail"]) IMG[n].mode = "scroll";
+  for (const d of Object.values(IMG)) { const t = d.hot.filter((h) => h.tab); if (t.length) d.navTop = Math.min(...t.map((h) => h.y)) - 10; }
   IMG.exploreCourse.mapImg = "screens/explore-course-map.jpg";
   IMG.exploreCourse.card = { y0: 630 - CUT, y1: 754 - CUT, x0: 22, x1: 371, r: 26 };
   IMG.mypage.toggle = { x: 299 , y: 590 - CUT, w: 36, h: 20, label: "나만 보기" };
@@ -408,13 +434,14 @@
   for (const [name, d] of Object.entries(IMG)) {
     const file = d.img || FILE[name] || name, src = `screens/${file}.jpg`;
     screens[name] = () => {
-      const k = 393 / d.w, cut = NAVCUT, H = d.h - cut;          // 사파리면 탭바 밑 빈 여백만큼 잘라냄
-      const s = Math.min(1, (APPH - Math.max(0, SAFET - 14)) / (H * k)), K = k * s, W = 393 * s, cd = d.card;
+      // 탭바가 있는 화면은 그림 속 탭바를 잘라내고 공통 탭바 자리를 비워둠, 없는 화면은 사파리면 홈 표시줄 여백만 잘라냄
+      const k = 393 / d.w, H = d.navTop || d.h - NAVCUT, nb = d.navTop ? NAVH : 0;
+      const s = Math.min(1, (APPH - nb - Math.max(0, SAFET - 14)) / (H * k)), K = k * s, W = 393 * s, cd = d.card;
       const all = d.hot.map((h, i) => [h, i]);
       const inCard = (h) => cd && h.y >= cd.y0 && h.y < cd.y1;
       const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${(d.toggle.y * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `
-      <section class="screen shot-screen" style="background:url('screens/edge/${file}.png') 0 100% / 100% ${(d.h * K).toFixed(0)}px no-repeat ${TOPC[file] || "#c6e6fb"}">
+      <section class="screen shot-screen" style="padding-bottom:${nb}px;background:url('screens/edge/${file}.png') 0 100% / 100% ${(d.h * K).toFixed(0)}px no-repeat ${TOPC[file] || "#c6e6fb"}">
         <div class="shot" style="width:${W.toFixed(1)}px;height:${(H * K).toFixed(1)}px">
           <img src="${d.mapImg || src}" alt="" draggable="false" style="width:${W.toFixed(1)}px;height:auto">
           ${all.filter(([h]) => !inCard(h)).map(([h, i]) => hotBtn(h, i, K)).join("")}${tg}
@@ -559,10 +586,12 @@
       const t = w.type === "storm" ? "rain" : w.type === "fog" ? "cloud" : w.type;
       const layer = document.createElement("div"); layer.className = `wx wx-${t}`;
       if (t === "clear" && w.day) layer.innerHTML = '<div class="wx-sun"><i></i></div>';
+      if (t === "clear" && !w.day) layer.innerHTML = '<div class="wx-moon"></div><canvas width="393" height="' + APPH + '"></canvas>';
       if (t === "cloud") layer.innerHTML = [[90, 150, .9, 0], [230, 120, .8, -14], [330, 170, .8, -7], [430, 110, .7, -20]].map(([y, w2, sc, dl]) => `<div class="wx-cl" style="top:${y}px;--s:${sc};animation-delay:${dl}s"><div class="cloud" style="position:relative;left:0;top:0;width:${w2}px;height:${w2 * 0.42}px"></div></div>`).join("");
       if (t === "rain" || t === "snow") layer.innerHTML = `<canvas width="393" height="${APPH}"></canvas>`;
       if (layer.innerHTML) scr.appendChild(layer);
       if (t === "rain" || t === "snow") particles(layer.firstChild, t, t === "rain" ? 90 : 60);
+      if (t === "clear" && !w.day) particles(layer.querySelector("canvas"), "clear", 46);
     });
   }
   const wxTip = (w) => ({ clear: "맑은 날! 평지 산책하기 딱 좋아요", cloud: "구름이 많아요 · 걷기엔 선선해요", fog: "안개가 꼈어요 · 천천히 둘러봐요", rain: "비가 와요 · 우산 챙기고 실내 코스도 좋아요", snow: "눈이 와요 · 미끄럼 주의!", storm: "천둥번개가 쳐요 · 오늘은 실내 코스 추천" })[w.type];
@@ -576,7 +605,7 @@
       t++; ctx.clearRect(0, 0, W, H);
       for (const p of P) {
         if (type === "snow") { p.y += p.v; p.x += Math.sin((t + p.s * 300) / 40) * 0.5; ctx.fillStyle = "rgba(255,255,255,.95)"; ctx.strokeStyle = "rgba(120,160,210,.45)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.stroke(); }
-        else if (type === "clear") { const a = 0.3 + 0.7 * Math.abs(Math.sin((t / 60) + p.s * 6)); if (p.y < H * 0.55) { ctx.fillStyle = `rgba(255,255,230,${a})`; ctx.beginPath(); ctx.arc(p.x, p.y * 0.55, 0.8 + p.s * 1.4, 0, 7); ctx.fill(); } }
+        else if (type === "clear") { const a = 0.3 + 0.7 * Math.abs(Math.sin((t / 60) + p.s * 6)); if (p.y < H * 0.6) { const x = p.x, y = p.y * 0.6, r = 2 + p.s * 3.2; ctx.fillStyle = `rgba(255,205,60,${a})`; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r); ctx.fill(); } }
         else { p.y += p.v; p.x -= p.v * 0.18; ctx.strokeStyle = "rgba(60,125,205,.5)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 2.2, p.y - 12); ctx.stroke(); }
         if (p.y > H + 12) { p.y = -12; p.x = Math.random() * (W + 60); }
       }
@@ -677,7 +706,6 @@
         <p>🚶 → ${cur.dist}</p>
         <div class="gbtns"><button class="cta gstamp" data-act="gstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="gsave">🔖</button></div>
       </div>
-      ${navBar("탐험")}
     </div></div></section>`;
   };
   after.goesan = (el) => {
@@ -723,8 +751,8 @@
   // re-render same screen without entry animation, keeping scroll
   function rerender(el) {
     const y = el.scrollTop, name = stack[stack.length - 1].name;
-    app.innerHTML = screens[name]();
-    const n = app.firstElementChild; n.style.animation = "none"; n.scrollTop = y;
+    swapScreen(screens[name]());
+    const n = app.firstElementChild; n.style.animation = "none"; n.scrollTop = y; syncTabbar(name);
     after[name]?.(n);
     n.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
     setBackdrop(n); fitScreen(n); refit(n);
@@ -764,7 +792,6 @@
         </button>`).join("")}
       </div>
       <button class="mc-new" data-act="new"><i>+</i><b>새 처방 받기</b><small>진단 시작</small></button>
-      ${navBar("내 코스")}
     </section>`;
   after.mycourse = (el) => {
     el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => tabGo(b.dataset.tab)));
@@ -785,8 +812,8 @@
     el.classList.remove("c1", "c2", "c3", "c4");
     for (const c of ["", "c1", "c2", "c3", "c4"]) {
       if (c) el.classList.add(c);
-      const nav = el.querySelector(".nav"), last = el.querySelector(".mc-new");
-      if (last.getBoundingClientRect().bottom <= nav.getBoundingClientRect().top - 10) return;
+      const last = el.querySelector(".mc-new"), r = el.getBoundingClientRect(), kk = r.height / el.offsetHeight || 1;
+      if (last.getBoundingClientRect().bottom <= r.bottom - (NAVH + 10) * kk) return;
     }
   }
 
@@ -864,6 +891,149 @@
       const b = el.querySelector(".ce-btns").getBoundingClientRect().bottom, sb = el.getBoundingClientRect().bottom;
       if (b <= sb - 4) return; }
   }
+
+  // ── 이미지 화면 위에 코드 요소 얹기 (피그마 프레임 좌표 그대로) ──
+  function overlay(el, name, x, y, w, h, html, cls = "") {
+    const d = IMG[name], sh = el.querySelector(".shot"); if (!sh) return null;
+    const K = sh.offsetWidth / d.w, div = document.createElement("div");
+    div.className = "ov " + cls;
+    div.style.cssText = `left:${(x * K).toFixed(1)}px;top:${((y - 38) * K).toFixed(1)}px;width:${(w * K).toFixed(1)}px;height:${(h * K).toFixed(1)}px`;
+    div.innerHTML = `<div class="ov-in" style="width:${w}px;height:${h}px;transform:scale(${K.toFixed(4)})">${html}</div>`;
+    sh.appendChild(div); return div;
+  }
+  const chain = (name, fn) => { const prev = after[name]; after[name] = (el) => { prev?.(el); fn(el); }; };
+
+  // ── 청주 지도: 장소마다 눌러서 고르기 → 카드 바뀜 → 스탬프 ──
+  const CJ = [
+    { name: "운보의집", img: "l-unbo", box: [86, 315, 85, 63], dist: "350m · 도보 5분", rate: "4.8", stamp: "assets/cj/past1.png" },
+    { name: "문의문화재단지", img: "l-munui", box: [194, 299, 129, 63], dist: "2.1km · 차 6분", rate: "4.7", stamp: "assets/mc/s1.png" },
+    { name: "초정행궁", img: "l-chojeong", box: [172, 376, 87, 94], dist: "9.4km · 차 15분", rate: "4.6", stamp: "assets/mc/s2.png" },
+    { name: "초정스파텔", img: "l-spa", box: [49, 390, 100, 94], dist: "9.6km · 차 16분", rate: "4.5", stamp: "assets/mc/s3.png" },
+  ];
+  S.cj = { cur: 0, done: [2, 3] };
+  function cjMap(el, name) {
+    const g = S.cj;
+    CJ.forEach((p, i) => {
+      const [x, y, w, h] = p.box;
+      const o = overlay(el, name, x - 4, y - 4, w + 8, h + 8, `<img class="cj-lm" src="assets/cj/${p.img}.png" alt="${p.name}">${i === g.cur ? '<i class="cj-ring"></i>' : ""}`, "cj-place" + (i === g.cur ? " cur" : ""));
+      o.onclick = () => { if (g.cur === i) { o.classList.remove("hop"); void o.offsetWidth; o.classList.add("hop"); return; } g.cur = i; rerender(el); };
+    });
+    const tr = overlay(el, name, 137, 111, 188, 100, "", "cj-treasure");
+    tr.onclick = () => { tr.classList.remove("shake"); void tr.offsetWidth; tr.classList.add("shake"); toast(g.done.length === CJ.length ? "보물이 열렸어요! 스탬프북에서 확인해요" : `도장 ${CJ.length - g.done.length}곳 더 찍으면 보물이 열려요`); };
+    const p = CJ[g.cur], isDone = g.done.includes(g.cur);
+    const card = overlay(el, name, 31, 512, 327, 226, `
+      <div class="cjcard">
+        <div class="gcard-top"><span class="gtag">${isDone ? "도장 완료" : "현재 장소"}</span><span class="grate">★ ${p.rate}</span></div>
+        <h3>${p.name}</h3><p>🚶 → ${p.dist}</p>
+        <div class="gbtns"><button class="cta gstamp" data-act="cjstamp" ${isDone ? "disabled" : ""}>${isDone ? "✓ 도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="cjsave">🔖</button></div>
+      </div>`, "cj-card");
+    card.querySelector('[data-act="cjsave"]').onclick = (e) => { e.currentTarget.classList.toggle("on"); toast(e.currentTarget.classList.contains("on") ? "저장했어요" : "저장을 취소했어요"); };
+    card.querySelector('[data-act="cjstamp"]').onclick = () => { if (!g.done.includes(g.cur)) g.done.push(g.cur); go("cjStampDone"); };
+    const chip = overlay(el, name, 17, 123, 107, 32, `<span class="cj-count">${g.done.length + 1} / 5곳</span>`, "cj-chip");
+    chip.style.pointerEvents = "none";
+  }
+  // 청주 지도의 원래 '장소 → 시트' 넓은 버튼과 카드 버튼은 코드 요소가 대신함
+  IMG.cheongju.hot = IMG.cheongju.hot.filter((h) => !(h.go === "cheongjuSheet" || h.go === "stampDone" || h.fn === "bookmark"));
+  IMG.cheongjuDone.hot = IMG.cheongjuDone.hot.filter((h) => !(h.go === "stampDone" || h.fn === "bookmark"));
+  chain("cheongju", (el) => cjMap(el, "cheongju"));
+  chain("cheongjuDone", (el) => cjMap(el, "cheongjuDone"));
+  screens.cjStampDone = () => {
+    const g = S.cj, i = g.done[g.done.length - 1], p = CJ[i], next = CJ.findIndex((_, j) => !g.done.includes(j));
+    return `
+    <section class="screen gsd">
+      <div class="title-row"><button class="back-btn" data-act="back" aria-label="뒤로">${I.back}</button><h1 style="text-align:center;margin-right:52px">스탬프</h1></div>
+      <div class="gsd-stamp"><img src="${p.stamp}" alt="${p.name} 우표"><span class="zzan">짠!</span></div>
+      ${mole("gsd-mole")}
+      <h2 class="gsd-title">스탬프<b>완료!</b></h2>
+      <div class="gsd-name"><b>${p.name}</b><span>☁ 안개가 걷혔어요</span></div>
+      <div class="gsd-course"><div><b>이번 코스</b><b class="blue">${g.done.length} / ${CJ.length}곳</b></div>
+        <ol>${CJ.map((q, j) => `<li class="${g.done.includes(j) ? (j === i ? "now" : "ok") : ""}"><i>${g.done.includes(j) ? "✓" : "?"}</i><span>${g.done.includes(j) ? q.name.slice(0, 5) : "???"}</span></li>`).join("")}</ol>
+      </div>
+      <div class="spacer"></div>
+      <div class="gsd-next">${next >= 0 ? `<b>다음은 ${CJ[next].name}!</b><span>가서 또 도장 찍자</span>` : `<b>청주 코스 완주! 보물이 열렸어요</b><span>스탬프북에서 확인해 보세요</span>`}</div>
+      <div class="bottom-row"><button class="cta ghost" data-act="close" style="flex:.6">닫기</button><button class="cta" data-act="nextp">${next >= 0 ? "다음 장소 보기" : "스탬프북 보기"}</button></div>
+    </section>`;
+  };
+  after.cjStampDone = (el) => {
+    const g = S.cj, next = CJ.findIndex((_, j) => !g.done.includes(j));
+    el.querySelector(".gsd-stamp img").animate([{ transform: "rotate(-4deg) scale(2.2)", opacity: 0 }, { transform: "rotate(-4deg) scale(.94)", opacity: 1, offset: .6 }, { transform: "rotate(-4deg) scale(1)" }], { duration: 650, easing: "cubic-bezier(.2,1.4,.4,1)" });
+    navigator.vibrate?.(40);
+    const backToMap = () => { stack.pop(); render(stack[stack.length - 1]?.name || "cheongju", true); toast(`${CJ[g.done[g.done.length - 1]].name} 스탬프 완료!`); };
+    el.querySelector('[data-act="close"]').onclick = backToMap;
+    el.querySelector('[data-act="nextp"]').onclick = () => { if (next >= 0) { g.cur = next; backToMap(); } else go("stampbook"); };
+  };
+
+  // ── 마이페이지: 처방전이 진단 결과대로 바뀜 + 스탬프/여행 기록 탭 ──
+  const RECORDS = [
+    { date: "10.23", title: "허리 뻐근함 · 평지 산책", sub: "청주 → 괴산 · 3곳 방문 중", img: "assets/cj/past1.png", tag: "진행 중" },
+    { date: "10.18", title: "목 결림 · 풍경 감상", sub: "단양 → 제천 · 5곳 완주", img: "assets/mc/s4.png", tag: "완주" },
+  ];
+  chain("mypage", (el) => {
+    if (S.symptom) {
+      const r = rx(), wipe = (x, y, w, h, html, c = "") => overlay(el, "mypage", x, y, w, h, html, "ov-text " + c);
+      wipe(124, 366, 135, 24, `<span>${ageLabel() || "-"}</span>`);
+      wipe(124, 399, 135, 24, `<span>${S.symptom}</span>`);
+      wipe(124, 431, 140, 38, `<span class="two">${r.course}<br>처방 코스</span>`);
+      wipe(84, 511, 250, 26, `<span class="ready">${S.symptom} 처방 코스가 준비됐어요</span>`, "ov-ready");
+    }
+    S.mpTab ||= "stamp";
+    const tabs = overlay(el, "mypage", 44, 582, 200, 36, `<button data-mt="stamp">스탬프</button><button data-mt="rec">여행 기록</button><i class="mt-bar"></i>`, "mp-tabs " + S.mpTab);
+    let body = null;
+    const show = (t) => {
+      S.mpTab = t; tabs.className = "ov mp-tabs " + t;
+      body?.remove(); body = null;
+      if (t === "rec") {
+        body = overlay(el, "mypage", 40, 624, 313, 122, `<ul class="mp-rec">${RECORDS.map((r, i) => `<li style="--i:${i}" data-r="${i}"><img src="${r.img}" alt=""><div><b>${r.title}</b><small>${r.date} · ${r.sub}</small></div><span class="${r.tag === "완주" ? "done" : ""}">${r.tag}</span></li>`).join("")}</ul>`, "mp-body");
+        body.querySelectorAll("[data-r]").forEach((li) => (li.onclick = () => (+li.dataset.r === 0 ? go("coursemap") : go("pastCourses"))));
+      }
+    };
+    tabs.querySelectorAll("[data-mt]").forEach((b) => (b.onclick = () => show(b.dataset.mt)));
+    show(S.mpTab);
+  });
+
+  // ── 스탬프북: 이번 코스 / 지난 코스 탭 + 지난 코스 전체보기 ──
+  const PAST = [
+    { title: "목 결림 · 풍경 감상", sub: "단양 → 제천 · 4시간 15분", date: "2026.10.18", stamps: [4, 5, 6, 7, 8], all: true },
+    { title: "눈의 피로 · 초록 풍경", sub: "청주 → 진천 · 3시간 10분", date: "2026.09.27", past: ["past1", "past3"], all: false },
+    { title: "기력 저하 · 맛있는 여행", sub: "영동 · 2시간 40분", date: "2026.09.06", past: ["past4", "past2"], all: false },
+  ];
+  const pastStamps = (c) => (c.stamps ? c.stamps.map((n) => `assets/mc/s${n}.png`) : c.past.map((n) => `assets/cj/${n}.png`));
+  chain("stampbook", (el) => {
+    S.sbTab ||= "now";
+    const tabs = overlay(el, "stampbook", 20, 194, 200, 40, `<button data-sb="now">이번 코스</button><button data-sb="past">지난 코스</button><i class="sb-pill"></i>`, "sb-tabs " + S.sbTab);
+    const count = overlay(el, "stampbook", 300, 198, 75, 28, `<span></span>`, "sb-count");
+    let body = null;
+    const show = (t) => {
+      S.sbTab = t; tabs.className = "ov sb-tabs " + t;
+      count.querySelector("span").textContent = t === "now" ? "3 / 5곳" : `${PAST.length}개 코스`;
+      body?.remove(); body = null;
+      if (t === "past") {
+        body = overlay(el, "stampbook", 14, 240, 365, 420, `<div class="sb-past">${PAST.map((c, i) => `
+          <button class="sb-pc" style="--i:${i}" data-pc="${i}"><div class="sb-pc-top"><b>${c.title}</b><span class="${c.all ? "done" : ""}">${c.all ? "완주" : "일부 방문"}</span></div><small>${c.sub} · ${c.date}</small>
+            <div class="sb-pc-st">${pastStamps(c).map((src, j) => `<img src="${src}" alt="" style="--j:${j}">`).join("")}</div></button>`).join("")}</div>`, "sb-body");
+        body.querySelectorAll("[data-pc]").forEach((b) => (b.onclick = () => { S.pcOpen = +b.dataset.pc; go("pastCourses"); }));
+      }
+    };
+    tabs.querySelectorAll("[data-sb]").forEach((b) => (b.onclick = () => show(b.dataset.sb)));
+    const all = overlay(el, "stampbook", 300, 668, 80, 28, "", "ov-hit"); all.onclick = () => go("pastCourses");
+    show(S.sbTab);
+  });
+  screens.pastCourses = () => `
+    <section class="screen pc">
+      <div class="title-row"><button class="back-btn" data-act="back" aria-label="뒤로">${I.back}</button><h1 style="text-align:center;margin-right:52px">지난 코스</h1></div>
+      <div class="pc-sum">${mole("pc-mole")}<div><b>지금까지 ${PAST.length}개 코스를 다녀왔어요</b><small>모은 우표 ${PAST.reduce((a, c) => a + pastStamps(c).length, 0)}장 · 충북 11개 지역 중 6곳</small></div></div>
+      <div class="pc-list">${PAST.map((c, i) => `
+        <article class="pc-card ${S.pcOpen === i ? "open" : ""}" style="--i:${i}" data-i="${i}">
+          <div class="sb-pc-top"><b>${c.title}</b><span class="${c.all ? "done" : ""}">${c.all ? "완주" : "일부 방문"}</span></div>
+          <small>${c.sub} · ${c.date}</small>
+          <div class="pc-st">${pastStamps(c).map((src, j) => `<img src="${src}" alt="" style="--j:${j}">`).join("")}${Array.from({ length: 5 - pastStamps(c).length }, () => '<span class="pc-empty">?</span>').join("")}</div>
+          <button class="pc-again" data-again="${i}">이 코스 다시 처방받기</button>
+        </article>`).join("")}</div>
+    </section>`;
+  after.pastCourses = (el) => {
+    el.querySelectorAll(".pc-card").forEach((c) => (c.onclick = (e) => { if (e.target.closest("[data-again]")) return FN.newDiag(); el.querySelectorAll(".pc-card").forEach((o) => o !== c && o.classList.remove("open")); c.classList.toggle("open"); }));
+    S.pcOpen = null;
+  };
 
   // 아이폰 사파리(홈 화면 앱이 아닐 때): 한 번 위로 쓸어올리면 사파리 도구막대가 접혀 화면이 커짐
   const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
