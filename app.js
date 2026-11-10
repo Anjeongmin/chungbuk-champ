@@ -175,7 +175,7 @@
     },
     onboarding: () => `
       <section class="screen shot-screen onb2"><div class="shot" style="width:393px;height:${APPH}px">
-        <img src="screens/onboarding.jpg" style="width:393px;height:100%;object-fit:cover;object-position:50% 40%" alt="충북챔 · 나에게 맞는 충북 여행 처방" draggable="false">
+        <img src="screens/onboarding.jpg" style="width:393px;height:100%;object-fit:cover;object-position:50% 40%" alt="챔 · 나에게 맞는 충북 여행 처방" draggable="false">
         <button class="hot" aria-label="시작" style="inset:0"></button>
         <span class="onb-hint">화면을 눌러 시작하기</span>
       </div></section>`,
@@ -299,9 +299,9 @@
           <div class="memo"><small>처방 한마디</small><p>${r.line}</p></div>
           <div class="cut">${I.scissors}<span>절취선 · 아래로 내려 도장 받기</span></div>
           <div class="issuer">
-            <small>발급처</small><h3>충북챔 여행처방소</h3>
+            <small>발급처</small><h3>챔 여행처방소</h3>
             <div class="barcode"></div><em>${NO}-0042</em>
-            <div class="stamp" id="stamp"><small>충북챔</small><b>처방</b><span>여행처방소</span></div>
+            <div class="stamp" id="stamp"><small>챔</small><b>처방</b><span>여행처방소</span></div>
           </div>
         </article>
         <div class="float-cta"><button class="cta" data-act="places">처방 장소 보기 ${I.arrow}</button></div>

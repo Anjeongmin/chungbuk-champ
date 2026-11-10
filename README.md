@@ -1,10 +1,10 @@
-# 충북챔 — 나에게 맞는 충북 여행 처방
+# 챔 — 나에게 맞는 충북 여행 처방
 
 ## ▶ [여기를 눌러 실행하기](https://anjeongmin.github.io/chungbuk-champ/)
 
 **https://anjeongmin.github.io/chungbuk-champ/** — 휴대폰으로 열면 가장 잘 보여요.
 
-<img src="assets/qr.png" width="180" alt="충북챔 QR 코드">
+<img src="assets/qr.png" width="180" alt="챔 QR 코드">
 
 ---
 
