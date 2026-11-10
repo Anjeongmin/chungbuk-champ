@@ -390,7 +390,7 @@
   const FN = {
     newDiag: () => { Object.assign(S, { age: null, part: null, symptom: null, ans: {}, picked: new Set(), placeId: null }); go("age"); },
     showRx: () => {
-      if (!S.symptom) Object.assign(S, { age: "40-50", part: "waist", symptom: "허리 뻐근함", ans: { pick: "직접 찾아서 발견함", energy: "걸으며 움직이기", scene: "자연", with: "혼자" } });
+      if (!S.symptom) Object.assign(S, { age: "40-50", part: "waist", symptom: "허리 뻐근함", ans: { energy: "걸으며 움직이기", scene: "자연", with: "혼자" } });
       go("rx");
     },
     fog: () => toast("안개에 가려진 지역이에요 · 청주나 괴산을 눌러보세요"),
