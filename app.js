@@ -704,7 +704,7 @@
         <div class="gcard-top"><span class="gtag">${isDone ? "도장 완료" : g.done.length ? "다음 장소" : "현재 장소"}</span><span class="grate">★ 4.8</span></div>
         <h3>${cur.name}</h3>
         <p>🚶 → ${cur.dist}</p>
-        <div class="gbtns"><button class="cta gstamp" data-act="gstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="gsave">🔖</button></div>
+        <div class="gbtns"><button class="cta gstamp" data-act="gstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : `${IC_STAMP}<span>스탬프 찍기</span>`}</button><button class="gsave ${S.gsSaved?.[g.cur] ? "on" : ""}" data-act="gsave" aria-label="저장">${IC_SAVE}</button></div>
       </div>
     </div></div></section>`;
   };
@@ -712,7 +712,7 @@
     el.querySelectorAll("[data-p]").forEach((b) => (b.onclick = () => { S.gs.cur = +b.dataset.p; rerender(el); }));
     el.querySelector('[data-act="gback"]').onclick = () => tabGo("탐험");
     el.querySelector('[data-act="gbook"]').onclick = () => go("stampbook");
-    el.querySelector('[data-act="gsave"]').onclick = () => toast("저장했어요");
+    el.querySelector('[data-act="gsave"]').onclick = (e) => { const on = !(S.gsSaved ||= {})[S.gs.cur]; S.gsSaved[S.gs.cur] = on; e.currentTarget.classList.toggle("on", on); toast(on ? "저장했어요" : "저장을 취소했어요"); };
     el.querySelector('[data-act="gstamp"]').onclick = () => { if (!S.gs.done.includes(S.gs.cur)) S.gs.done.push(S.gs.cur); go("gstampDone"); };
     el.querySelectorAll("[data-tab]").forEach((b) => (b.onclick = () => tabGo(b.dataset.tab)));
     if (!S.seen?.goesan) { (S.seen ||= {}).goesan = true; fogReveal(el.querySelector(".shot"), 150, 400); }
@@ -892,6 +892,7 @@
       if (b <= sb - 4) return; }
   }
 
+  const IC_STAMP = `<svg class="ic-stamp" width="18" height="18" viewBox="0 4 18 19" fill="none"><path d="M10.9688 11.3445C10.9688 10.7328 11.2922 10.1773 11.6684 9.69219C12.1113 9.11914 12.375 8.40195 12.375 7.625C12.375 5.76172 10.8633 4.25 9 4.25C7.13672 4.25 5.625 5.76172 5.625 7.625C5.625 8.40195 5.88867 9.11914 6.33164 9.69219C6.70781 10.1773 7.03125 10.7328 7.03125 11.3445C7.03125 12.3957 6.17695 13.25 5.12578 13.25H3.9375C1.76133 13.25 0 15.0113 0 17.1875C0 17.9223 0.471094 18.548 1.125 18.7801V20.5625C1.125 21.4941 1.88086 22.25 2.8125 22.25H15.1875C16.1191 22.25 16.875 21.4941 16.875 20.5625V18.7801C17.5289 18.548 18 17.9223 18 17.1875C18 15.0113 16.2387 13.25 14.0625 13.25H12.8742C11.823 13.25 10.9688 12.3957 10.9688 11.3445ZM14.625 18.875V20H3.375V18.875H14.625Z" fill="currentColor"/></svg>`, IC_SAVE = `<svg class="ic-save" width="12" height="16" viewBox="0 0 12 16" fill="none"><path class="ic-save-fill" d="M1.5 1.5h9v12.3L6 10.6l-4.5 3.2z" fill="none"/><path d="M0 1.5C0 0.671875 0.671875 0 1.5 0V1.5V13.7937L5.56563 10.8906C5.825 10.7031 6.17812 10.7031 6.4375 10.8906L10.5 13.7937V1.5H1.5V0H10.5C11.3281 0 12 0.671875 12 1.5V15.25C12 15.5312 11.8438 15.7875 11.5938 15.9156C11.3438 16.0437 11.0437 16.0219 10.8156 15.8594L6 12.4219L1.18438 15.8594C0.95625 16.0219 0.65625 16.0437 0.40625 15.9156C0.15625 15.7875 0 15.5312 0 15.25V1.5Z" fill="currentColor"/></svg>`;
   // ── 이미지 화면 위에 코드 요소 얹기 (피그마 프레임 좌표 그대로) ──
   function overlay(el, name, x, y, w, h, html, cls = "") {
     const d = IMG[name], sh = el.querySelector(".shot"); if (!sh) return null;
@@ -942,9 +943,9 @@
         <div class="cjcard">
           <div class="gcard-top"><span class="gtag">${isDone ? "도장 완료" : g.done.length > 2 ? "다음 장소" : "현재 장소"}</span><span class="grate">★ ${p.rate}</span></div>
           <h3>${p.name}</h3><p>🚶 → ${p.dist}</p>
-          <div class="gbtns"><button class="cta gstamp" data-act="cjstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : "🖃 스탬프 찍기"}</button><button class="gsave" data-act="cjsave">🔖</button></div>
+          <div class="gbtns"><button class="cta gstamp" data-act="cjstamp" ${isDone ? "disabled" : ""}>${isDone ? "도장 완료" : `${IC_STAMP}<span>스탬프 찍기</span>`}</button><button class="gsave ${S.cjSaved?.[i] ? "on" : ""}" data-act="cjsave" aria-label="저장">${IC_SAVE}</button></div>
         </div>`;
-      card.querySelector('[data-act="cjsave"]').onclick = () => toast("저장했어요");
+      card.querySelector('[data-act="cjsave"]').onclick = (e) => { const on = !(S.cjSaved ||= {})[i]; S.cjSaved[i] = on; e.currentTarget.classList.toggle("on", on); toast(on ? "저장했어요" : "저장을 취소했어요"); };
       card.querySelector('[data-act="cjstamp"]').onclick = () => { if (!g.done.includes(g.cur)) g.done.push(g.cur); go("cjStampDone"); };
       chip.querySelector(".cj-count").textContent = `${g.done.length + 1} / 5곳`;
     }

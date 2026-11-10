@@ -755,3 +755,13 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .cjlabel { position: absolute !important; inset: 0; transform: none !important; display: grid !important; place-items: center; padding: 0 !important; border: 0 !important; box-shadow: inset 0 0 0 1.92px transparent, 0 2px 6px rgba(11,43,94,.12) !important; font-size: 14px !important; font-weight: 700 !important; color: #0b2b5e !important; background: #fff !important; transition: box-shadow .2s, color .2s; }
 .cjlabel.cur { box-shadow: inset 0 0 0 1.92px #0081ee, 0 2px 6px rgba(11,43,94,.12) !important; color: #0081ee !important; }
 .sb-count .ov-in { background: #d3ecfe !important; border-radius: 99px; justify-content: center !important; }
+/* 탐험 카드 버튼 = 피그마 스탬프 찍기 / 저장 */
+.gbtns { gap: 12px !important; align-items: center; margin-top: 16px !important; }
+.gbtns .gstamp { flex: none !important; width: 174px; height: 52px !important; border-radius: 30px; background: #0081ee; color: #fff; box-shadow: 0 8px 0 #0067be; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 18px !important; font-weight: 700; letter-spacing: -.2px; }
+.gbtns .gstamp .ic-stamp { flex: none; }
+.gbtns .gstamp:active { transform: translateY(4px); box-shadow: 0 4px 0 #0067be; }
+.gbtns .gstamp:disabled { background: #e7f6ef; color: #16946b; box-shadow: 0 8px 0 #c9eadb; }
+.gbtns .gsave { flex: none; width: 91px !important; height: 60px !important; border-radius: 30px !important; background: #fff; border: 2px solid #dce5f0 !important; color: #6b7a90; display: grid; place-items: center; font-size: 0 !important; }
+.gbtns .gsave.on { color: var(--blue); border-color: #b9d8f7 !important; background: #f2f8ff; }
+.gbtns .gsave.on .ic-save-fill { fill: currentColor; }
+.gbtns .gsave:active { transform: scale(.94); }
