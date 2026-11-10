@@ -1,5 +1,13 @@
 # 충북챔 — 나에게 맞는 충북 여행 처방
 
+## ▶ [여기를 눌러 실행하기](https://anjeongmin.github.io/chungbuk-champ/)
+
+**https://anjeongmin.github.io/chungbuk-champ/** — 휴대폰으로 열면 가장 잘 보여요.
+
+<img src="assets/qr.png" width="180" alt="충북챔 QR 코드">
+
+---
+
 졸업전시용 모바일 웹 프로토타입. 진단(나이대 → 인체도 → 증상 → 문진 5문항) → 처방 조제 → 처방전(스크롤 끝 도장) → 처방 장소 담기 → 여행지 상세.
 
 ## 파일
