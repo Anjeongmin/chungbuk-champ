@@ -104,7 +104,7 @@
       Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: `scale(${k})` });
     }
     const changed = Math.abs(h - APPH) > 4; APPH = h;
-    app.classList.toggle("short", h < 800);
+    app.classList.toggle("short", h < 760);
     app.style.height = h + "px";
     if (changed && stack.length) rerender(app.firstElementChild);
   }
