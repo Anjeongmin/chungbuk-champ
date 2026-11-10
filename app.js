@@ -912,7 +912,7 @@
   ];
   S.cj = { cur: 0, done: [2, 3] }; CJ[2].baked = CJ[3].baked = true; // 초정행궁·초정스파텔은 그림에 도장 핀이 이미 있음
   // 청주 지도 — 괴산과 같은 방식: 장소 누르면 이름표 파란 테두리 + 두더지가 그 장소로 이동 + 카드 바뀜
-  const CJL = [[124.5, 364.5], [259, 348.5], [212.5, 457], [99, 471]]; // 그림 속 이름표 가운데(피그마 좌표)
+  const CJLB = [[85.9, 351.9, 77.3, 25.5], [194.2, 335.7, 129.2, 25.5], [172, 444.7, 81, 25], [49, 458.7, 100, 25]]; // 피그마 이름표 상자
   function cjMap(el, name) {
     const g = S.cj, sh = el.querySelector(".shot"), K = sh.offsetWidth / IMG[name].w;
     // 괴산과 같은 상단 머리(뒤로 화살표·경로)
@@ -922,7 +922,8 @@
     const [mx, my] = moleAt(g.cur);
     const mo = overlay(el, name, mx, my, 38, 34, '<img class="gmole cjmole" src="assets/map/mole-slot.png" alt="">', "cj-moleo");
     mo.style.pointerEvents = "none";
-    const labels = CJ.map((p, i) => overlay(el, name, CJL[i][0] - 70, CJL[i][1] - 15, 140, 30, `<span class="glabel cjlabel">${p.name}</span>`, "cj-labelo"));
+    // 피그마 이름표와 똑같은 크기·위치로 덮어서 겹침 없이 강조만 바꿈
+    const labels = CJ.map((p, i) => { const [x, y, w, h] = CJLB[i]; return overlay(el, name, x, y, w, h, `<span class="glabel cjlabel" style="border-radius:${h / 2}px">${p.name}</span>`, "cj-labelo"); });
     labels.forEach((l) => (l.style.pointerEvents = "none"));
     const pins = CJ.map((p, i) => { const [x, y] = p.box; const o = overlay(el, name, x - 6, y + 22, 31, 36, '<img class="gpin" src="assets/map/pin.png" alt="도장 완료">', "cj-pino"); o.style.pointerEvents = "none"; return o; });
     const places = CJ.map((p, i) => { const [x, y, w, h] = p.box; const o = overlay(el, name, x - 6, y - 10, w + 12, h + 16, "", "cj-place"); o.onclick = () => select(i, true); return o; });

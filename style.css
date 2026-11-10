@@ -746,8 +746,12 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 .shot > .ov.cj-labelo { z-index: 5; }
 .shot > .ov.cj-moleo { z-index: 6; }
 .shot > .ov.cj-head { z-index: 7; }
-.cjlabel { padding: 5px 15px !important; border-width: 2.5px !important; }
+
 /* 누른 뒤 네모 표시가 남지 않게 (아이폰에서 :active·포커스 박스가 남는 문제) */
 .hot:active, .hot:focus { background: transparent !important; }
 button:focus, button:focus-visible, .ov:focus { outline: none; }
 .cjmole { animation: bob 2.2s ease-in-out infinite !important; }
+.cj-labelo .ov-in { display: block; }
+.cjlabel { position: absolute !important; inset: 0; transform: none !important; display: grid !important; place-items: center; padding: 0 !important; border: 0 !important; box-shadow: inset 0 0 0 1.92px transparent, 0 2px 6px rgba(11,43,94,.12) !important; font-size: 14px !important; font-weight: 700 !important; color: #0b2b5e !important; background: #fff !important; transition: box-shadow .2s, color .2s; }
+.cjlabel.cur { box-shadow: inset 0 0 0 1.92px #0081ee, 0 2px 6px rgba(11,43,94,.12) !important; color: #0081ee !important; }
+.sb-count .ov-in { background: #d3ecfe !important; border-radius: 99px; justify-content: center !important; }
