@@ -712,3 +712,8 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 .pc-card.open .pc-again { height: 44px; margin-top: 12px; }
 /* 밤 날씨 */
 .wx-moon { position: absolute; right: 22px; top: 96px; width: 46px; height: 46px; border-radius: 50%; box-shadow: inset -13px -6px 0 0 #ffd23f; filter: drop-shadow(0 0 10px rgba(255,210,63,.8)); animation: mcFloat 6s ease-in-out infinite; }
+.cj-pop { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); white-space: nowrap; padding: 7px 13px; border-radius: 99px; background: var(--blue); color: #fff; font-size: 13px; font-weight: 800; box-shadow: 0 6px 14px rgba(0,129,238,.35); animation: cjPop .45s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; z-index: 3; }
+.cj-pop::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--blue); }
+@keyframes cjPop { from { opacity: 0; transform: translate(-50%, 10px) scale(.6); } }
+.cj-place.cur { z-index: 7; }
+.cj-place .ov-in { overflow: visible; }

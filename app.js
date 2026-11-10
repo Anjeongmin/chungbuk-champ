@@ -915,7 +915,7 @@
     const g = S.cj;
     CJ.forEach((p, i) => {
       const [x, y, w, h] = p.box;
-      const o = overlay(el, name, x - 4, y - 4, w + 8, h + 8, `<img class="cj-lm" src="assets/cj/${p.img}.png" alt="${p.name}">${i === g.cur ? '<i class="cj-ring"></i>' : ""}`, "cj-place" + (i === g.cur ? " cur" : ""));
+      const o = overlay(el, name, x - 4, y - 4, w + 8, h + 8, `<img class="cj-lm" src="assets/cj/${p.img}.png" alt="${p.name}">${i === g.cur ? `<i class="cj-ring"></i><span class="cj-pop">${g.done.includes(i) ? "✓ " : "📍 "}${p.name}</span>` : ""}`, "cj-place" + (i === g.cur ? " cur" : ""));
       o.onclick = () => { if (g.cur === i) { o.classList.remove("hop"); void o.offsetWidth; o.classList.add("hop"); return; } g.cur = i; rerender(el); };
     });
     const tr = overlay(el, name, 137, 111, 188, 100, "", "cj-treasure");
@@ -1001,7 +1001,7 @@
   chain("stampbook", (el) => {
     S.sbTab ||= "now";
     const tabs = overlay(el, "stampbook", 20, 194, 200, 40, `<button data-sb="now">이번 코스</button><button data-sb="past">지난 코스</button><i class="sb-pill"></i>`, "sb-tabs " + S.sbTab);
-    const count = overlay(el, "stampbook", 300, 198, 75, 28, `<span></span>`, "sb-count");
+    const count = overlay(el, "stampbook", 318, 199, 58, 24, `<span></span>`, "sb-count");
     let body = null;
     const show = (t) => {
       S.sbTab = t; tabs.className = "ov sb-tabs " + t;
@@ -1035,6 +1035,16 @@
     S.pcOpen = null;
   };
 
+  // 새 버전이 올라가 있으면 자동으로 새로 불러오기 (홈 화면 앱·사파리 캐시 대비)
+  (function checkUpdate() {
+    const mine = (document.querySelector('script[src^="app.js"]')?.getAttribute("src").match(/v=(\d+)/) || [])[1];
+    fetch(location.pathname + "?check=" + Date.now(), { cache: "no-store" }).then((r) => r.text()).then((h) => {
+      const live = (h.match(/app\.js\?v=(\d+)/) || [])[1];
+      let tried = null; try { tried = sessionStorage.getItem("cb-upd"); } catch (e) {}
+      if (live && mine && live !== mine && tried !== live) { try { sessionStorage.setItem("cb-upd", live); } catch (e) {} location.replace(location.pathname + "?v=" + live + location.hash); }
+    }).catch(() => {});
+    document.addEventListener("visibilitychange", () => { if (document.visibilityState === "visible") setTimeout(checkUpdate, 300); }, { once: true });
+  })();
   // 아이폰 사파리(홈 화면 앱이 아닐 때): 한 번 위로 쓸어올리면 사파리 도구막대가 접혀 화면이 커짐
   const isIOS = /iP(hone|od|ad)/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
   const standalone = navigator.standalone || matchMedia("(display-mode: standalone)").matches;
