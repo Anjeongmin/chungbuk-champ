@@ -51,12 +51,18 @@
     render(stack[stack.length - 1].name, true);
   }
   function render(name, isBack) {
-    clearInterval(render._timer);
+    clearInterval(render._timer); clearTimeout(render._timer);
     app.innerHTML = screens[name]();
     const el = app.firstElementChild;
     if (isBack) el.classList.add("back");
     after[name]?.(el);
     el.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
+    setBackdrop(el);
+  }
+  function setBackdrop(el) {
+    const bd = document.getElementById("backdrop"); if (!bd) return;
+    const im = el.querySelector(".shot > img");
+    bd.style.backgroundImage = im ? `url("${im.getAttribute("src")}")` : "";
   }
 
   // 화면을 393×852 캔버스에 딱 맞추기 (스크롤 없이)
@@ -393,15 +399,8 @@
     },
     rx: (el) => {
       const stamp = el.querySelector("#stamp"), paper = el.querySelector("#paper");
-      let done = false;
-      const check = () => {
-        if (done) return;
-        const r = stamp.getBoundingClientRect(), a = app.getBoundingClientRect(), k = a.width / 393;
-        const nearBottom = el.scrollTop + el.clientHeight >= el.scrollHeight - 30;
-        if (nearBottom && el.scrollTop > 40) { done = true; slamStamp(stamp, paper); }
-      };
-      el.addEventListener("scroll", check, { passive: true });
-      setTimeout(check, 500);
+      // 처방이 나오면 스크롤 없이 바로: 가운데 '쾅' → 도장 자리로
+      render._timer = setTimeout(() => stamp.isConnected && slamStamp(stamp, paper), 900);
       el.querySelector('[data-act="places"]').onclick = () => go("places");
     },
     places: (el) => {
@@ -470,6 +469,11 @@
     setTimeout(() => f.remove(), 3600);
   }
   // 청주 지도에 들어갈 때도 안개 연출
+  // 탐험 탭 처음 들어갈 때: 화면 전체 안개가 걷히고 충북 전체 지도
+  for (const n of ["explore", "exploreCourse"]) {
+    const orig = after[n];
+    after[n] = (el) => { orig(el); if (!S.seen?.explore) { (S.seen ||= {}).explore = true; fogReveal(el.querySelector(".shot"), 196, 430); } };
+  }
   const _cj = after.cheongju;
   after.cheongju = (el) => { _cj(el); if (!S.seen?.cheongju) { (S.seen ||= {}).cheongju = true; fogReveal(el.querySelector(".shot"), 150, 420); } };
 

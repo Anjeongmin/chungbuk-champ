@@ -294,7 +294,7 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .hot:active { background: rgba(0, 129, 238, .14); }
 .onb-hint { position: absolute; left: 0; right: 0; bottom: 9%; text-align: center; font-size: 13px; color: #7f93ab; animation: blink 1.6s ease-in-out infinite; pointer-events: none; z-index: 3; }
 
-.rx-screen { overflow-y: auto !important; scrollbar-width: none; }
+.rx-screen { overflow: hidden !important; }
 .rx-screen::-webkit-scrollbar { display: none; }
 .shot-screen { align-items: center; justify-content: center; }
 .shot { flex: none; }
@@ -369,3 +369,22 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .shot .fog img { height: auto; }
 .gmap > .gmole { width: 38px; height: auto; display: block; }
 .gmap > .gpin { width: 31px; height: auto; display: block; }
+
+/* 처방전: 한 화면에 (스크롤 없음) */
+.rx-top { padding: 4px 20px 10px; }
+.rx-top .mole { width: 68px; }
+.rx-top .bubble { padding: 10px 16px; }
+.paper { padding: 16px 18px 92px; }
+.paper-head h2 { font-size: 23px; }
+.table { margin-top: 12px; }
+.table b { padding: 7px 12px; font-size: 16px; }
+.sec-title { margin: 14px 0 8px; }
+.rx-list div { padding: 9px 12px; font-size: 14px; }
+.memo { margin-top: 10px; padding: 9px 14px; }
+.memo p { font-size: 14px; }
+.cut { margin-top: 16px; }
+.issuer { margin-top: 18px; min-height: 92px; }
+.barcode { margin-top: 8px; height: 28px; }
+.float-cta { position: absolute !important; left: 0; right: 0; bottom: 0; margin: 0; padding: 14px 24px 22px; }
+/* 화면 바깥 여백: 현재 화면을 흐리게 깔아서 꽉 차 보이게 */
+#backdrop { position: fixed; inset: -40px; z-index: -1; background: linear-gradient(180deg, #c6e6fb, #d7f0de); background-size: cover; background-position: center; filter: blur(22px) saturate(1.1); transition: background-image .3s; }
