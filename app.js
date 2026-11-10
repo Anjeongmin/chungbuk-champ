@@ -63,7 +63,7 @@
   function fitScreen(el) {
     const ft = el?.querySelector(".shot-top[data-focus]");
     if (ft) requestAnimationFrame(() => { ft.scrollTop = Math.max(0, +ft.dataset.focus - ft.clientHeight / 2); });
-    if (!el || el.classList.contains("shot-screen") || el.classList.contains("mc")) return;
+    if (!el || el.classList.contains("shot-screen") || el.classList.contains("mc") || el.classList.contains("ce")) return;
     el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = ""; el.classList.remove("scrolly");
     // 배경 언덕(.hill)처럼 일부러 밖으로 나간 장식은 빼고 실제 내용 높이만 잼
     const have = el.clientHeight, pb = parseFloat(getComputedStyle(el).paddingBottom) || 0;
@@ -78,7 +78,7 @@
   }
   // 이미지가 늦게 로드되면 높이가 바뀌니 한 번 더 맞춤
   function refit(el) {
-    if (!el || el.classList.contains("shot-screen") || el.classList.contains("mc")) return;
+    if (!el || el.classList.contains("shot-screen") || el.classList.contains("mc") || el.classList.contains("ce")) return;
     el.querySelectorAll("img").forEach((im) => { if (!im.complete) im.addEventListener("load", () => el.isConnected && fitScreen(el), { once: true }); });
     document.fonts?.ready.then(() => el.isConnected && fitScreen(el));
   }
@@ -377,7 +377,7 @@
       { x: 24, y: 372, w: 345, h: 140, go: "coursemap" }, { x: 24, y: 522, w: 345, h: 140, go: "coursemap" },
       { x: 24, y: 687, w: 345, h: 52, fn: "newDiag" }, ...TAB(770) ] },
     coursemap: { w: 375, h: 917, tab: "내 코스", hot: [ { x: 18, y: 85, w: 52, h: 52, back: true },
-      { x: 24, y: 771, w: 242, h: 56, go: "cheongju" }, { x: 278, y: 771, w: 73, h: 56, go: "courseEdit" }, ...TAB(835).map((t) => ({ ...t, x: t.x * 375 / 393, w: 66 })) ] },
+      { x: 24, y: 755, w: 242, h: 56, go: "cheongju" }, { x: 278, y: 755, w: 73, h: 56, go: "courseEdit" }, ...TAB(835).map((t) => ({ ...t, x: t.x * 375 / 393, w: 66 })) ] },
     courseEdit: { img: "course-edit", w: 375, h: 879, hot: [ { x: 18, y: 62, w: 52, h: 52, back: true },
       { x: 24, y: 783, w: 117, h: 56, back: true }, { x: 153, y: 783, w: 198, h: 56, fn: "saveOrder" } ] },
     mypage: { w: 393, h: 865, tab: "마이", hot: [
@@ -748,7 +748,7 @@
         <button class="mc-drop" data-act="drop"><span>코스 지도를 펼쳐볼까?</span><i>▼</i></button>
         <div class="mc-panel"><div class="mc-panel-in">
           <p><b>허리 뻐근함 · 평지 산책</b>을 진행 중이에요</p>
-          <div class="mc-route">${["수암골", "상당산성", "청남대", "문의문화재단지", "산막이옛길"].map((n, i) => `<span class="${i < 3 ? "ok" : ""}" style="--d:${i * 70}ms">${n}</span>`).join("<em></em>")}</div>
+          <div class="mc-route">${S.order.map((pi, i) => `<span class="${pi < 3 ? "ok" : ""}" style="--d:${i * 70}ms">${PLACES5[pi][0]}</span>`).join("<em></em>")}</div>
           <button class="mc-open" data-act="map">코스 지도 펼치기 →</button>
         </div></div>
       </div>
@@ -788,6 +788,80 @@
       const nav = el.querySelector(".nav"), last = el.querySelector(".mc-new");
       if (last.getBoundingClientRect().bottom <= nav.getBoundingClientRect().top - 10) return;
     }
+  }
+
+  // ── 탐험 순서 바꾸기: 끌어서 실제로 순서 변경 ──
+  const PLACES5 = [["수암골", "청주"], ["상당산성", "청주"], ["청남대", "청주"], ["문의문화재단지", "청주"], ["산막이옛길", "괴산"]];
+  const MAPPOS = [[52, 165], [103, 96], [184, 136], [250, 76], [300, 146]]; // 미니 지도에서 각 장소 위치(번호 자리)
+  S.order ||= [0, 1, 2, 3, 4];
+  screens.courseEdit = () => `
+    <section class="screen ce">
+      <header class="ce-head"><button class="ce-back" data-act="back" aria-label="뒤로"><svg viewBox="0 0 24 24"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button><h1>탐험 순서 바꾸기</h1></header>
+      <div class="ce-map"><img src="assets/mc/editmap.png" alt="">
+        <span class="ce-total"></span>
+        ${MAPPOS.map((p, i) => `<b class="ce-num" data-pos="${i}" style="left:${(p[0] / 327 * 100).toFixed(2)}%;top:${(p[1] / 230 * 100).toFixed(2)}%"></b>`).join("")}
+      </div>
+      <p class="ce-hint">꾹 눌러서 끌면 순서가 바뀌어!</p>
+      <ol class="ce-list"></ol>
+      <div class="ce-btns"><button class="ce-cancel" data-act="cancel">취소</button><button class="ce-save" data-act="save">저장</button></div>
+    </section>`;
+  after.courseEdit = (el) => {
+    let order = [...S.order];
+    const list = el.querySelector(".ce-list");
+    const paint = (flip) => {
+      const before = flip ? new Map([...list.children].map((li) => [li.dataset.p, li.getBoundingClientRect().top])) : null;
+      list.innerHTML = order.map((pi, i) => `<li class="ce-row ${pi < 3 ? "ok" : ""}" data-p="${pi}" style="--i:${flip ? 0 : i}"><i>${i + 1}</i><div><b>${PLACES5[pi][0]}</b><small>${PLACES5[pi][1]}</small></div><span class="ce-grip" aria-hidden="true"></span></li>`).join("");
+      el.querySelectorAll(".ce-num").forEach((n) => { const pos = +n.dataset.pos, k = order.indexOf(pos); n.textContent = k + 1; n.classList.toggle("ok", pos < 3); n.classList.remove("bump"); void n.offsetWidth; if (flip && before.get(String(pos)) !== undefined) n.classList.add("bump"); });
+      const changed = order.some((v, i) => v !== i);
+      el.querySelector(".ce-total").textContent = changed ? "총 2시간 40분 (+10분)" : "총 2시간 30분";
+      el.querySelector(".ce-total").classList.toggle("up", changed);
+      if (flip) [...list.children].forEach((li) => { const b = before.get(li.dataset.p); if (b == null) return; const d = b - li.getBoundingClientRect().top; if (!d) return;
+        li.animate([{ transform: `translateY(${d}px)` }, { transform: "none" }], { duration: 260, easing: "cubic-bezier(.2,.9,.3,1)" }); });
+    };
+    paint(false);
+    // 끌기: 누르고 있으면(0.18초) 집어 올림 → 위아래로 끌어서 놓기
+    let drag = null;
+    const scaleY = () => app.getBoundingClientRect().height / app.offsetHeight || 1;
+    list.addEventListener("pointerdown", (e) => {
+      const li = e.target.closest(".ce-row"); if (!li) return;
+      const start = e.clientY, onGrip = !!e.target.closest(".ce-grip");
+      const t = setTimeout(() => begin(), onGrip ? 0 : 180);
+      const cancel = () => { clearTimeout(t); removeEventListener("pointerup", cancel); removeEventListener("pointermove", early); };
+      const early = (ev) => { if (!drag && Math.abs(ev.clientY - start) > 8 && !onGrip) cancel(); };
+      addEventListener("pointerup", cancel); addEventListener("pointermove", early);
+      function begin() {
+        cancel();
+        const rows = [...list.children], idx = rows.indexOf(li), h = (rows[1]?.getBoundingClientRect().top - rows[0].getBoundingClientRect().top) || 62;
+        drag = { li, idx, to: idx, start, h, k: scaleY() };
+        li.classList.add("lift"); list.classList.add("dragging"); navigator.vibrate?.(12);
+        addEventListener("pointermove", move); addEventListener("pointerup", drop, { once: true }); addEventListener("pointercancel", drop, { once: true });
+      }
+    });
+    function move(e) {
+      if (!drag) return; e.preventDefault();
+      const dy = (e.clientY - drag.start) / drag.k;
+      drag.li.style.transform = `translateY(${dy}px) scale(1.03)`;
+      const to = Math.max(0, Math.min(order.length - 1, drag.idx + Math.round(dy / drag.h)));
+      drag.to = to;
+      [...list.children].forEach((r, i) => { if (r === drag.li) return; let sh = 0; if (drag.idx < to && i > drag.idx && i <= to) sh = -drag.h; if (drag.idx > to && i < drag.idx && i >= to) sh = drag.h; r.style.transform = sh ? `translateY(${sh}px)` : ""; });
+    }
+    function drop() {
+      removeEventListener("pointermove", move);
+      if (!drag) return; const { idx, to } = drag; drag = null; list.classList.remove("dragging");
+      [...list.children].forEach((r) => { r.style.transform = ""; r.classList.remove("lift"); });
+      if (to !== idx) { const [m] = order.splice(idx, 1); order.splice(to, 0, m); paint(true); navigator.vibrate?.(8); }
+    }
+    list.addEventListener("touchmove", (e) => { if (drag) e.preventDefault(); }, { passive: false });
+    el.querySelector('[data-act="back"]').onclick = () => back();
+    el.querySelector('[data-act="cancel"]').onclick = () => back();
+    el.querySelector('[data-act="save"]').onclick = () => { S.order = [...order]; back(); toast("탐험 순서를 저장했어요"); };
+    const mi = el.querySelector(".ce-map img"); if (mi.complete) fitCe(el); else mi.onload = () => fitCe(el);
+  };
+  function fitCe(el) {
+    el.classList.remove("c1", "c2", "c3");
+    for (const c of ["", "c1", "c2", "c3"]) { if (c) el.classList.add(c);
+      const b = el.querySelector(".ce-btns").getBoundingClientRect().bottom, sb = el.getBoundingClientRect().bottom;
+      if (b <= sb - 4) return; }
   }
 
   // 아이폰 사파리(홈 화면 앱이 아닐 때): 한 번 위로 쓸어올리면 사파리 도구막대가 접혀 화면이 커짐
