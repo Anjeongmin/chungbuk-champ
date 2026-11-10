@@ -30,7 +30,7 @@ button { font: inherit; color: inherit; background: none; border: 0; cursor: poi
   overflow: hidden;
   background: linear-gradient(180deg, #c6e6fb 0%, #e3f3f6 55%, #d7f0de 100%);
 }
-html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
+html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 
 /* ── screen ── */
 .screen {
@@ -411,28 +411,14 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .terms .cta { margin-top: 18px; }
 
 /* 날씨 */
-.wx { position: absolute; inset: 0 0 84px 0; pointer-events: none; overflow: hidden; }
+.wx, .screen > .wx { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
 .wx canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.wx-tint { position: absolute; inset: 0; }
-.wx-rain .wx-tint, .wx-storm .wx-tint { background: linear-gradient(180deg, rgba(60,90,130,.32), rgba(60,90,130,.12)); }
-.wx-snow .wx-tint { background: linear-gradient(180deg, rgba(235,244,255,.35), rgba(255,255,255,.1)); }
-.wx-cloud .wx-tint { background: rgba(120,140,160,.12); }
-.wx-fog .wx-tint { background: rgba(235,240,245,.35); }
-.wx.night .wx-tint { background: linear-gradient(180deg, rgba(10,25,70,.55), rgba(20,40,90,.3)); }
-.wx-sun { position: absolute; right: -90px; top: -90px; width: 300px; height: 300px; border-radius: 50%; background: radial-gradient(circle, rgba(255,240,170,.75) 0, rgba(255,226,120,.25) 40%, rgba(255,220,120,0) 70%); animation: sunpulse 5s ease-in-out infinite; }
-@keyframes sunpulse { 50% { transform: scale(1.12); opacity: .8; } }
-.wx-cl { position: absolute; width: 260px; height: 120px; border-radius: 50%; background: radial-gradient(ellipse, rgba(255,255,255,.75), rgba(255,255,255,0) 70%); animation: drift 26s linear infinite; }
-.wx-cl.c1 { top: 200px; left: -260px; } .wx-cl.c2 { top: 420px; left: -260px; animation-delay: -9s; animation-duration: 32s; } .wx-cl.c3 { top: 600px; left: -260px; animation-delay: -18s; }
-@keyframes drift { to { transform: translateX(660px); } }
-.wx-cloud .wx-cl { background: radial-gradient(ellipse, rgba(90,110,130,.22), rgba(90,110,130,0) 70%); }
-.wx-haze { position: absolute; inset: -20%; background: radial-gradient(ellipse at 30% 50%, rgba(255,255,255,.55), transparent 60%), radial-gradient(ellipse at 70% 30%, rgba(255,255,255,.5), transparent 55%); animation: hz 12s ease-in-out infinite alternate; }
-@keyframes hz { to { transform: translateX(40px); } }
-.wx-flash { position: absolute; inset: 0; background: #fff; opacity: 0; animation: flash 7s infinite; }
-@keyframes flash { 0%, 90%, 94%, 100% { opacity: 0; } 91%, 93% { opacity: .55; } }
-.wx-chip { position: absolute; left: 180px; top: 123px; z-index: 4; height: 32px; display: flex; align-items: center; gap: 6px; padding: 0 12px; border-radius: 99px; background: rgba(255,255,255,.95); box-shadow: 0 3px 10px rgba(11,43,94,.12); font-size: 13px; animation: pop .35s; }
-.wx-chip b { font-weight: 800; color: var(--navy); } .wx-chip em { font-style: normal; font-weight: 800; color: var(--blue); }
-.fog { z-index: 6; }
-.wx-chip.low { left: 17px; top: 165px; }
+.wx-sun { position: absolute; right: 18px; top: 92px; width: 54px; height: 54px; animation: sunspin 14s linear infinite; }
+.wx-sun::before { content: ""; position: absolute; inset: -14px; border-radius: 50%; background: repeating-conic-gradient(rgba(255,206,60,.85) 0 10deg, transparent 10deg 30deg); -webkit-mask: radial-gradient(circle, transparent 30px, #000 31px, #000 40px, transparent 41px); mask: radial-gradient(circle, transparent 30px, #000 31px, #000 40px, transparent 41px); }
+.wx-sun i { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff3b0, #ffd23f 60%, #ffb800); box-shadow: 0 0 24px rgba(255,200,60,.7); }
+@keyframes sunspin { to { transform: rotate(360deg); } }
+.wx-cl { position: absolute; left: -200px; opacity: .92; transform: scale(var(--s)); animation: wxdrift 28s linear infinite; }
+@keyframes wxdrift { from { left: -200px; } to { left: 420px; } }
 
 /* 폰 꽉 채우기 */
 .shot-screen { justify-content: flex-start !important; align-items: center; background: #cfe9fb; }
@@ -445,13 +431,16 @@ html, body { overflow: hidden; height: 100%; background: #cfe6f7; }
 .terms .terms-mole { margin-top: 30px; }
 
 /* 이미지 화면: 폭 꽉 채움 + 하단 고정 */
-.shot-screen { display: flex; flex-direction: column; align-items: stretch !important; overflow: hidden; background: var(--shotbot, #fff); }
+.screen.shot-screen { display: flex; flex-direction: column; align-items: stretch; justify-content: flex-start; padding: 0; overflow: hidden; background: #fff; }
 .shot-screen::before { display: none; }
-.shot-screen.scroll { overflow-y: auto; scrollbar-width: none; }
-.shot-screen.scroll::-webkit-scrollbar { display: none; }
-.shot { position: relative; flex: none; overflow: hidden; }
-.shot > img { position: absolute; left: 0; top: 0; }
-.shot-foot { position: sticky; bottom: 0; flex: none; margin-top: auto; overflow: hidden; z-index: 3; }
+.shot-screen > .shot-top { flex: 1 1 auto; min-height: 0; overflow: hidden; }
+.shot-screen.scroll > .shot-top { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
+.shot-screen.scroll > .shot-top::-webkit-scrollbar { display: none; }
+.shot-screen .shot { position: relative; flex: none; overflow: hidden; }
+.shot-screen .shot > img { position: absolute; left: 0; top: 0; }
+.shot-screen > .shot-foot { position: relative; flex: none; overflow: hidden; z-index: 3; }
 .shot-foot > img { position: absolute; left: 0; width: 393px; height: auto; pointer-events: none; }
 .gmap .gcard { top: auto !important; bottom: 127px; }
 .gmap .map-nav { bottom: 0; }
+/* 작은 폰: 내용이 눌려서 잘리지 않게 → 넘치면 화면 전체를 살짝 축소 */
+.screen:not(.shot-screen) > *:not(.spacer) { flex-shrink: 0; }

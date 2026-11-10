@@ -58,15 +58,21 @@
     if (isBack) el.classList.add("back");
     after[name]?.(el);
     el.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
-    setBackdrop(el); fitScreen(el);
+    setBackdrop(el); fitScreen(el); refit(el);
   }
   function fitScreen(el) {
     if (!el || el.classList.contains("shot-screen")) return;
     el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = "";
     const need = el.scrollHeight, have = el.clientHeight;
     if (need <= have + 2) return;
-    const z = Math.max(0.72, have / need);
+    const z = Math.max(0.6, have / need);
     Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
+  }
+  // 이미지가 늦게 로드되면 높이가 바뀌니 한 번 더 맞춤
+  function refit(el) {
+    if (!el || el.classList.contains("shot-screen")) return;
+    el.querySelectorAll("img").forEach((im) => { if (!im.complete) im.addEventListener("load", () => el.isConnected && fitScreen(el), { once: true }); });
+    document.fonts?.ready.then(() => el.isConnected && fitScreen(el));
   }
   function setBackdrop(el) {
     const bd = document.getElementById("backdrop"); if (!bd) return;
@@ -79,13 +85,22 @@
   // 휴대폰 폭에 꽉 맞추고, 높이는 휴대폰 화면 높이만큼 (데스크톱은 폰 프레임)
   let APPH = 852;
   const fit = (w, h) => { const k = Math.min(393 / w, APPH / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
+  const probe = document.createElement("div");
+  probe.style.cssText = "position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top)";
+  document.body.appendChild(probe);
   function scaleApp() {
-    const vw = window.visualViewport?.width || innerWidth, vh = window.visualViewport?.height || innerHeight;
+    const vw = innerWidth, vh = innerHeight;
     let k, h;
-    if (vw >= 500) { k = Math.min(vw / 393, vh / 852, 1.2); h = 852; } else { k = vw / 393; h = Math.round(vh / k); }
+    if (vw >= 500) { // 데스크톱: 가운데 폰 프레임
+      k = Math.min(vw / 393, vh / 852, 1.2); h = 852;
+      Object.assign(app.style, { left: "50%", top: "50%", transformOrigin: "center center", transform: `translate(-50%, -50%) scale(${k})` });
+    } else { // 휴대폰: 폭·높이 꽉 채우기 (상단 상태바 영역만 비워둠)
+      const safe = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+      k = vw / 393; h = Math.round((vh - safe) / k);
+      Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: `scale(${k})` });
+    }
     const changed = Math.abs(h - APPH) > 4; APPH = h;
     app.style.height = h + "px";
-    app.style.transform = `translate(-50%, -50%) scale(${k})`;
     if (changed && stack.length) rerender(app.firstElementChild);
   }
   addEventListener("resize", () => scaleApp()); window.visualViewport?.addEventListener("resize", () => scaleApp());
@@ -359,7 +374,7 @@
   // 화면 분할: split 아래(버튼·카드·탭바)는 화면 바닥에 고정, 위쪽은 폭에 꽉 맞춤
   // mode "clip" = 지도처럼 위쪽을 잘라서 보여줌, "scroll" = 필요하면 위쪽만 살짝 스크롤
   const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "clip"], exploreCourse: [628, "clip"],
-    cheongju: [484, "clip"], cheongjuDone: [460, "clip"], cheongjuSheet: [430, "clip"], stampDone: [570], mycourse: [770], coursemap: [760, "clip"],
+    cheongju: [484, "clip"], cheongjuDone: [460, "clip"], cheongjuSheet: [430, "clip"], stampDone: [628], mycourse: [770], coursemap: [760, "clip"],
     courseEdit: [770], mypage: [774] };
   for (const [n, [y, m]] of Object.entries(SPLIT)) { IMG[n].split = y - CUT; IMG[n].mode = m || "scroll"; }
   const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
@@ -371,10 +386,10 @@
       const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
       return `
       <section class="screen shot-screen ${d.mode || ""}">
-        <div class="shot" style="width:393px;height:${(sp * k).toFixed(1)}px;${clip}">
+        <div class="shot-top"><div class="shot" style="width:393px;height:${(sp * k).toFixed(1)}px;${clip}">
           <img src="${src}" alt="" draggable="false" style="width:393px;height:auto;top:${off.toFixed(1)}px">
           ${top.map(([h, i]) => hotBtn(h, i, k, -off / k)).join("")}
-        </div>
+        </div></div>
         ${d.split ? `<div class="shot-foot" style="height:${footH.toFixed(1)}px">
           <img src="${src}" alt="" draggable="false" style="top:${(-sp * k).toFixed(1)}px">
           ${foot.map(([h, i]) => hotBtn(h, i, k, sp)).join("")}
@@ -507,23 +522,23 @@
     } catch (e) { const h = new Date().getHours(); WX.data = { type: "clear", temp: null, day: h >= 6 && h < 19 }; }
     return WX.data;
   })();
-  function addWeather(shot, place = "청주") {
+  // 날씨: 비·눈은 내리고, 맑으면 해, 흐리면 구름이 흘러가요 (화면 전체, 터치 방해 없음)
+  function addWeather(shot) {
     if (!shot) return;
     WX.ready.then((w) => {
-      if (!shot.isConnected) return;
-      const layer = document.createElement("div"); layer.className = `wx wx-${w.type} ${w.day ? "day" : "night"}`;
-      layer.innerHTML = `<div class="wx-tint"></div>${w.type === "clear" && w.day ? '<div class="wx-sun"></div>' : ""}${w.type === "cloud" || w.type === "fog" ? '<div class="wx-cl c1"></div><div class="wx-cl c2"></div><div class="wx-cl c3"></div>' : ""}${w.type === "fog" ? '<div class="wx-haze"></div>' : ""}${w.type === "storm" ? '<div class="wx-flash"></div>' : ""}<canvas width="393" height="852"></canvas>`;
-      shot.insertBefore(layer, shot.firstElementChild.nextSibling);
-      const chip = document.createElement("button"); chip.className = "wx-chip";
-      chip.innerHTML = `<span>${w.day || w.type !== "clear" ? WX_ICON[w.type] : "🌙"}</span><b>오늘 ${place} ${w.day || w.type !== "clear" ? WX_NAME[w.type] : "맑은 밤"}</b>${w.temp != null ? `<em>${w.temp}°</em>` : ""}`;
-      chip.onclick = () => toast(wxTip(w)); if (place !== "충북") chip.classList.add("low"); shot.appendChild(chip);
-      const n = w.type === "rain" ? 110 : w.type === "storm" ? 160 : w.type === "snow" ? 70 : !w.day ? 40 : 0;
-      if (n) particles(layer.querySelector("canvas"), w.type, n, w.day);
+      const scr = shot.closest(".screen"); if (!scr || !scr.isConnected) return;
+      const t = w.type === "storm" ? "rain" : w.type === "fog" ? "cloud" : w.type;
+      const layer = document.createElement("div"); layer.className = `wx wx-${t}`;
+      if (t === "clear" && w.day) layer.innerHTML = '<div class="wx-sun"><i></i></div>';
+      if (t === "cloud") layer.innerHTML = [[90, 150, .9, 0], [230, 120, .8, -14], [330, 170, .8, -7], [430, 110, .7, -20]].map(([y, w2, sc, dl]) => `<div class="wx-cl" style="top:${y}px;--s:${sc};animation-delay:${dl}s"><div class="cloud" style="position:relative;left:0;top:0;width:${w2}px;height:${w2 * 0.42}px"></div></div>`).join("");
+      if (t === "rain" || t === "snow") layer.innerHTML = `<canvas width="393" height="${APPH}"></canvas>`;
+      if (layer.innerHTML) scr.appendChild(layer);
+      if (t === "rain" || t === "snow") particles(layer.firstChild, t, t === "rain" ? 90 : 60);
     });
   }
   const wxTip = (w) => ({ clear: "맑은 날! 평지 산책하기 딱 좋아요", cloud: "구름이 많아요 · 걷기엔 선선해요", fog: "안개가 꼈어요 · 천천히 둘러봐요", rain: "비가 와요 · 우산 챙기고 실내 코스도 좋아요", snow: "눈이 와요 · 미끄럼 주의!", storm: "천둥번개가 쳐요 · 오늘은 실내 코스 추천" })[w.type];
-  function particles(cv, type, n, day) {
-    const ctx = cv.getContext("2d"), W = 393, H = 852;
+  function particles(cv, type, n) {
+    const ctx = cv.getContext("2d"), W = 393, H = cv.height;
     const P = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 0, r: 0, s: Math.random() }));
     P.forEach((p) => { p.v = type === "snow" ? 0.4 + p.s * 0.9 : type === "clear" ? 0 : 7 + p.s * 6; p.r = type === "snow" ? 1.5 + p.s * 2.6 : 1; });
     let t = 0;
@@ -531,9 +546,9 @@
       if (!cv.isConnected) return;
       t++; ctx.clearRect(0, 0, W, H);
       for (const p of P) {
-        if (type === "snow") { p.y += p.v; p.x += Math.sin((t + p.s * 300) / 40) * 0.5; ctx.fillStyle = "rgba(255,255,255,.9)"; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); }
+        if (type === "snow") { p.y += p.v; p.x += Math.sin((t + p.s * 300) / 40) * 0.5; ctx.fillStyle = "rgba(255,255,255,.95)"; ctx.strokeStyle = "rgba(120,160,210,.45)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.stroke(); }
         else if (type === "clear") { const a = 0.3 + 0.7 * Math.abs(Math.sin((t / 60) + p.s * 6)); if (p.y < H * 0.55) { ctx.fillStyle = `rgba(255,255,230,${a})`; ctx.beginPath(); ctx.arc(p.x, p.y * 0.55, 0.8 + p.s * 1.4, 0, 7); ctx.fill(); } }
-        else { p.y += p.v; p.x -= p.v * 0.18; ctx.strokeStyle = "rgba(210,232,255,.75)"; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 2.2, p.y - 12); ctx.stroke(); }
+        else { p.y += p.v; p.x -= p.v * 0.18; ctx.strokeStyle = "rgba(60,125,205,.5)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 2.2, p.y - 12); ctx.stroke(); }
         if (p.y > H + 12) { p.y = -12; p.x = Math.random() * (W + 60); }
       }
       requestAnimationFrame(loop);
@@ -683,7 +698,7 @@
     const n = app.firstElementChild; n.style.animation = "none"; n.scrollTop = y;
     after[name]?.(n);
     n.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
-    setBackdrop(n); fitScreen(n);
+    setBackdrop(n); fitScreen(n); refit(n);
   }
 
   for (const [n, place] of [["explore", "충북"], ["exploreCourse", "충북"], ["cheongju", "청주"], ["cheongjuDone", "청주"], ["cheongjuSheet", "청주"], ["goesan", "괴산"]]) {
