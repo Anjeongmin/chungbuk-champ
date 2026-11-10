@@ -393,39 +393,25 @@
   IMG.mypage.toggle = { x: 299 , y: 590 - CUT, w: 36, h: 20, label: "나만 보기" };
   for (const [n, [y, m, hd, fy]] of Object.entries(SPLIT)) { Object.assign(IMG[n], { split: y - CUT, mode: m || "scroll", head: hd ? hd - CUT : 0, focus: fy ? fy - CUT : 0 }); }
   const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
+  // 이미지 화면: 한 장 그대로(갈라짐 없이) 화면 높이에 맞춰 통째로 축소, 탭바는 바닥에 붙임
   for (const [name, d] of Object.entries(IMG)) {
     const file = d.img || FILE[name] || name, src = `screens/${file}.jpg`;
     screens[name] = () => {
-      const k = 393 / d.w, sp = d.split || d.h, hd = d.head || 0, cd = d.card;
+      const k = 393 / d.w, cut = NAVCUT, H = d.h - cut;          // 사파리면 탭바 밑 빈 여백만큼 잘라냄
+      const s = Math.min(1, APPH / (H * k)), K = k * s, W = 393 * s, cd = d.card;
       const all = d.hot.map((h, i) => [h, i]);
       const inCard = (h) => cd && h.y >= cd.y0 && h.y < cd.y1;
-      const head = all.filter(([h]) => h.y < hd), foot = all.filter(([h]) => h.y >= sp);
-      const card = all.filter(([h]) => inCard(h)), top = all.filter(([h]) => h.y >= hd && h.y < sp && !inCard(h));
-      const footH = Math.max(0, d.h - sp - (d.split ? NAVCUT : 0)) * k, clipH = Math.max(120, APPH - footH), clip = d.mode === "clipb" ? `max-height:${clipH}px;` : "";
-      const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
-      // 목록 화면: 조금 넘치면 통째로 살짝 줄여서 한 화면에 (양옆은 배경색으로 이어짐)
-      let s = 1;
-      if (d.mode === "scroll" && !hd) { const f = (APPH - footH) / (sp * k); if (f < 1) s = f; } // 스크롤 없이 한 화면에
-      const K = k * s, topH = (sp - hd) * K;
-      const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${((d.toggle.y - hd) * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
+      const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${(d.toggle.y * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `
-      <section class="screen shot-screen ${d.mode || ""}">
-        ${hd ? `<div class="shot-head" style="height:${(hd * k).toFixed(1)}px">
-          <img src="${src}" alt="" draggable="false">
-          ${head.map(([h, i]) => hotBtn(h, i, k)).join("")}
-        </div>` : ""}
-        <div class="shot-top" ${d.focus ? `data-focus="${((d.focus - hd) * k).toFixed(0)}"` : ""} style="${s < 1 ? `background:url('screens/edge/${file}.png') 0 0 / 100% ${(d.h * K).toFixed(0)}px no-repeat` : ""}"><div class="shot" style="width:${(393 * s).toFixed(1)}px;height:${topH.toFixed(1)}px;margin:0 auto;${clip}">
-          <img src="${d.mapImg || src}" alt="" draggable="false" style="width:${(393 * s).toFixed(1)}px;height:auto;top:${(off - hd * K).toFixed(1)}px">
-          ${top.map(([h, i]) => hotBtn(h, i, K, hd - off / K)).join("")}${tg}
-        </div></div>
-        ${cd ? `<div class="shot-card" style="bottom:${(footH + (sp - cd.y1) * k).toFixed(1)}px;height:${((cd.y1 - cd.y0) * k).toFixed(1)}px;clip-path:inset(0 ${((393 / k - cd.x1) * k).toFixed(1)}px 0 ${(cd.x0 * k).toFixed(1)}px round ${cd.r}px)">
-          <img src="${src}" alt="" draggable="false" style="top:${(-cd.y0 * k).toFixed(1)}px">
-          ${card.map(([h, i]) => hotBtn(h, i, k, cd.y0)).join("")}
-        </div>` : ""}
-        ${d.split ? `<div class="shot-foot" style="height:${footH.toFixed(1)}px">
-          <img src="${src}" alt="" draggable="false" style="top:${(-sp * k).toFixed(1)}px">
-          ${foot.map(([h, i]) => hotBtn(h, i, k, sp)).join("")}
-        </div>` : ""}
+      <section class="screen shot-screen" style="background:url('screens/edge/${file}.png') 0 100% / 100% ${(d.h * K).toFixed(0)}px no-repeat, url('screens/edge/${file}.png') 0 0 / 100% 2px no-repeat">
+        <div class="shot" style="width:${W.toFixed(1)}px;height:${(H * K).toFixed(1)}px">
+          <img src="${d.mapImg || src}" alt="" draggable="false" style="width:${W.toFixed(1)}px;height:auto">
+          ${all.filter(([h]) => !inCard(h)).map(([h, i]) => hotBtn(h, i, K)).join("")}${tg}
+          ${cd ? `<div class="shot-card" style="top:${(cd.y0 * K).toFixed(1)}px;height:${((cd.y1 - cd.y0) * K).toFixed(1)}px;clip-path:inset(0 ${((393 / k - cd.x1) * K).toFixed(1)}px 0 ${(cd.x0 * K).toFixed(1)}px round ${cd.r * s}px)">
+            <img src="${src}" alt="" draggable="false" style="width:${W.toFixed(1)}px;top:${(-cd.y0 * K).toFixed(1)}px">
+            ${all.filter(([h]) => inCard(h)).map(([h, i]) => hotBtn(h, i, K, cd.y0)).join("")}
+          </div>` : ""}
+        </div>
       </section>`;
     };
   }

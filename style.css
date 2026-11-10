@@ -491,3 +491,11 @@ html.ios-browser, html.ios-browser body { overflow-x: hidden; overflow-y: auto; 
 html.ios-browser body { min-height: calc(100vh + 400px); }
 .fs-hint { position: fixed; left: 50%; top: calc(54px + env(safe-area-inset-top)); transform: translateX(-50%); z-index: 80; padding: 9px 16px; border-radius: 99px; background: rgba(11,43,94,.88); color: #fff; font-size: 13px; font-weight: 700; white-space: nowrap; pointer-events: none; animation: fsh 2.4s ease-in-out infinite; }
 @keyframes fsh { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -6px); } }
+
+/* 이미지 화면 한 장 구성 (갈라짐 없음) */
+.screen.shot-screen { justify-content: flex-end; align-items: center; }
+.shot-screen > .shot { position: relative; flex: none; overflow: hidden; margin: 0 auto; }
+.shot-screen .shot > img { position: absolute; left: 0; top: 0; }
+.shot > .shot-card { position: absolute; left: 0; right: 0; z-index: 5; overflow: hidden; transition: transform .6s cubic-bezier(.2,.9,.3,1.2), opacity .4s; filter: drop-shadow(0 6px 14px rgba(11,43,94,.12)); }
+.shot > .shot-card > img { position: absolute; left: 0; height: auto; pointer-events: none; }
+.fogging .shot-card { transform: translateY(60px); opacity: 0; pointer-events: none; transition: none; }
