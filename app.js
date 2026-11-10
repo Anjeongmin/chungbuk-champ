@@ -68,7 +68,7 @@
     const need = el.scrollHeight, have = el.clientHeight;
     if (need <= have + 2) return;
     // 조금 넘치면 살짝 축소, 많이 넘치면 축소 + 스크롤
-    const z = Math.max(el.classList.contains("rx-screen") ? 0.7 : 0.86, have / need);
+    const z = el.classList.contains("rx-screen") ? Math.max(0.8, have / need) : 1; // 처방전만 살짝 축소, 나머지는 원래 크기 + 스크롤
     Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
     if (need * z > have + 2) el.classList.add("scrolly");
   }
@@ -101,10 +101,10 @@
     } else { // 휴대폰: 폭·높이 꽉 채우기 (상단 상태바 영역만 비워둠)
       const safe = parseFloat(getComputedStyle(probe).paddingTop) || 0;
       k = vw / 393; h = Math.round((vh - safe) / k);
-      Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: `scale(${k})` });
+      Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });
     }
     const changed = Math.abs(h - APPH) > 4; APPH = h;
-    app.classList.toggle("short", h < 760);
+    app.classList.toggle("short", false);
     app.style.height = h + "px";
     if (changed && stack.length) rerender(app.firstElementChild);
   }
@@ -398,7 +398,7 @@
       const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
       // 목록 화면: 조금 넘치면 통째로 살짝 줄여서 한 화면에 (양옆은 배경색으로 이어짐)
       let s = 1;
-      if (d.mode === "scroll" && !hd) { const f = (APPH - footH) / (sp * k); if (f < 1 && f >= 0.66) s = f; }
+      if (d.mode === "scroll" && !hd) { const f = (APPH - footH) / (sp * k); if (f < 1 && f >= 0.98) s = f; } // 원래 크기 유지 (넘치면 스크롤)
       const K = k * s, topH = (sp - hd) * K;
       const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${((d.toggle.y - hd) * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `

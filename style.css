@@ -484,3 +484,4 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 .shot .tgl i { position: absolute; top: 50%; left: 3px; width: var(--kn); height: var(--kn); margin-top: calc(var(--kn) / -2); border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(11,43,94,.25); transition: left .2s; }
 .shot .tgl.on { background: var(--blue); }
 .shot .tgl.on i { left: calc(100% - var(--kn) - 3px); }
+.rx-screen.scrolly { overflow-y: auto !important; }
