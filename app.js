@@ -378,29 +378,43 @@
   for (const [name, d] of Object.entries(IMG)) { const f = d.img || FILE[name] || name; d.h = META[f] || d.h - CUT; d.hot.forEach((h) => { h.y -= CUT; if (h.y < 0) { h.h += h.y; h.y = 0; } }); }
   // 화면 분할: split 아래(버튼·카드·탭바)는 화면 바닥에 고정, 위쪽은 폭에 꽉 맞춤
   // mode "clip" = 지도처럼 위쪽을 잘라서 보여줌, "scroll" = 필요하면 위쪽만 살짝 스크롤
-  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "map", 116, 380], exploreCourse: [633, "map", 116, 400],
+  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "map", 116, 380], exploreCourse: [771, "map", 116, 400],
     cheongju: [521, "map", 114, 300], cheongjuDone: [535, "map", 114, 300], cheongjuSheet: [466, "map", 114, 300], stampDone: [628], mycourse: [770], coursemap: [760, "map", 272, 460],
     courseEdit: [770], mypage: [774] };
+  IMG.exploreCourse.mapImg = "screens/explore-course-map.jpg";
+  IMG.exploreCourse.card = { y0: 630 - CUT, y1: 754 - CUT, x0: 22, x1: 371, r: 26 };
+  IMG.mypage.toggle = { x: 299 , y: 590 - CUT, w: 36, h: 20, label: "나만 보기" };
   for (const [n, [y, m, hd, fy]] of Object.entries(SPLIT)) { Object.assign(IMG[n], { split: y - CUT, mode: m || "scroll", head: hd ? hd - CUT : 0, focus: fy ? fy - CUT : 0 }); }
   const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
   for (const [name, d] of Object.entries(IMG)) {
-    const src = `screens/${d.img || FILE[name] || name}.jpg`;
+    const file = d.img || FILE[name] || name, src = `screens/${file}.jpg`;
     screens[name] = () => {
-      const k = 393 / d.w, sp = d.split || d.h, hd = d.head || 0;
+      const k = 393 / d.w, sp = d.split || d.h, hd = d.head || 0, cd = d.card;
       const all = d.hot.map((h, i) => [h, i]);
-      const head = all.filter(([h]) => h.y < hd), top = all.filter(([h]) => h.y >= hd && h.y < sp), foot = all.filter(([h]) => h.y >= sp);
+      const inCard = (h) => cd && h.y >= cd.y0 && h.y < cd.y1;
+      const head = all.filter(([h]) => h.y < hd), foot = all.filter(([h]) => h.y >= sp);
+      const card = all.filter(([h]) => inCard(h)), top = all.filter(([h]) => h.y >= hd && h.y < sp && !inCard(h));
       const footH = (d.h - sp) * k, clipH = Math.max(120, APPH - footH), clip = d.mode === "clipb" ? `max-height:${clipH}px;` : "";
       const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
+      // 목록 화면: 조금 넘치면 통째로 살짝 줄여서 한 화면에 (양옆은 배경색으로 이어짐)
+      let s = 1;
+      if (d.mode === "scroll" && !hd) { const f = (APPH - footH) / (sp * k); if (f < 1 && f >= 0.66) s = f; }
+      const K = k * s, topH = (sp - hd) * K;
+      const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${((d.toggle.y - hd) * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `
       <section class="screen shot-screen ${d.mode || ""}">
         ${hd ? `<div class="shot-head" style="height:${(hd * k).toFixed(1)}px">
           <img src="${src}" alt="" draggable="false">
           ${head.map(([h, i]) => hotBtn(h, i, k)).join("")}
         </div>` : ""}
-        <div class="shot-top" ${d.focus ? `data-focus="${((d.focus - hd) * k).toFixed(0)}"` : ""}><div class="shot" style="width:393px;height:${((sp - hd) * k).toFixed(1)}px;${clip}">
-          <img src="${src}" alt="" draggable="false" style="width:393px;height:auto;top:${(off - hd * k).toFixed(1)}px">
-          ${top.map(([h, i]) => hotBtn(h, i, k, hd - off / k)).join("")}
+        <div class="shot-top" ${d.focus ? `data-focus="${((d.focus - hd) * k).toFixed(0)}"` : ""} style="${s < 1 ? `background:url('screens/edge/${file}.png') 0 0 / 100% ${(d.h * K).toFixed(0)}px no-repeat` : ""}"><div class="shot" style="width:${(393 * s).toFixed(1)}px;height:${topH.toFixed(1)}px;margin:0 auto;${clip}">
+          <img src="${d.mapImg || src}" alt="" draggable="false" style="width:${(393 * s).toFixed(1)}px;height:auto;top:${(off - hd * K).toFixed(1)}px">
+          ${top.map(([h, i]) => hotBtn(h, i, K, hd - off / K)).join("")}${tg}
         </div></div>
+        ${cd ? `<div class="shot-card" style="bottom:${(footH + (sp - cd.y1) * k).toFixed(1)}px;height:${((cd.y1 - cd.y0) * k).toFixed(1)}px;clip-path:inset(0 ${((393 / k - cd.x1) * k).toFixed(1)}px 0 ${(cd.x0 * k).toFixed(1)}px round ${cd.r}px)">
+          <img src="${src}" alt="" draggable="false" style="top:${(-cd.y0 * k).toFixed(1)}px">
+          ${card.map(([h, i]) => hotBtn(h, i, k, cd.y0)).join("")}
+        </div>` : ""}
         ${d.split ? `<div class="shot-foot" style="height:${footH.toFixed(1)}px">
           <img src="${src}" alt="" draggable="false" style="top:${(-sp * k).toFixed(1)}px">
           ${foot.map(([h, i]) => hotBtn(h, i, k, sp)).join("")}
@@ -611,7 +625,7 @@
   // 탐험 탭 처음 들어갈 때: 화면 전체 안개가 걷히고 충북 전체 지도
   for (const n of ["explore", "exploreCourse"]) {
     const orig = after[n];
-    after[n] = (el) => { orig(el); if (!S.seen?.explore) { (S.seen ||= {}).explore = true; fogReveal(el.querySelector(".shot"), 196, 430); } };
+    after[n] = (el) => { orig(el); if (!S.seen?.explore) { (S.seen ||= {}).explore = true; el.classList.add("fogging"); fogReveal(el.querySelector(".shot"), 196, 430); setTimeout(() => el.classList.remove("fogging"), 2700); } };
   }
   const _cj = after.cheongju;
   after.cheongju = (el) => { _cj(el); if (!S.seen?.cheongju) { (S.seen ||= {}).cheongju = true; fogReveal(el.querySelector(".shot"), 150, 420); } };
@@ -718,6 +732,12 @@
   }
 
   scaleApp();
+  // '나만 보기' 같은 토글 스위치
+  app.addEventListener("click", (e) => {
+    const t = e.target.closest("[data-tgl]"); if (!t) return;
+    const on = !(S.toggles ||= {})[t.dataset.tgl]; S.toggles[t.dataset.tgl] = on; t.classList.toggle("on", on);
+    toast(on ? "나만 보기 켜짐 · 내 기록은 나만 볼 수 있어요" : "나만 보기 꺼짐");
+  });
   window.__go = (n) => { stack.length = 0; S.done = true; go(n); };
   window.__cur = () => stack.map((s) => s.name).join(">");
   go("onboarding");

@@ -475,3 +475,12 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 #app.short .cta { height: 54px; }
 #app.short .screen:not(.shot-screen):not(.with-nav) { padding-bottom: 34px; }
 #app.short .rx-screen { padding-bottom: 0; }
+/* 탐험: 떠 있는 '이번 코스' 카드 — 안개가 걷힌 뒤 올라옴 */
+.shot-screen > .shot-card { position: absolute; left: 0; right: 0; z-index: 5; overflow: hidden; transition: transform .6s cubic-bezier(.2,.9,.3,1.2), opacity .4s; filter: drop-shadow(0 6px 14px rgba(11,43,94,.12)); }
+.shot-card > img { position: absolute; left: 0; width: 393px; height: auto; pointer-events: none; }
+.fogging > .shot-card { transform: translateY(60px); opacity: 0; pointer-events: none; transition: none; }
+/* 토글 스위치 */
+.shot .tgl { position: absolute; z-index: 3; border-radius: 99px; background: #d5deea; transition: background .2s; }
+.shot .tgl i { position: absolute; top: 50%; left: 3px; width: var(--kn); height: var(--kn); margin-top: calc(var(--kn) / -2); border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(11,43,94,.25); transition: left .2s; }
+.shot .tgl.on { background: var(--blue); }
+.shot .tgl.on i { left: calc(100% - var(--kn) - 3px); }
