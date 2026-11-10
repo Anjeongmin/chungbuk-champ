@@ -91,11 +91,14 @@
 
   // 화면을 393×852 캔버스에 딱 맞추기 (스크롤 없이)
   // 휴대폰 폭에 꽉 맞추고, 높이는 휴대폰 화면 높이만큼 (데스크톱은 폰 프레임)
-  let APPH = 852, NAVCUT = 0;
+  let APPH = 852, NAVCUT = 0, SAFET = 0;
   const fit = (w, h) => { const k = Math.min(393 / w, APPH / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
   const probe = document.createElement("div");
   probe.style.cssText = "position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
   document.body.appendChild(probe);
+  const fullProbe = document.createElement("div");
+  fullProbe.style.cssText = "position:fixed;top:0;left:0;right:0;bottom:0;visibility:hidden;pointer-events:none;z-index:-1";
+  document.body.appendChild(fullProbe);
   function scaleApp() {
     const vw = innerWidth, vh = innerHeight;
     let k, h;
@@ -106,8 +109,11 @@
       const safe = parseFloat(getComputedStyle(probe).paddingTop) || 0, safeB = parseFloat(getComputedStyle(probe).paddingBottom) || 0;
       // 사파리처럼 아래에 홈 표시줄 공간이 없으면, 디자인 탭바 밑 빈 여백(홈 표시줄 자리)을 잘라 탭바를 바닥에 붙임
       NAVCUT = safeB < 8 ? 28 : 0;
-      k = vw / 393; h = Math.round((vh - safe) / k);
-      Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });
+      // 화면 전체(상태바·홈 표시줄 영역까지) 꽉 채움: 실제 고정 레이어 높이를 재서 사용
+      const full = Math.max(vh, fullProbe.getBoundingClientRect().height || 0);
+      k = vw / 393; h = Math.round(full / k);
+      SAFET = safe / k; app.style.setProperty("--safe-t", (safe / k).toFixed(1) + "px"); app.style.setProperty("--safe-b", (safeB / k).toFixed(1) + "px");
+      Object.assign(app.style, { left: "0", top: "0", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });
     }
     const changed = Math.abs(h - APPH) > 4 || NAVCUT !== scaleApp._nc; scaleApp._nc = NAVCUT; APPH = h;
     app.classList.toggle("short", h < 760); // 사파리처럼 키가 짧으면 여백 먼저 줄이기
@@ -393,17 +399,18 @@
   IMG.mypage.toggle = { x: 299 , y: 590 - CUT, w: 36, h: 20, label: "나만 보기" };
   for (const [n, [y, m, hd, fy]] of Object.entries(SPLIT)) { Object.assign(IMG[n], { split: y - CUT, mode: m || "scroll", head: hd ? hd - CUT : 0, focus: fy ? fy - CUT : 0 }); }
   const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
+  const TOPC = {"mycourse": "#c3e7ff", "home": "#c2e8fd", "onboarding": "#c2e6fc", "stamp-done": "#c3e5ff", "login-email": "#bde2ff", "settings": "#c3e7fd", "cheongju": "#c1eb86", "goesan-map": "#c3eb88", "cheongju-done": "#c1eb86", "course-edit": "#c1e7fe", "rediag": "#c1e7fe", "explore-course-map": "#c4e8fe", "login": "#c3e7ff", "explore-course": "#c4e8fe", "stampbook": "#c3e5ff", "cheongju-sheet": "#c1eb86", "diag-again": "#c3e7fd", "explore": "#c3e8fc", "mypage": "#c3e7fd", "coursemap": "#c1e7fe"};
   // 이미지 화면: 한 장 그대로(갈라짐 없이) 화면 높이에 맞춰 통째로 축소, 탭바는 바닥에 붙임
   for (const [name, d] of Object.entries(IMG)) {
     const file = d.img || FILE[name] || name, src = `screens/${file}.jpg`;
     screens[name] = () => {
       const k = 393 / d.w, cut = NAVCUT, H = d.h - cut;          // 사파리면 탭바 밑 빈 여백만큼 잘라냄
-      const s = Math.min(1, APPH / (H * k)), K = k * s, W = 393 * s, cd = d.card;
+      const s = Math.min(1, (APPH - Math.max(0, SAFET - 14)) / (H * k)), K = k * s, W = 393 * s, cd = d.card;
       const all = d.hot.map((h, i) => [h, i]);
       const inCard = (h) => cd && h.y >= cd.y0 && h.y < cd.y1;
       const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${(d.toggle.y * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `
-      <section class="screen shot-screen" style="background:url('screens/edge/${file}.png') 0 100% / 100% ${(d.h * K).toFixed(0)}px no-repeat, url('screens/edge/${file}.png') 0 0 / 100% 2px no-repeat">
+      <section class="screen shot-screen" style="background:url('screens/edge/${file}.png') 0 100% / 100% ${(d.h * K).toFixed(0)}px no-repeat ${TOPC[file] || "#c6e6fb"}">
         <div class="shot" style="width:${W.toFixed(1)}px;height:${(H * K).toFixed(1)}px">
           <img src="${d.mapImg || src}" alt="" draggable="false" style="width:${W.toFixed(1)}px;height:auto">
           ${all.filter(([h]) => !inCard(h)).map(([h, i]) => hotBtn(h, i, K)).join("")}${tg}
@@ -646,7 +653,7 @@
   screens.goesan = () => {
     const g = S.gs, cur = GS[g.cur], isDone = g.done.includes(g.cur), all = g.done.length === GS.length;
     return `
-    <section class="screen shot-screen"><div class="shot" style="width:393px;height:${APPH}px"><div class="gmap" style="height:${(APPH * 388 / 393 + 38).toFixed(0)}px;transform:scale(${(393 / 388).toFixed(4)}) translateY(-38px)">
+    <section class="screen shot-screen"><div class="shot" style="width:393px;height:${APPH}px"><div class="gmap" style="height:${(APPH * 388 / 393 - Math.max(-38, Math.min(0, APPH - 852))).toFixed(0)}px;transform:scale(${(393 / 388).toFixed(4)}) translateY(${Math.max(-38, Math.min(0, APPH - 852))}px)">
       <img class="gbg" src="screens/goesan-map.jpg" alt="" draggable="false">
       ${GS.map((p, i) => `
         <button class="gplace ${i === g.cur ? "cur" : ""}" data-p="${i}" style="left:${p.px}px;top:${p.py - 30}px">

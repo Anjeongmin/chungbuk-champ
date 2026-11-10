@@ -421,7 +421,7 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 @keyframes wxdrift { from { left: -200px; } to { left: 420px; } }
 
 /* 폰 꽉 채우기 */
-.shot-screen { justify-content: flex-start !important; align-items: center; background: #cfe9fb; }
+.shot-screen { justify-content: flex-end !important; align-items: center; background: #cfe9fb; }
 .shot-screen::before { content: ""; position: absolute; inset: -30px; background: var(--shotbg) center / cover; filter: blur(18px); z-index: 0; }
 .shot { z-index: 1; }
 .gmap { position: absolute; left: 0; top: 0; width: 388px; height: 852px; transform-origin: top left; overflow: hidden; background: #c9ea8f; }
@@ -499,3 +499,6 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 .shot > .shot-card { position: absolute; left: 0; right: 0; z-index: 5; overflow: hidden; transition: transform .6s cubic-bezier(.2,.9,.3,1.2), opacity .4s; filter: drop-shadow(0 6px 14px rgba(11,43,94,.12)); }
 .shot > .shot-card > img { position: absolute; left: 0; height: auto; pointer-events: none; }
 .fogging .shot-card { transform: translateY(60px); opacity: 0; pointer-events: none; transition: none; }
+/* 상태바 영역까지 꽉 채운 상태에서 코드 화면 내용은 상태바 아래부터 */
+#app { --safe-t: 0px; }
+.screen:not(.shot-screen) { padding-top: calc(16px + var(--safe-t)); }
