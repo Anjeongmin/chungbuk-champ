@@ -59,10 +59,19 @@
     el.querySelectorAll('[data-act="back"]').forEach((b) => b.addEventListener("click", back));
   }
 
+  // 화면을 393×852 캔버스에 딱 맞추기 (스크롤 없이)
+  const fit = (w, h) => { const k = Math.min(393 / w, 852 / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
+  function scaleApp() {
+    const vw = window.visualViewport?.width || innerWidth, vh = window.visualViewport?.height || innerHeight;
+    const k = Math.min(vw / 393, vh / 852);
+    app.style.transform = `translate(-50%, -50%) scale(${k})`;
+  }
+  scaleApp(); addEventListener("resize", scaleApp); window.visualViewport?.addEventListener("resize", scaleApp);
+
   // ── screens ──
   const screens = {
     onboarding: () => `
-      <section class="screen shot-screen onb2"><div class="shot" style="aspect-ratio:393/840">
+      <section class="screen shot-screen onb2"><div class="shot" style="${fit(393, 840)}">
         <img src="screens/onboarding.jpg" alt="충북챔 · 나에게 맞는 충북 여행 처방" draggable="false">
         <button class="hot" aria-label="시작" style="inset:0"></button>
         <span class="onb-hint">화면을 눌러 시작하기</span>
@@ -315,7 +324,7 @@
   for (const [name, d] of Object.entries(IMG)) {
     const src = `screens/${d.img || FILE[name] || name}.jpg`;
     screens[name] = () => `
-      <section class="screen shot-screen"><div class="shot" style="aspect-ratio:${d.w}/${d.h}">
+      <section class="screen shot-screen"><div class="shot" style="${fit(d.w, d.h)}">
         <img src="${src}" alt="" draggable="false">
         ${d.hot.map((h, i) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${pct(h.x, d.w)};top:${pct(h.y, d.h)};width:${pct(h.w, d.w)};height:${pct(h.h, d.h)}"></button>`).join("")}
       </div></section>`;
