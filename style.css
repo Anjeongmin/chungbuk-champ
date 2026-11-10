@@ -717,3 +717,22 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 @keyframes cjPop { from { opacity: 0; transform: translate(-50%, 10px) scale(.6); } }
 .cj-place.cur { z-index: 7; }
 .cj-place .ov-in { overflow: visible; }
+/* 하단 탭바: 홈 화면 디자인 기준 */
+#tabbar { border-top: 1px solid #f1f5f9 !important; box-shadow: none !important; padding: 12px 24px 0 !important; }
+#tabbar button { position: relative; gap: 4px; }
+#tabbar b { font-size: 10px !important; font-weight: 500 !important; color: #94a3b8 !important; line-height: 15px; }
+#tabbar button.on b { font-weight: 700 !important; color: var(--blue) !important; }
+#tabbar .tdot { position: absolute; left: 50%; top: 0; margin-left: 6px; width: 6px; height: 6px; border-radius: 50%; background: #cbd5e1; }
+#tabbar button.on .tdot { display: none; }
+#tabbar button.on .ti.on { animation: none; }
+/* 청주 두더지 */
+.cj-moleo { z-index: 8; transition: left .75s cubic-bezier(.45,0,.3,1), top .75s cubic-bezier(.45,0,.3,1); }
+.cj-mole { width: 100%; height: 100%; object-fit: contain; display: block; filter: drop-shadow(0 4px 3px rgba(40,60,20,.25)); animation: cjFloat 2.4s ease-in-out infinite; }
+@keyframes cjFloat { 0%, 100% { transform: translateY(0) rotate(-3deg); } 50% { transform: translateY(-7px) rotate(3deg); } }
+.cj-moleo.jump .cj-mole { animation: cjJump .75s cubic-bezier(.3,.9,.4,1), cjFloat 2.4s .75s ease-in-out infinite; }
+@keyframes cjJump { 0% { transform: translateY(0) scale(1, 1); } 15% { transform: translateY(2px) scale(1.1, .85); } 50% { transform: translateY(-30px) scale(.95, 1.08); } 85% { transform: translateY(0) scale(1.08, .9); } 100% { transform: translateY(0) scale(1); } }
+.cj-holeo .ov-in { display: grid; place-items: center; }
+.cj-hole { width: 34px; height: 12px; border-radius: 50%; background: radial-gradient(ellipse at 50% 40%, #5b3a1e 40%, #8a5a30 62%, #b7864f 80%, transparent 82%); box-shadow: 0 1px 0 rgba(255,255,255,.4); }
+@keyframes cjSwap { from { opacity: .3; transform: translateY(10px); } }
+.cj-pop { bottom: calc(100% + 40px) !important; }
+.shot > .ov.cj-moleo { z-index: 9; } .shot > .ov.cj-place.cur { z-index: 8; } .shot > .ov.cj-card { z-index: 10; }
