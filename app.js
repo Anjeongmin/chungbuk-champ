@@ -120,6 +120,8 @@
     const changed = Math.abs(h - APPH) > 4 || NAVCUT !== scaleApp._nc; scaleApp._nc = NAVCUT; APPH = h;
     app.classList.toggle("short", h < 760); // 사파리처럼 키가 짧으면 여백 먼저 줄이기
     app.style.height = h + "px";
+    if (/debug/.test(location.search)) { let dbg = document.getElementById("dbg"); if (!dbg) { dbg = document.createElement("div"); dbg.id = "dbg"; dbg.style.cssText = "position:fixed;left:8px;top:50%;z-index:999;background:#000c;color:#fff;font:12px/1.5 monospace;padding:8px;border-radius:8px;pointer-events:none"; document.body.appendChild(dbg); }
+      dbg.textContent = `inner ${innerWidth}x${innerHeight} | screen ${screen.width}x${screen.height} | fixed ${Math.round(fullProbe.getBoundingClientRect().height)} | app ${h} | safe ${getComputedStyle(probe).paddingTop}/${getComputedStyle(probe).paddingBottom} | ${navigator.standalone ? "앱" : "사파리"}`; }
     if (changed && stack.length) rerender(app.firstElementChild);
   }
   addEventListener("resize", () => scaleApp()); window.visualViewport?.addEventListener("resize", () => scaleApp());
