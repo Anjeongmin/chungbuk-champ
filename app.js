@@ -402,7 +402,7 @@
       { x: 24, y: 372, w: 345, h: 140, go: "coursemap" }, { x: 24, y: 522, w: 345, h: 140, go: "coursemap" },
       { x: 24, y: 687, w: 345, h: 52, fn: "newDiag" }, ...TAB(770) ] },
     coursemap: { w: 375, h: 917, tab: "내 코스", hot: [ { x: 18, y: 85, w: 52, h: 52, back: true },
-      { x: 24, y: 755, w: 242, h: 56, go: "cheongju" }, { x: 278, y: 755, w: 73, h: 56, go: "courseEdit" }, ...TAB(835).map((t) => ({ ...t, x: t.x * 375 / 393, w: 66 })) ] },
+      { x: 24, y: 771, w: 242, h: 56, go: "cheongju" }, { x: 278, y: 771, w: 73, h: 56, go: "courseEdit" }, ...TAB(835).map((t) => ({ ...t, x: t.x * 375 / 393, w: 66 })) ] },
     courseEdit: { img: "course-edit", w: 375, h: 879, hot: [ { x: 18, y: 62, w: 52, h: 52, back: true },
       { x: 24, y: 783, w: 117, h: 56, back: true }, { x: 153, y: 783, w: 198, h: 56, fn: "saveOrder" } ] },
     mypage: { w: 393, h: 865, tab: "마이", hot: [
@@ -441,7 +441,7 @@
       const inCard = (h) => cd && h.y >= cd.y0 && h.y < cd.y1;
       const tg = d.toggle ? `<button class="tgl ${S.toggles?.[name] ? "on" : ""}" data-tgl="${name}" aria-label="${d.toggle.label}" style="left:${(d.toggle.x * K).toFixed(1)}px;top:${(d.toggle.y * K).toFixed(1)}px;width:${(d.toggle.w * K).toFixed(1)}px;height:${(d.toggle.h * K).toFixed(1)}px;--kn:${(d.toggle.h * K * 0.76).toFixed(1)}px"><i></i></button>` : "";
       return `
-      <section class="screen shot-screen" style="padding-bottom:${nb}px;background:url('screens/edge/${file}.png') 0 100% / 100% ${(d.h * K).toFixed(0)}px no-repeat ${TOPC[file] || "#c6e6fb"}">
+      <section class="screen shot-screen" style="padding-bottom:${nb}px;background:url('screens/edge/${file}.png') 0 ${(APPH - nb - H * K).toFixed(1)}px / 100% ${(d.h * K).toFixed(0)}px no-repeat ${TOPC[file] || "#c6e6fb"}">
         <div class="shot" style="width:${W.toFixed(1)}px;height:${(H * K).toFixed(1)}px">
           <img src="${d.mapImg || src}" alt="" draggable="false" style="width:${W.toFixed(1)}px;height:auto">
           ${all.filter(([h]) => !inCard(h)).map(([h, i]) => hotBtn(h, i, K)).join("")}${tg}
@@ -929,7 +929,7 @@
     // 괴산과 같은 상단 머리(뒤로 화살표·경로)
     const head = overlay(el, name, 20, 65, 200, 44, `<div class="ghead cjhead"><button class="gback" data-act="cjback">‹</button><span class="gcrumb">충청북도 <b>›</b> <strong>청주</strong></span></div>`, "cj-head");
     head.querySelector('[data-act="cjback"]').onclick = () => tabGo("탐험");
-    const moleAt = (i) => { const [x, y, w] = CJ[i].box; return [x + w * 0.62, y - 12]; };
+    const moleAt = (i) => { const [x, y, w] = CJ[i].box; return [x + w * 0.04, y - 8]; }; // 도장 핀(오른쪽 위)과 안 겹치게 왼쪽 위
     const [mx, my] = moleAt(g.cur);
     const mo = overlay(el, name, mx, my, 38, 34, '<img class="gmole cjmole" src="assets/map/mole-slot.png" alt="">', "cj-moleo");
     mo.style.pointerEvents = "none";
