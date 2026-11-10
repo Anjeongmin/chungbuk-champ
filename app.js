@@ -91,10 +91,10 @@
 
   // 화면을 393×852 캔버스에 딱 맞추기 (스크롤 없이)
   // 휴대폰 폭에 꽉 맞추고, 높이는 휴대폰 화면 높이만큼 (데스크톱은 폰 프레임)
-  let APPH = 852;
+  let APPH = 852, NAVCUT = 0;
   const fit = (w, h) => { const k = Math.min(393 / w, APPH / h); return `width:${(w * k).toFixed(1)}px;height:${(h * k).toFixed(1)}px`; };
   const probe = document.createElement("div");
-  probe.style.cssText = "position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top)";
+  probe.style.cssText = "position:fixed;top:0;left:0;visibility:hidden;pointer-events:none;padding-top:env(safe-area-inset-top);padding-bottom:env(safe-area-inset-bottom)";
   document.body.appendChild(probe);
   function scaleApp() {
     const vw = innerWidth, vh = innerHeight;
@@ -103,11 +103,13 @@
       k = Math.min(vw / 393, vh / 852, 1.2); h = 852;
       Object.assign(app.style, { left: "50%", top: "50%", transformOrigin: "center center", transform: `translate(-50%, -50%) scale(${k})` });
     } else { // 휴대폰: 폭·높이 꽉 채우기 (상단 상태바 영역만 비워둠)
-      const safe = parseFloat(getComputedStyle(probe).paddingTop) || 0;
+      const safe = parseFloat(getComputedStyle(probe).paddingTop) || 0, safeB = parseFloat(getComputedStyle(probe).paddingBottom) || 0;
+      // 사파리처럼 아래에 홈 표시줄 공간이 없으면, 디자인 탭바 밑 빈 여백(홈 표시줄 자리)을 잘라 탭바를 바닥에 붙임
+      NAVCUT = safeB < 8 ? 28 : 0;
       k = vw / 393; h = Math.round((vh - safe) / k);
       Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: Math.abs(k - 1) < 0.01 ? "none" : `scale(${k})` });
     }
-    const changed = Math.abs(h - APPH) > 4; APPH = h;
+    const changed = Math.abs(h - APPH) > 4 || NAVCUT !== scaleApp._nc; scaleApp._nc = NAVCUT; APPH = h;
     app.classList.toggle("short", h < 760); // 사파리처럼 키가 짧으면 여백 먼저 줄이기
     app.style.height = h + "px";
     if (changed && stack.length) rerender(app.firstElementChild);
@@ -399,7 +401,7 @@
       const inCard = (h) => cd && h.y >= cd.y0 && h.y < cd.y1;
       const head = all.filter(([h]) => h.y < hd), foot = all.filter(([h]) => h.y >= sp);
       const card = all.filter(([h]) => inCard(h)), top = all.filter(([h]) => h.y >= hd && h.y < sp && !inCard(h));
-      const footH = (d.h - sp) * k, clipH = Math.max(120, APPH - footH), clip = d.mode === "clipb" ? `max-height:${clipH}px;` : "";
+      const footH = Math.max(0, d.h - sp - (d.split ? NAVCUT : 0)) * k, clipH = Math.max(120, APPH - footH), clip = d.mode === "clipb" ? `max-height:${clipH}px;` : "";
       const off = d.mode === "clipb" ? Math.min(0, clipH - sp * k) : 0;
       // 목록 화면: 조금 넘치면 통째로 살짝 줄여서 한 화면에 (양옆은 배경색으로 이어짐)
       let s = 1;
