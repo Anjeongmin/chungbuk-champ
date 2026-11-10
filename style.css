@@ -446,3 +446,9 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 .gmap .map-nav { bottom: 0; }
 /* 작은 폰: 내용이 눌려서 잘리지 않게 → 넘치면 화면 전체를 살짝 축소 */
 .screen:not(.shot-screen) > *:not(.spacer) { flex-shrink: 0; }
+.screen.scrolly { overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; }
+.screen.scrolly::-webkit-scrollbar { display: none; }
+.screen.scrolly > .spacer { flex: 0 0 20px; }
+.screen.scrolly .float-cta { position: sticky !important; left: auto; right: auto; bottom: 0; margin: auto -24px -46px; z-index: 5; }
+.screen.scrolly > .cta { position: sticky; bottom: 18px; z-index: 5; }
+.screen.scrolly > .nav { position: sticky; bottom: -46px; z-index: 6; }

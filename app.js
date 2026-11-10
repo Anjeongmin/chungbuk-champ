@@ -64,11 +64,13 @@
     const ft = el?.querySelector(".shot-top[data-focus]");
     if (ft) requestAnimationFrame(() => { ft.scrollTop = Math.max(0, +ft.dataset.focus - ft.clientHeight / 2); });
     if (!el || el.classList.contains("shot-screen")) return;
-    el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = "";
+    el.style.zoom = ""; el.style.width = ""; el.style.height = ""; el.style.inset = ""; el.classList.remove("scrolly");
     const need = el.scrollHeight, have = el.clientHeight;
     if (need <= have + 2) return;
-    const z = Math.max(0.6, have / need);
+    // 조금 넘치면 살짝 축소, 많이 넘치면 축소 + 스크롤
+    const z = Math.max(0.86, have / need);
     Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
+    if (need * z > have + 2) el.classList.add("scrolly");
   }
   // 이미지가 늦게 로드되면 높이가 바뀌니 한 번 더 맞춤
   function refit(el) {
@@ -458,7 +460,7 @@
     },
     onboarding: (el) => {
       let moved = false;
-      const next = () => { if (moved) return; moved = true; clearTimeout(t); go("login", { replace: true }); };
+      const next = () => { if (moved) return; moved = true; clearTimeout(t); go("terms", { replace: true }); };
       const t = setTimeout(next, 2600);
       el.addEventListener("click", next);
     },
