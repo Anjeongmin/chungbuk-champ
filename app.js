@@ -27,8 +27,9 @@
   const mole = (cls = "", v = "") => `<img class="mole ${cls}" src="assets/mole${v ? "-" + v : ""}.png" alt="두더지" draggable="false">`;
   const hill = '<div class="hill"></div>';
   const cloud = (x, y, w) => `<div class="cloud" style="left:${x}px;top:${y}px;width:${w}px;height:${w * 0.42}px"></div>`;
-  const dots = (n) => `<div class="dots">${Array.from({ length: 7 }, (_, i) => `<i class="${i + 1 === n ? "on" : ""}"></i>`).join("")}</div>`;
-  const top = (n) => `<div class="top"><button class="back-btn" data-act="back" aria-label="뒤로">${I.back}</button>${dots(n)}<span class="count">${n} / 7</span></div>`;
+  const STEPS = 2 + window.CB.questions.length; // 나이 + 아픈 곳 + 질문들
+  const dots = (n) => `<div class="dots">${Array.from({ length: STEPS }, (_, i) => `<i class="${i + 1 === n ? "on" : ""}"></i>`).join("")}</div>`;
+  const top = (n) => `<div class="top"><button class="back-btn" data-act="back" aria-label="뒤로">${I.back}</button>${dots(n)}<span class="count">${n} / ${STEPS}</span></div>`;
   const bubble = (title, sub, tag = "두더지") => `<div class="bubble"><span class="tagname">${tag}</span><h1>${title}</h1><p>${sub}</p></div>`;
   const sheetHead = (mid = "해당하는 곳에 체크해요") => `<div class="sheet-head"><b>문진표</b><span>${mid}</span><em>NO. ${NO}</em></div>`;
 
@@ -121,10 +122,10 @@
     diagnose: () => `
       <section class="screen ${S.done ? "with-nav" : ""}">
         <h1 class="page-title">${S.done ? "진단" : "첫 진단"}</h1>
-        <div class="intro">${mole("bob")}${bubble("나의 여행 증상을<br>진단해볼까요?", "질문 7개 · 약 3분 · 코스 5곳")}</div>
+        <div class="intro">${mole("bob")}${bubble("나의 여행 증상을<br>진단해볼까요?", `질문 ${STEPS}개 · 약 2분 · 코스 5곳`)}</div>
         <div class="card">
           <h2>처방은 이렇게 나와요</h2>
-          <div class="step"><i style="background:#e6f4ff">📋</i><div><b>① 질문 7개</b><small>가볍게 일곱 가지 질문에 답해요</small></div></div>
+          <div class="step"><i style="background:#e6f4ff">📋</i><div><b>① 질문 ${STEPS}개</b><small>가볍게 ${STEPS}가지 질문에 답해요</small></div></div>
           <div class="step"><i style="background:#fff7cf">🩺</i><div><b>② 증상 진단</b><small>내 여행 증상을 찾아내요</small></div></div>
           <div class="step"><i style="background:#ffe9f0">🗺️</i><div><b>③ 충북 코스 처방</b><small>나에게 맞는 코스를 처방해요</small></div></div>
         </div>
@@ -196,7 +197,7 @@
           ${q.options.map((o) => `<button class="opt ${S.ans[q.key] === o ? "on" : ""}" data-ans="${q.key}" data-val="${o}"><span class="radio"></span><span><b>${o}</b></span></button>`).join("")}
         </div>
         <div class="spacer"></div>
-        <button class="cta" data-act="next" ${S.ans[q.key] ? "" : "disabled"}>${i === 4 ? "결과" : "다음으로"}</button>
+        <button class="cta" data-act="next" ${S.ans[q.key] ? "" : "disabled"}>${i === D.questions.length - 1 ? "결과" : "다음으로"}</button>
       </section>`])),
 
     brewing: () => `
@@ -389,7 +390,7 @@
   const FN = {
     newDiag: () => { Object.assign(S, { age: null, part: null, symptom: null, ans: {}, picked: new Set(), placeId: null }); go("age"); },
     showRx: () => {
-      if (!S.symptom) Object.assign(S, { age: "40-50", part: "waist", symptom: "허리 뻐근함", ans: { pick: "직접 찾아서 발견함", energy: "걸으며 움직이기", scene: "자연", plan: "대강만 정함", with: "혼자" } });
+      if (!S.symptom) Object.assign(S, { age: "40-50", part: "waist", symptom: "허리 뻐근함", ans: { pick: "직접 찾아서 발견함", energy: "걸으며 움직이기", scene: "자연", with: "혼자" } });
       go("rx");
     },
     fog: () => toast("안개에 가려진 지역이에요 · 청주나 괴산을 눌러보세요"),
@@ -412,7 +413,11 @@
   const rx = () => D.prescriptions[S.symptom] || { course: "맞춤 코스", how: "내 속도대로", line: "오늘은 나를 위한 여행을 떠나요" };
   const taste = () => ({ "직접 찾아서 발견함": "숨은 명소 좋아함", "지인·SNS 추천을 따름": "믿을 만한 추천 좋아함", "검색·후기 상위에서 고름": "검증된 명소 좋아함" })[S.ans.pick] || S.ans.scene;
 
-  const qOrder = ["age", "body", "symptom", "q3", "q4", "q5", "q6", "q7", "brewing"];
+  const qNames = D.questions.map((_, i) => `q${i + 3}`);
+  const qOrder = ["age", "body", ...qNames, "brewing"];
+  // 아픈 곳 → 증상 (증상 고르는 화면 없이 자동으로)
+  const PART_SYM = { head: "눈의 피로", neck: "목 결림", shoulder: "어깨 결림", waist: "허리 뻐근함", knee: "관절 뻐근함" };
+  const WHOLE_SYM = { "10-30": "수면 부족", "40-50": "만성 피로", "60-70": "기력 저하" };
   const nextOf = (n) => qOrder[qOrder.indexOf(n) + 1];
 
   // ── per-screen wiring ──
@@ -441,10 +446,10 @@
     age: (el) => wireOpts(el, "[data-age]", (b) => (S.age = b.dataset.age, S.symptom = null), "age"),
     body: (el) => {
       el.querySelectorAll("[data-part]").forEach((b) => (b.onclick = () => { S.part = b.dataset.part; rerender(el); }));
-      el.querySelector('[data-act="next"]').onclick = () => go("symptom");
+      el.querySelector('[data-act="next"]').onclick = () => { S.symptom = PART_SYM[S.part] || WHOLE_SYM[S.age] || "만성 피로"; go("q3"); };
     },
     symptom: (el) => wireOpts(el, "[data-sym]", (b) => (S.symptom = b.dataset.sym), "symptom"),
-    ...Object.fromEntries(["q3", "q4", "q5", "q6", "q7"].map((n) => [n, (el) => wireOpts(el, "[data-ans]", (b) => (S.ans[b.dataset.ans] = b.dataset.val), n)])),
+    ...Object.fromEntries(qNames.map((n) => [n, (el) => wireOpts(el, "[data-ans]", (b) => (S.ans[b.dataset.ans] = b.dataset.val), n)])),
     brewing: () => {
       let v = 0;
       const pct = document.getElementById("pct"), bi = document.getElementById("barI"), be = document.getElementById("barE");
