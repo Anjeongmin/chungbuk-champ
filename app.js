@@ -68,7 +68,7 @@
     const need = el.scrollHeight, have = el.clientHeight;
     if (need <= have + 2) return;
     // 조금 넘치면 살짝 축소, 많이 넘치면 축소 + 스크롤
-    const z = Math.max(0.86, have / need);
+    const z = Math.max(el.classList.contains("rx-screen") ? 0.7 : 0.86, have / need);
     Object.assign(el.style, { zoom: z, inset: "0 auto auto 0", width: 393 / z + "px", height: APPH / z + "px" });
     if (need * z > have + 2) el.classList.add("scrolly");
   }
@@ -104,6 +104,7 @@
       Object.assign(app.style, { left: "0", top: safe + "px", transformOrigin: "0 0", transform: `scale(${k})` });
     }
     const changed = Math.abs(h - APPH) > 4; APPH = h;
+    app.classList.toggle("short", h < 800);
     app.style.height = h + "px";
     if (changed && stack.length) rerender(app.firstElementChild);
   }
@@ -377,8 +378,8 @@
   for (const [name, d] of Object.entries(IMG)) { const f = d.img || FILE[name] || name; d.h = META[f] || d.h - CUT; d.hot.forEach((h) => { h.y -= CUT; if (h.y < 0) { h.h += h.y; h.y = 0; } }); }
   // 화면 분할: split 아래(버튼·카드·탭바)는 화면 바닥에 고정, 위쪽은 폭에 꽉 맞춤
   // mode "clip" = 지도처럼 위쪽을 잘라서 보여줌, "scroll" = 필요하면 위쪽만 살짝 스크롤
-  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "map", 116, 380], exploreCourse: [628, "map", 116, 400],
-    cheongju: [510, "map", 114, 300], cheongjuDone: [460, "map", 114, 300], cheongjuSheet: [430, "map", 114, 300], stampDone: [628], mycourse: [770], coursemap: [760, "map", 272, 460],
+  const SPLIT = { login: [360, "clipb"], home: [770], diagAgain: [808], rediag: [660], explore: [771, "map", 116, 380], exploreCourse: [633, "map", 116, 400],
+    cheongju: [521, "map", 114, 300], cheongjuDone: [535, "map", 114, 300], cheongjuSheet: [466, "map", 114, 300], stampDone: [628], mycourse: [770], coursemap: [760, "map", 272, 460],
     courseEdit: [770], mypage: [774] };
   for (const [n, [y, m, hd, fy]] of Object.entries(SPLIT)) { Object.assign(IMG[n], { split: y - CUT, mode: m || "scroll", head: hd ? hd - CUT : 0, focus: fy ? fy - CUT : 0 }); }
   const hotBtn = (h, i, k, oy = 0) => `<button class="hot" data-i="${i}" aria-label="${h.tab || h.go || h.fn || "뒤로"}" style="left:${(h.x * k).toFixed(1)}px;top:${((h.y - oy) * k).toFixed(1)}px;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`;
@@ -718,5 +719,6 @@
 
   scaleApp();
   window.__go = (n) => { stack.length = 0; S.done = true; go(n); };
+  window.__cur = () => stack.map((s) => s.name).join(">");
   go("onboarding");
 })();

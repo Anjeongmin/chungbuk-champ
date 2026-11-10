@@ -452,3 +452,26 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 .screen.scrolly .float-cta { position: sticky !important; left: auto; right: auto; bottom: 0; margin: auto -24px -46px; z-index: 5; }
 .screen.scrolly > .cta { position: sticky; bottom: 18px; z-index: 5; }
 .screen.scrolly > .nav { position: sticky; bottom: -46px; z-index: 6; }
+
+/* ── 키 작은 폰(화면 높이 < 800): 여백·크기를 줄여 한 화면에 ── */
+#app.short .top { height: 38px; margin-top: 0; }
+#app.short .mole { width: 104px; margin: 2px auto -8px; }
+#app.short .mole.sm { width: 60px; }
+#app.short .bubble { padding: 22px 20px 16px; }
+#app.short .bubble h1 { font-size: 22px; }
+#app.short .bubble p { margin-top: 5px; }
+#app.short .sheet { margin-top: 18px; }
+#app.short .sheet-head { padding: 26px 20px 12px; }
+#app.short .opt { padding: 15px 20px; }
+#app.short .opt b { font-size: 17px; }
+#app.short .body-wrap { zoom: .86; }
+#app.short .intro { margin-top: 10px; }
+#app.short .intro .mole { width: 124px; }
+#app.short .card { margin-top: 16px; padding: 18px 20px; }
+#app.short .step { padding: 4px 0; }
+#app.short .step i { width: 42px; height: 42px; }
+#app.short .receipt { margin-top: 18px; }
+#app.short .receipt-head { padding: 14px 18px; }
+#app.short .cta { height: 54px; }
+#app.short .screen:not(.shot-screen):not(.with-nav) { padding-bottom: 34px; }
+#app.short .rx-screen { padding-bottom: 0; }
