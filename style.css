@@ -765,3 +765,9 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .gbtns .gsave.on { color: var(--blue); border-color: #b9d8f7 !important; background: #f2f8ff; }
 .gbtns .gsave.on .ic-save-fill { fill: currentColor; }
 .gbtns .gsave:active { transform: scale(.94); }
+.gbtns .gstamp.pressing .ic-stamp { animation: stampDown .65s cubic-bezier(.5,0,.3,1); }
+@keyframes stampDown { 0% { transform: translateY(0); } 45% { transform: translateY(-7px) rotate(-8deg); } 70% { transform: translateY(3px) scale(1.15, .8); } 100% { transform: translateY(0); } }
+.gbtns .gstamp.pressing { transform: translateY(2px); box-shadow: 0 6px 0 #0067be; }
+.gbtns .gstamp.stamped { background: #e7f6ef; color: #16946b; box-shadow: 0 8px 0 #c9eadb; animation: stampDone .45s cubic-bezier(.3,1.6,.5,1); }
+.gbtns .gstamp.stamped .stamp-ok { display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%; background: #16946b; color: #fff; font-size: 13px; animation: mcPop .4s cubic-bezier(.3,1.6,.5,1); }
+@keyframes stampDone { 0% { transform: scale(.92); } 100% { transform: scale(1); } }
