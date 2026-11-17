@@ -587,7 +587,7 @@
     WX.ready.then((w) => {
       const scr = shot.closest(".screen"); if (!scr || !scr.isConnected) return;
       const t = w.type === "storm" ? "rain" : w.type === "fog" ? "cloud" : w.type;
-      const layer = document.createElement("div"); layer.className = `wx wx-${t}`;
+      const layer = document.createElement("div"); layer.className = `wx wx-${t}${scr.querySelector(".cj-head, .gmap") ? " region" : ""}`; // 청주·괴산은 '마지막 보물' 피해서 해 위치 아래로
       if (t === "clear" && w.day) layer.innerHTML = '<div class="wx-sun"><i></i></div>';
       if (t === "clear" && !w.day) layer.innerHTML = '<div class="wx-moon"></div><canvas width="393" height="' + APPH + '"></canvas>';
       if (t === "cloud") layer.innerHTML = [[90, 150, .9, 0], [230, 120, .8, -14], [330, 170, .8, -7], [430, 110, .7, -20]].map(([y, w2, sc, dl]) => `<div class="wx-cl" style="top:${y}px;--s:${sc};animation-delay:${dl}s"><div class="cloud" style="position:relative;left:0;top:0;width:${w2}px;height:${w2 * 0.42}px"></div></div>`).join("");

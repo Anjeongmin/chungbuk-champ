@@ -413,7 +413,7 @@ html, body { overflow: hidden; height: 100%; background: #c6e6fb; }
 /* 날씨 */
 .wx, .screen > .wx { position: absolute; inset: 0; z-index: 6; pointer-events: none; overflow: hidden; }
 .wx canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
-.wx-sun { position: absolute; right: 18px; top: 92px; width: 54px; height: 54px; animation: sunspin 14s linear infinite; }
+.wx-sun { position: absolute; right: 26px; top: 150px; width: 54px; height: 54px; animation: sunspin 14s linear infinite; }
 .wx-sun::before { content: ""; position: absolute; inset: -14px; border-radius: 50%; background: repeating-conic-gradient(rgba(255,206,60,.85) 0 10deg, transparent 10deg 30deg); -webkit-mask: radial-gradient(circle, transparent 30px, #000 31px, #000 40px, transparent 41px); mask: radial-gradient(circle, transparent 30px, #000 31px, #000 40px, transparent 41px); }
 .wx-sun i { position: absolute; inset: 0; border-radius: 50%; background: radial-gradient(circle at 40% 38%, #fff3b0, #ffd23f 60%, #ffb800); box-shadow: 0 0 24px rgba(255,200,60,.7); }
 @keyframes sunspin { to { transform: rotate(360deg); } }
@@ -708,7 +708,7 @@ html.ios-browser body { min-height: calc(100vh + 400px); }
 .pc-again { display: block; width: 100%; height: 0; margin-top: 0; overflow: hidden; border-radius: 14px; background: var(--blue); color: #fff; font-size: 14.5px; font-weight: 800; transition: height .3s cubic-bezier(.2,.9,.3,1), margin .3s; }
 .pc-card.open .pc-again { height: 44px; margin-top: 12px; }
 /* 밤 날씨 */
-.wx-moon { position: absolute; right: 22px; top: 96px; width: 46px; height: 46px; border-radius: 50%; box-shadow: inset -13px -6px 0 0 #ffd23f; filter: drop-shadow(0 0 10px rgba(255,210,63,.8)); animation: mcFloat 6s ease-in-out infinite; }
+.wx-moon { position: absolute; right: 26px; top: 152px; width: 46px; height: 46px; border-radius: 50%; box-shadow: inset -13px -6px 0 0 #ffd23f; filter: drop-shadow(0 0 10px rgba(255,210,63,.8)); animation: mcFloat 6s ease-in-out infinite; }
 .cj-pop { position: absolute; left: 50%; bottom: calc(100% + 4px); transform: translateX(-50%); white-space: nowrap; padding: 7px 13px; border-radius: 99px; background: var(--blue); color: #fff; font-size: 13px; font-weight: 800; box-shadow: 0 6px 14px rgba(0,129,238,.35); animation: cjPop .45s cubic-bezier(.3,1.6,.5,1) both; pointer-events: none; z-index: 3; }
 .cj-pop::after { content: ""; position: absolute; left: 50%; top: 100%; margin-left: -6px; border: 6px solid transparent; border-top-color: var(--blue); }
 @keyframes cjPop { from { opacity: 0; transform: translate(-50%, 10px) scale(.6); } }
@@ -779,7 +779,7 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .gsd-stamp img { image-rendering: auto; }
 /* 비 오는 날: 살짝 어두운 하늘 + 위쪽 비구름 */
 .wx-rain .wx-dim { position: absolute; inset: 0; background: linear-gradient(rgba(40,62,96,.28), rgba(40,62,96,.12) 45%, rgba(40,62,96,.08)); }
-.wx-rcl { position: absolute; top: 4px; transform: scale(var(--s)); opacity: .95; filter: grayscale(.5) brightness(.86); animation: wxRcl 9s ease-in-out infinite alternate; }
+.wx-rcl { position: absolute; top: 122px; transform: scale(var(--s)); opacity: .95; filter: grayscale(.5) brightness(.86); animation: wxRcl 9s ease-in-out infinite alternate; }
 @keyframes wxRcl { from { translate: -14px 0; } to { translate: 14px 0; } }
 /* 우표 쾅! */
 .gsd-stamp { position: relative; }
@@ -793,3 +793,8 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 @keyframes slamDust { 0% { transform: translate(0,0) scale(.4); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; } }
 .slam-text { position: absolute; left: -170px; top: -170px; width: 180px; text-align: center; font-size: 46px; font-weight: 900; color: var(--blue); -webkit-text-stroke: 2px #fff; paint-order: stroke fill; text-shadow: 0 4px 0 rgba(0,103,190,.35); animation: slamText .9s cubic-bezier(.3,1.6,.5,1) forwards; }
 @keyframes slamText { 0% { opacity: 0; transform: scale(.3) rotate(-14deg); } 25% { opacity: 1; transform: scale(1.2) rotate(-8deg); } 70% { opacity: 1; transform: scale(1) rotate(-8deg) translateY(-6px); } 100% { opacity: 0; transform: scale(1) rotate(-8deg) translateY(-18px); } }
+/* 날씨 효과가 위쪽 머리(제목·스탬프북 버튼)를 가리지 않게: 위 120px은 비우고 아래로 서서히 */
+.wx { -webkit-mask-image: linear-gradient(transparent 0, transparent 112px, #000 146px); mask-image: linear-gradient(transparent 0, transparent 112px, #000 146px); }
+.wx-rcl { top: 138px !important; }
+.wx.region .wx-sun, .wx.region .wx-moon { top: 212px; right: 30px; }
+.wx-rcl { display: none !important; }
