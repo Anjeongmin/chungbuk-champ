@@ -69,9 +69,12 @@
     tabbar.classList.toggle("show", !!t);
     tabbar.querySelectorAll("button").forEach((b) => b.classList.toggle("on", b.dataset.tab === t));
   }
+  // 그림 파일에도 버전 번호를 붙여서, 새로 올린 그림이 폰에 예전 그림으로 남지 않게
+  const AV = (document.querySelector('script[src^="app.js"]')?.getAttribute("src").match(/v=(\d+)/) || [])[1] || "1";
+  const bust = (html) => html.replace(/((?:screens|assets)\/[^"'?)\s]+\.(?:jpg|png|svg))/g, `$1?v=${AV}`);
   function swapScreen(html) {
     [...app.children].forEach((c) => c !== tabbar && c.remove());
-    app.insertAdjacentHTML("afterbegin", html);
+    app.insertAdjacentHTML("afterbegin", bust(html));
   }
   function render(name, isBack) {
     clearInterval(render._timer); clearTimeout(render._timer);
@@ -909,7 +912,7 @@
     const K = sh.offsetWidth / d.w, div = document.createElement("div");
     div.className = "ov " + cls;
     div.style.cssText = `left:${(x * K).toFixed(1)}px;top:${((y - 38) * K).toFixed(1)}px;width:${(w * K).toFixed(1)}px;height:${(h * K).toFixed(1)}px`;
-    div.innerHTML = `<div class="ov-in" style="width:${w}px;height:${h}px;transform:scale(${K.toFixed(4)})">${html}</div>`;
+    div.innerHTML = bust(`<div class="ov-in" style="width:${w}px;height:${h}px;transform:scale(${K.toFixed(4)})">${html}</div>`);
     sh.appendChild(div); return div;
   }
   const chain = (name, fn) => { const prev = after[name]; after[name] = (el) => { prev?.(el); fn(el); }; };
