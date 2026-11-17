@@ -773,3 +773,4 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 @keyframes stampDone { 0% { transform: scale(.92); } 100% { transform: scale(1); } }
 .home-logo .cb-logo { display: block; width: 66px; height: 46px; filter: drop-shadow(0 3px 6px rgba(51,154,241,.18)); }
 .home-mark .cb-mark { display: block; width: 29px; height: 31px; }
+.home-mark .cb-word { display: block; width: 82px; height: 37px; }
