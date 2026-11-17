@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>충북챔</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+<style>
+/* Layout idea: 앱 소개 랜딩. 히어로 일러스트 → 파란 띠 위 가로 카드 → 01·02·03 지그재그 이용 방법 → 탭 소개 → CTA */
+:root{
+  --blue:#0081EE; --navy:#12264A; --ink:#2b3a5c; --mute:#6c7b9b;
+  --bg:#EEF5FF; --card:#fff; --faint:#D8E7FA; --red:#FF4D3D; --lime:#D8E696; --yellow:#F4CC21; --orange:#F49C17;
+  --font:'Pretendard','Noto Sans KR',system-ui,-apple-system,'Apple SD Gothic Neo',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--font);background:var(--bg);color:var(--navy);line-height:1.7;font-size:16px;color-scheme:light;-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button{font-family:inherit;cursor:pointer}
+h1,h2,h3{text-wrap:balance;line-height:1.3;letter-spacing:-.02em}
+:focus-visible{outline:3px solid var(--orange);outline-offset:3px;border-radius:10px}
+.wrap{width:100%;max-width:1080px;margin:0 auto;padding:0 20px}
+
+/* header */
+.top{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid #e1ebf8}
+.top .wrap{max-width:1200px;display:flex;align-items:center;justify-content:space-between;height:72px;gap:16px}
+.logo{display:flex;align-items:center;gap:10px;font-weight:900;font-size:24px;color:var(--blue);letter-spacing:-.03em}
+.logo i{width:32px;height:32px;border-radius:10px;background:var(--blue);display:grid;place-items:center}
+.logo svg{width:18px;height:18px}
+.top ul{display:flex;gap:44px;list-style:none;font-weight:500;font-size:15.5px}
+.top ul a:hover{color:var(--blue)}
+.pill{display:inline-block;background:var(--blue);color:#fff;font-weight:700;font-size:14px;padding:9px 20px;border-radius:999px}
+.pill:hover{background:#0069c4}
+
+/* hero */
+.hero{position:relative;height:clamp(420px,46vw,620px);background:#cfe8f2 url("img/hero.jpg") 66% center/cover no-repeat;overflow:hidden}
+.hero .card{position:absolute;left:max(24px,calc((100% - 1200px)/2 + 20px));top:50%;transform:translateY(-50%);width:min(500px,calc(100% - 48px));background:rgba(255,255,255,.95);border-radius:28px;padding:36px 36px 34px;box-shadow:0 18px 40px -18px rgba(18,38,74,.45)}
+.eyebrow{display:inline-block;font-weight:700;font-size:13.5px;color:var(--blue);background:#E3F0FF;border-radius:999px;padding:4px 14px;margin-bottom:16px}
+.hero h1{font-size:clamp(30px,4vw,46px);font-weight:900;margin-bottom:14px}
+.hero h1 em{font-style:normal;color:var(--blue)}
+.hero p{color:var(--ink);margin-bottom:24px;font-size:17px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.btn{display:inline-block;font-weight:700;font-size:16px;padding:13px 26px;border-radius:999px;background:var(--blue);color:#fff;box-shadow:0 4px 0 #0059a8;transition:transform .12s,box-shadow .12s}
+.btn:hover{transform:translateY(2px);box-shadow:0 2px 0 #0059a8}
+.btn.ghost{background:#fff;color:var(--blue);box-shadow:0 4px 0 #cfe0f5;border:2px solid #cfe0f5}
+.btn.ghost:hover{box-shadow:0 2px 0 #cfe0f5}
+
+/* blue band with cards */
+.band{background:var(--blue);padding:84px 0 96px;color:#fff}
+.band h2{text-align:center;font-size:clamp(26px,3.4vw,34px);font-weight:700;margin-bottom:10px}
+.band .sub{text-align:center;font-size:14.5px;opacity:.85;margin-bottom:44px}
+.rail{position:relative}
+.cards{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 20px 14px;margin:0 auto;max-width:1200px;scrollbar-width:none}
+.cards::-webkit-scrollbar{display:none}
+.rx{flex:0 0 300px;scroll-snap-align:start;background:#fff;color:var(--navy);border-radius:20px;padding:24px 24px 20px;display:flex;flex-direction:column;gap:12px;min-height:260px;box-shadow:0 12px 24px -14px rgba(0,40,100,.5)}
+.rx .head{display:flex;align-items:center;gap:14px}
+.av{width:54px;height:54px;border-radius:50%;display:grid;place-items:center;flex:none}
+.av svg{width:30px;height:30px}
+.rx h3{font-size:17px;font-weight:700;line-height:1.35}
+.rx .where{font-size:13px;color:var(--blue);font-weight:700}
+.rx p{font-size:14.5px;color:var(--ink);line-height:1.75;flex:1}
+.rx .foot{font-size:12.5px;color:#9aa8c4;border-top:1px dashed #d8e3f3;padding-top:10px;display:flex;justify-content:space-between}
+.arrow{position:absolute;right:max(14px,calc((100% - 1200px)/2 + 10px));top:50%;transform:translateY(-50%);width:44px;height:44px;border-radius:50%;border:0;background:#fff;color:var(--blue);font-size:20px;font-weight:900;box-shadow:0 6px 14px rgba(0,40,100,.3)}
+.arrow:hover{background:#f2f8ff}
+
+/* how to */
+.how{padding:100px 0 40px}
+.how h2.t{text-align:center;font-size:clamp(26px,3.4vw,34px);font-weight:700;margin-bottom:70px}
+.step{display:grid;grid-template-columns:1fr 1.1fr;gap:56px;align-items:center;margin-bottom:110px}
+.step.rev .txt{order:2}
+.txt{position:relative;padding-top:60px}
+.txt .no{position:absolute;left:-8px;top:-8px;font-size:120px;font-weight:900;color:var(--faint);line-height:1;letter-spacing:-.04em;user-select:none}
+.txt h3{position:relative;font-size:clamp(24px,3vw,32px);font-weight:700;margin-bottom:18px}
+.txt p{position:relative;font-size:15.5px;color:var(--ink);max-width:30em;margin-bottom:16px}
+.txt .tags{position:relative;display:flex;gap:8px;flex-wrap:wrap}
+.txt .tags span{background:#fff;border:1.5px solid #cfe0f5;color:var(--blue);font-weight:700;font-size:13.5px;padding:4px 14px;border-radius:999px}
+.phones{display:flex;gap:26px;justify-content:center;align-items:flex-start}
+.phones .ph:nth-child(2){margin-top:44px}
+
+/* phone */
+.ph{width:232px;height:auto;background:#fff;border:7px solid var(--navy);border-radius:36px;position:relative;overflow:hidden;flex:none;box-shadow:0 26px 44px -22px rgba(18,38,74,.55)}
+.ph img{display:block;width:100%;height:auto}
+.ph::before{display:none;content:"";position:absolute;top:7px;left:50%;width:62px;height:18px;margin-left:-31px;background:var(--navy);border-radius:10px;z-index:6}
+.sc{position:absolute;inset:0;padding:38px 12px 10px;display:flex;flex-direction:column;gap:9px;font-size:11px;line-height:1.4}
+.sc.sky{background:#EAF4FF}
+.sc.lime{background:#EEF8D2}
+.bub{background:#fff;border:2.5px solid var(--blue);border-radius:14px;padding:9px 11px;font-weight:700;font-size:12.5px}
+.mole{width:44px;height:44px;border-radius:50%;border:2px dashed var(--blue);background:#fff;display:grid;place-items:center;font-size:8.5px;font-weight:700;color:var(--blue);text-align:center;line-height:1.1;flex:none}
+.prog{display:flex;gap:4px}
+.prog i{flex:1;height:5px;border-radius:3px;background:#cfe3f7}
+.prog i.on{background:var(--blue)}
+.opt{display:flex;align-items:center;gap:8px;background:#fff;border:2px solid #d3e4f7;border-radius:11px;padding:9px 10px;font-weight:500}
+.opt b{width:13px;height:13px;border:2px solid var(--blue);border-radius:4px;flex:none}
+.opt.sel{border-color:var(--blue);font-weight:700}
+.opt.sel b{background:var(--blue);box-shadow:inset 0 0 0 2px #fff}
+.next{margin-top:auto;background:var(--blue);color:#fff;font-weight:700;text-align:center;padding:10px;border-radius:999px;font-size:12px}
+.body{flex:1;display:grid;place-items:center;position:relative}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:#fff;border:2px solid #d3e4f7;border-radius:999px;padding:4px 10px;font-weight:700;font-size:11px}
+.chip.sel{background:var(--blue);border-color:var(--blue);color:#fff}
+.paper{background:#fff;border:2px solid var(--navy);border-radius:9px;padding:9px;position:relative}
+.paper h4{font-size:14px;letter-spacing:.3em;text-align:center;border-bottom:2px solid var(--navy);padding-bottom:5px;margin-bottom:7px}
+.paper dl{display:grid;grid-template-columns:auto 1fr;gap:3px 8px;font-size:10px}
+.paper dt{color:#6a7aa0}.paper dd{font-weight:700}
+.cut{border-top:2px dashed #9fb3d4;margin:7px 0 5px}
+.bar{height:20px;background:repeating-linear-gradient(90deg,var(--navy) 0 2px,transparent 2px 4px,var(--navy) 4px 5px,transparent 5px 8px)}
+.stamp{position:absolute;right:6px;bottom:30px;width:50px;height:50px;border:3px solid var(--red);color:var(--red);border-radius:50%;display:grid;place-items:center;font-weight:900;font-size:14px;transform:rotate(-14deg);background:rgba(255,255,255,.65)}
+.plc{display:flex;gap:8px;align-items:center;background:#fff;border:2px solid var(--blue);border-radius:11px;padding:6px;font-weight:700}
+.plc .im{width:36px;height:36px;border-radius:8px;background:repeating-linear-gradient(45deg,#fff,#fff 6px,#EAF4FF 6px,#EAF4FF 12px);border:1.5px dashed var(--blue);display:grid;place-items:center;font-size:8px;color:var(--blue);flex:none}
+.plc small{display:block;color:#6a7aa0;font-weight:500;font-size:10px}
+.mapbox{flex:1;border-radius:16px;border:2.5px solid var(--blue);background:#bfe6f7;position:relative;overflow:hidden}
+.mapbox svg{position:absolute;inset:0;width:100%;height:100%}
+.sheet{background:#fff;border-radius:14px;padding:9px 11px;box-shadow:0 4px 10px rgba(0,60,120,.15)}
+.sheet b{font-size:11.5px}
+.pbar{height:6px;border-radius:3px;background:#dbe9fa;margin-top:6px}
+.pbar i{display:block;height:100%;width:40%;background:var(--blue);border-radius:3px}
+.stamps{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.stp{aspect-ratio:1;border-radius:12px;display:grid;place-items:center;text-align:center;font-weight:700;font-size:10.5px;padding:6px;line-height:1.3}
+.stp.done{background:#fff;border:2.5px dashed var(--red);color:var(--red)}
+.stp.go{background:var(--yellow);border:2.5px solid var(--orange)}
+.stp.fog{background:#e4eaf2;color:#8a99b3;border:2.5px solid #d3dce9}
+.tabs{display:grid;grid-template-columns:repeat(5,1fr);background:#fff;border:2px solid #d3e4f7;border-radius:14px;padding:5px 2px 3px;margin:auto -2px 0}
+.tabs span{display:flex;flex-direction:column;align-items:center;font-size:8.5px;font-weight:700;color:#a6b4cc;gap:0}
+.tabs span svg{width:20px;height:20px}
+.tabs span.on{color:var(--blue)}
+
+/* tabs intro */
+.tabsec{padding:30px 0 100px}
+.tabsec h2{text-align:center;font-size:clamp(26px,3.4vw,34px);font-weight:700;margin-bottom:10px}
+.tabsec .sub{text-align:center;color:var(--mute);font-size:15px;margin-bottom:44px}
+.tabgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}
+.tc{background:#fff;border-radius:22px;padding:26px 16px 22px;text-align:center;box-shadow:0 10px 22px -16px rgba(0,60,140,.45)}
+.tc .ic{width:68px;height:68px;border-radius:50%;background:#EAF4FF;display:grid;place-items:center;margin:0 auto 14px;color:var(--blue)}
+.tc .ic svg{width:36px;height:36px}
+.tc h3{font-size:17px;margin-bottom:6px}
+.tc p{font-size:13.5px;color:var(--mute);line-height:1.65}
+
+/* cta */
+.cta{background:var(--blue);color:#fff;text-align:center;padding:84px 0}
+.cta h2{font-size:clamp(26px,3.6vw,38px);font-weight:900;margin-bottom:12px}
+.cta p{opacity:.9;margin-bottom:28px;font-size:17px}
+.cta .btn{background:var(--yellow);color:var(--navy);box-shadow:0 4px 0 #b8940a}
+.cta .btn:hover{box-shadow:0 2px 0 #b8940a}
+footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding:34px 20px;line-height:2}
+
+@media(max-width:900px){
+  .top ul{display:none}
+  .step{grid-template-columns:1fr;gap:34px;margin-bottom:80px}
+  .step.rev .txt{order:0}
+  .tabgrid{grid-template-columns:repeat(2,1fr)}
+  .hero{background-position:70% center}
+  .hero .card{top:auto;bottom:20px;transform:none;left:16px;width:calc(100% - 32px);padding:22px}
+  .hero{height:560px}
+  .hero p{font-size:15px;margin-bottom:16px}
+}
+@media(max-width:560px){
+  .phones{gap:12px}
+  .ph{width:164px;border-width:5px;border-radius:26px}
+  .phones .ph:nth-child(2){margin-top:28px}
+  .rx{flex-basis:260px}
+  .arrow{display:none}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<style>.s{fill:none;stroke:currentColor}.f{fill:currentColor}.a{fill:var(--a,currentColor)}.n{fill:var(--n,#fff)}.w{fill:#fff}.ws{fill:none;stroke:#fff}</style>
+<symbol id="i-diag" viewBox="0 0 28 28"><path class="s" d="M8 6V11C8 12.5913 8.63214 14.1174 9.75736 15.2426C10.8826 16.3679 12.4087 17 14 17C15.5913 17 17.1174 16.3679 18.2426 15.2426C19.3679 14.1174 20 12.5913 20 11V6" stroke-width="3" stroke-linecap="round"/><circle class="f" cx="8" cy="5" r="2.2"/><circle class="f" cx="20" cy="5" r="2.2"/><path class="s" d="M14 17V19.5C14 21.1667 15.1667 22 17.5 22" stroke-width="3" stroke-linecap="round"/><circle class="a" cx="21.5" cy="22" r="4"/><path class="ws" d="M21.5 20.2V23.8M19.7 22H23.3" stroke-width="1.7" stroke-linecap="round"/></symbol>
+<symbol id="i-expl" viewBox="0 0 28 28"><circle class="f" cx="14" cy="14" r="11"/><circle cx="14" cy="14" r="8.6" fill="none" stroke="#fff" stroke-width="1.3" opacity=".5"/><path class="n" d="M19.94 8.06L16.4 16.4L11.6 11.6Z"/><path class="w" d="M8.06 19.94L16.4 16.4L11.6 11.6Z"/><circle class="f" cx="14" cy="14" r="1.5"/></symbol>
+<symbol id="i-home" viewBox="0 0 28 28"><path class="f" d="M14 5.2L4.8 13.2V22.6H23.2V13.2L14 5.2Z" stroke="currentColor" stroke-width="3" stroke-linejoin="round"/><path class="f" d="M21 4.6H19.8C19.14 4.6 18.6 5.14 18.6 5.8V10.4C18.6 11.06 19.14 11.6 19.8 11.6H21C21.66 11.6 22.2 11.06 22.2 10.4V5.8C22.2 5.14 21.66 4.6 21 4.6Z"/><path class="w" d="M11.4 22.6V18.4C11.4 17.7 11.67 17.05 12.16 16.56C12.65 16.07 13.31 15.8 14 15.8C14.69 15.8 15.35 16.07 15.84 16.56C16.33 17.05 16.6 17.7 16.6 18.4V22.6H11.4Z"/></symbol>
+<symbol id="i-course" viewBox="0 0 28 28"><path class="s" d="M8 22.5C14 24 12 18.5 17 19.5C19.5 20 20.5 18.5 21 17.5" stroke-width="3.2" stroke-linecap="round" stroke-dasharray="0.01 5.4"/><circle class="f" cx="6.5" cy="22" r="3.6"/><circle class="w" cx="6.5" cy="22" r="1.3"/><path class="a" d="M21.5 2.6C22.99 2.6 24.41 3.19 25.46 4.24C26.51 5.29 27.1 6.71 27.1 8.2C27.1 12.2 21.5 17.6 21.5 17.6C21.5 17.6 15.9 12.2 15.9 8.2C15.9 6.71 16.49 5.29 17.54 4.24C18.59 3.19 20.01 2.6 21.5 2.6Z"/><circle class="w" cx="21.5" cy="8.2" r="2"/></symbol>
+<symbol id="i-my" viewBox="0 0 28 28"><circle class="f" cx="14" cy="9" r="5.4"/><path class="f" d="M4 24.5C4 18.6 8.6 16 14 16C19.4 16 24 18.6 24 24.5H4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle class="w" cx="12" cy="9.2" r="1"/><circle class="w" cx="16" cy="9.2" r="1"/><path class="ws" d="M12.4 11.3C13.47 12.23 14.53 12.23 15.6 11.3" stroke-width="1.1" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="top">
+  <div class="wrap">
+    <a class="logo" href="#top"><i><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-6-5.6-6-10a6 6 0 0 1 12 0c0 4.4-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg></i>충북챔</a>
+    <ul>
+      <li><a href="#rx">연령대별 처방</a></li>
+      <li><a href="#how">이용 방법</a></li>
+      <li><a href="#tabs">주요 메뉴</a></li>
+    </ul>
+    <a class="pill" href="../">앱 체험하기</a>
+  </div>
+</header>
+
+<main id="top">
+<section class="hero" aria-label="충북챔 소개">
+  <div class="card">
+    <span class="eyebrow">충청북도 여행 처방 앱</span>
+    <h1>어디가 불편하세요?<br><em>여행</em>으로 처방해 드려요</h1>
+    <p>늘 가던 곳만 가는 여행은 발견이 부족해요. 몇 가지만 답하면 충북의 숨은 명소를 처방전으로 받아요.</p>
+    <div class="btns"><a class="btn" href="../">진단 시작하기</a><a class="btn ghost" href="#how">이용 방법</a></div>
+  </div>
+</section>
+
+<section class="band" id="rx">
+  <div class="wrap"><h2>연령대별 처방 예시</h2><p class="sub">나이대와 증상에 따라 충북의 다른 여행을 처방해요. 유명하지 않은 숨은 명소도 포함돼요.</p></div>
+  <div class="rail">
+    <div class="cards" id="cards" tabindex="0" aria-label="처방 예시 카드 목록">
+      <article class="rx"><div class="head"><div class="av" style="background:#E3F0FF;color:var(--blue)"><svg viewBox="0 0 28 28"><use href="#i-expl"/></svg></div><div><h3>눈의 피로 처방</h3><div class="where">10-30대</div></div></div><p>화면을 오래 본 눈에는 먼 곳을 내다보는 시간이 먼저예요. 탁 트인 풍경을 보는 여행으로 처방해요.</p><div class="foot"><span>처방 · 풍경 감상</span><span>01</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#FFF3C7;color:var(--orange)"><svg viewBox="0 0 28 28"><use href="#i-home"/></svg></div><div><h3>수면 부족 처방</h3><div class="where">10-30대</div></div></div><p>잠이 모자란 날이 이어진다면 이동은 짧게, 쉬는 시간은 길게. 조용히 머무는 코스를 처방해요.</p><div class="foot"><span>처방 · 휴식</span><span>02</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#E8F6CF;color:#5FAE49"><svg viewBox="0 0 28 28"><use href="#i-my"/></svg></div><div><h3>어깨 결림 처방</h3><div class="where">10-30대</div></div></div><p>굳은 어깨에는 가볍게 걷는 길이 좋아요. 오르막이 적은 산책 코스를 처방해요.</p><div class="foot"><span>처방 · 가볍게 걷기</span><span>03</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#E3F0FF;color:var(--blue)"><svg viewBox="0 0 28 28"><use href="#i-course"/></svg></div><div><h3>허리 뻐근함 처방</h3><div class="where">40-50대</div></div></div><p>허리가 뻐근할 때는 평지를 천천히. 계단이 적고 쉬어 갈 곳이 많은 산책길을 처방해요.</p><div class="foot"><span>처방 · 평지 산책</span><span>04</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#FFE5E1;color:var(--red)"><svg viewBox="0 0 28 28"><use href="#i-expl"/></svg></div><div><h3>목 결림 처방</h3><div class="where">40-50대</div></div></div><p>고개를 숙이던 시간을 풍경으로 바꿔요. 시선이 멀리 가는 전망 좋은 곳을 처방해요.</p><div class="foot"><span>처방 · 풍경 감상</span><span>05</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#FFF3C7;color:var(--orange)"><svg viewBox="0 0 28 28"><use href="#i-home"/></svg></div><div><h3>만성 피로 처방</h3><div class="where">40-50대</div></div></div><p>쌓인 피로에는 욕심내지 않는 일정이 약이에요. 휴양과 느린 여행을 처방해요.</p><div class="foot"><span>처방 · 휴양·느린 여행</span><span>06</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#E8F6CF;color:#5FAE49"><svg viewBox="0 0 28 28"><use href="#i-my"/></svg></div><div><h3>관절 뻐근함 처방</h3><div class="where">60-70대</div></div></div><p>무릎과 관절이 부담스러울 땐 완만한 길로. 오래 걷지 않아도 되는 코스를 처방해요.</p><div class="foot"><span>처방 · 완만한 길</span><span>07</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#E3F0FF;color:var(--blue)"><svg viewBox="0 0 28 28"><use href="#i-course"/></svg></div><div><h3>기력 저하 처방</h3><div class="where">60-70대</div></div></div><p>기운이 없는 날에는 쉬엄쉬엄. 중간에 쉬어 가기 좋은 곳을 이어서 처방해요.</p><div class="foot"><span>처방 · 쉬어 가기</span><span>08</span></div></article>
+      <article class="rx"><div class="head"><div class="av" style="background:#FFE5E1;color:var(--red)"><svg viewBox="0 0 28 28"><use href="#i-home"/></svg></div><div><h3>불면 처방</h3><div class="where">60-70대</div></div></div><p>밤이 길게 느껴진다면 낮에 맑은 공기를 충분히. 조용한 곳에서 보내는 하루를 처방해요.</p><div class="foot"><span>처방 · 조용한 숙면</span><span>09</span></div></article>
+    </div>
+    <button class="arrow" id="next" type="button" aria-label="다음 카드">›</button>
+  </div>
+</section>
+
+<section class="how" id="how">
+  <div class="wrap">
+    <h2 class="t">충북챔 이용 방법</h2>
+
+    <div class="step">
+      <div class="txt"><span class="no" aria-hidden="true">01</span><h3>나이대와 아픈 곳을<br>골라 진단받으세요.</h3><p>두더지 의사가 말을 걸어요. 나이대를 고르고, 몸에서 아픈 곳을 직접 눌러 보세요. 누르기만 하면 돼요.</p><div class="tags"><span>나이대</span><span>아픈 곳</span><span>성향</span><span>취향</span></div></div>
+      <div class="phones">
+        <div class="ph"><img src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy"></div>
+        <div class="ph"><img src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy"></div>
+      </div>
+    </div>
+
+    <div class="step rev">
+      <div class="txt"><span class="no" aria-hidden="true">02</span><h3>처방전을 받고<br>장소를 확인하세요.</h3><p>진단이 끝나면 발급번호와 붉은 도장이 찍힌 처방전이 나와요. 왜 이 장소를 처방했는지 근거도 함께 보여 줘요. 마음에 드는 장소를 눌러 자세히 볼 수 있어요.</p><div class="tags"><span>처방전</span><span>처방 근거</span><span>처방 장소 4곳</span></div></div>
+      <div class="phones">
+        <div class="ph"><img src="img/rx.jpg" alt="처방전 화면" loading="lazy"></div>
+        <div class="ph"><img src="img/places.jpg" alt="처방 장소 화면" loading="lazy"></div>
+      </div>
+    </div>
+
+    <div class="step">
+      <div class="txt"><span class="no" aria-hidden="true">03</span><h3>지도를 탐험하고<br>우표를 모으세요.</h3><p>처음에는 지도가 안개로 덮여 있어요. 지역을 눌러 안개를 걷고, 장소에 가면 우표가 찍혀요. 다녀온 곳, 지금 갈 곳, 아직 모르는 곳이 내 코스에 한눈에 보여요.</p><div class="tags"><span>안개 탐험</span><span>우표 모으기</span><span>내 코스</span></div></div>
+      <div class="phones">
+        <div class="ph"><img src="img/map.jpg" alt="탐험 지도 화면" loading="lazy"></div>
+        <div class="ph"><img src="img/course.jpg" alt="내 코스 화면" loading="lazy"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="tabsec" id="tabs">
+  <div class="wrap">
+    <h2>하단 메뉴 다섯 칸으로 끝나요</h2>
+    <p class="sub">진단을 마치면 아래 탭으로 어디서든 이동할 수 있어요.</p>
+    <div class="tabgrid">
+      <div class="tc"><div class="ic" style="--a:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-diag"/></svg></div><h3>진단</h3><p>처방을 보관하고 새 진단을 시작해요.</p></div>
+      <div class="tc"><div class="ic" style="--n:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-expl"/></svg></div><h3>탐험</h3><p>안개를 걷고 충북 지도를 탐험해요.</p></div>
+      <div class="tc"><div class="ic"><svg viewBox="0 0 28 28"><use href="#i-home"/></svg></div><h3>홈</h3><p>진행 중인 코스와 최근 우표를 모아 봐요.</p></div>
+      <div class="tc"><div class="ic" style="--a:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-course"/></svg></div><h3>내 코스</h3><p>다녀온 곳, 갈 곳을 한 지도에서 관리해요.</p></div>
+      <div class="tc"><div class="ic"><svg viewBox="0 0 28 28"><use href="#i-my"/></svg></div><h3>마이</h3><p>우표첩과 내 정보를 확인해요.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta">
+  <div class="wrap"><h2>충북에서 발견이 필요하신가요?</h2><p>진단은 1분이면 끝나요. 처방전을 받고 가까운 숨은 명소부터 가 보세요.</p><a class="btn" href="../">지금 진단받기</a></div>
+</section>
+</main>
+
+<footer>충북챔 · 충청북도 여행 처방 앱<br>졸업작품 UX/UI · 디자인 안정민<br>© 2026 안정민</footer>
+
+<script>
+(function(){
+  var c=document.getElementById('cards'),n=document.getElementById('next');
+  if(c&&n){n.addEventListener('click',function(){
+    var end=c.scrollLeft+c.clientWidth>=c.scrollWidth-4;
+    c.scrollTo({left:end?0:c.scrollLeft+320,behavior:'smooth'});
+  });}
+})();
+</script>
+</body>
+</html>
