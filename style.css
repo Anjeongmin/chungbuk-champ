@@ -801,3 +801,16 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .screen.cm-scroll { display: block !important; overflow-y: auto !important; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; padding: 0 0 calc(var(--navh) + 8px) !important; }
 .screen.cm-scroll::-webkit-scrollbar { display: none; }
 .cm-scroll > .shot { margin: 0 !important; }
+.screen.cm-scroll { padding-bottom: calc(var(--navh) + 96px) !important; }
+
+.cm-btnbar > img { position: absolute; left: 0; top: 0; width: 393px; height: auto; pointer-events: none; }
+.cm-btnbar .hot { position: absolute; }
+.cm-scroll::after { content: ""; position: absolute; }
+.screen.cm-wrap { display: block !important; overflow: hidden !important; padding: 0 !important; }
+.cm-sc { position: absolute; inset: 0 0 var(--navh) 0; overflow-y: auto; overflow-x: hidden; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; scrollbar-width: none; padding-bottom: 84px; }
+.cm-sc::-webkit-scrollbar { display: none; }
+.cm-sc > .shot { margin: 0 !important; }
+.cm-btnbar { position: absolute; left: 0; right: 0; bottom: calc(var(--navh) + 12px); height: 63px; z-index: 8; }
+.cm-btnbar::before { content: ""; position: absolute; left: 0; right: 0; top: -18px; bottom: -12px; background: linear-gradient(rgba(134,207,100,0), #86cf64 40%); pointer-events: none; }
+.screen.cm-wrap > .cm-sc { position: absolute !important; top: 0; left: 0; right: 0; bottom: var(--navh); height: auto !important; }
+.screen.cm-wrap > .cm-btnbar { position: absolute !important; left: 0; right: 0; bottom: calc(var(--navh) + 12px); }

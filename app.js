@@ -563,15 +563,21 @@
   };
   // 내 코스 지도: 줄이지 않고 폭에 맞춰 원래 크기 → 위아래 스크롤 (탐험하기·편집 버튼이 잘리지 않게)
   screens.coursemap = () => {
-    const d = IMG.coursemap, k = 393 / d.w, H = d.navTop;   // 그림 속 탭바 바로 위까지
+    const d = IMG.coursemap, k = 393 / d.w, H = d.navTop - 60;   // 지도는 버튼 위까지 스크롤, 버튼은 아래에 항상 떠 있음
+    const btns = d.hot.map((h, i) => [h, i]).filter(([h]) => h.go === "cheongju" || h.go === "courseEdit");
     return `
-    <section class="screen shot-screen cm-scroll" style="background:linear-gradient(${TOPC.coursemap} 50%, #86cf64 50%)">
-      <div class="shot" style="width:393px;height:${(H * k).toFixed(1)}px">
+    <section class="screen shot-screen cm-wrap" style="background:linear-gradient(${TOPC.coursemap} 50%, #86cf64 50%)">
+      <div class="cm-sc"><div class="shot" style="width:393px;height:${(H * k).toFixed(1)}px">
         <img src="screens/coursemap.jpg" alt="" draggable="false" style="width:393px;height:auto">
-        ${d.hot.map((h, i) => (h.tab ? "" : hotBtn(h, i, k))).join("")}
+        ${d.hot.map((h, i) => (h.tab || h.go === "cheongju" || h.go === "courseEdit" ? "" : hotBtn(h, i, k))).join("")}
+      </div></div>
+      <div class="cm-btnbar">
+        <img src="assets/cm-buttons.png" alt="" draggable="false">
+        ${btns.map(([h, i]) => `<button class="hot" data-i="${i}" aria-label="${h.go}" style="left:${(h.x * k).toFixed(1)}px;top:0;width:${(h.w * k).toFixed(1)}px;height:${(h.h * k).toFixed(1)}px"></button>`).join("")}
       </div>
     </section>`;
   };
+
   wireImg();
 
 
