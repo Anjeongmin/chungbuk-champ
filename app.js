@@ -561,6 +561,17 @@
       el.querySelector('[data-act="mycourse"]').onclick = () => tabGo("내 코스");
     },
   };
+  // 내 코스 지도: 줄이지 않고 폭에 맞춰 원래 크기 → 위아래 스크롤 (탐험하기·편집 버튼이 잘리지 않게)
+  screens.coursemap = () => {
+    const d = IMG.coursemap, k = 393 / d.w, H = d.navTop;   // 그림 속 탭바 바로 위까지
+    return `
+    <section class="screen shot-screen cm-scroll" style="background:linear-gradient(${TOPC.coursemap} 50%, #86cf64 50%)">
+      <div class="shot" style="width:393px;height:${(H * k).toFixed(1)}px">
+        <img src="screens/coursemap.jpg" alt="" draggable="false" style="width:393px;height:auto">
+        ${d.hot.map((h, i) => (h.tab ? "" : hotBtn(h, i, k))).join("")}
+      </div>
+    </section>`;
+  };
   wireImg();
 
 
