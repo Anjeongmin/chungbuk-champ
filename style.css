@@ -781,3 +781,15 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .wx-rain .wx-dim { position: absolute; inset: 0; background: linear-gradient(rgba(40,62,96,.28), rgba(40,62,96,.12) 45%, rgba(40,62,96,.08)); }
 .wx-rcl { position: absolute; top: 4px; transform: scale(var(--s)); opacity: .95; filter: grayscale(.5) brightness(.86); animation: wxRcl 9s ease-in-out infinite alternate; }
 @keyframes wxRcl { from { translate: -14px 0; } to { translate: 14px 0; } }
+/* 우표 쾅! */
+.gsd-stamp { position: relative; }
+.slam-fx { position: absolute; left: 50%; top: 50%; width: 0; height: 0; pointer-events: none; z-index: 5; }
+.slam-flash { position: absolute; left: -170px; top: -170px; width: 340px; height: 340px; border-radius: 50%; background: radial-gradient(circle, rgba(255,255,255,.95) 0, rgba(255,255,255,.6) 30%, rgba(255,255,255,0) 65%); animation: slamFlash .5s ease-out forwards; }
+@keyframes slamFlash { from { opacity: 1; transform: scale(.5); } to { opacity: 0; transform: scale(1.3); } }
+.slam-ring { position: absolute; left: -110px; top: -70px; width: 220px; height: 140px; border-radius: 50%; border: 4px solid rgba(0,129,238,.55); animation: slamRing .6s cubic-bezier(.2,.8,.3,1) forwards; }
+.slam-ring.r2 { border-color: rgba(255,210,63,.7); border-width: 3px; animation-delay: .08s; opacity: 0; }
+@keyframes slamRing { 0% { opacity: 1; transform: scale(.55); } 100% { opacity: 0; transform: scale(1.55); } }
+.slam-dust { position: absolute; left: calc(var(--sz) / -2); top: calc(var(--sz) / -2); width: var(--sz); height: var(--sz); border-radius: 50%; background: var(--c); box-shadow: 0 1px 2px rgba(11,43,94,.2); animation: slamDust .75s cubic-bezier(.15,.8,.3,1) forwards; }
+@keyframes slamDust { 0% { transform: translate(0,0) scale(.4); opacity: 1; } 80% { opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1); opacity: 0; } }
+.slam-text { position: absolute; left: -170px; top: -170px; width: 180px; text-align: center; font-size: 46px; font-weight: 900; color: var(--blue); -webkit-text-stroke: 2px #fff; paint-order: stroke fill; text-shadow: 0 4px 0 rgba(0,103,190,.35); animation: slamText .9s cubic-bezier(.3,1.6,.5,1) forwards; }
+@keyframes slamText { 0% { opacity: 0; transform: scale(.3) rotate(-14deg); } 25% { opacity: 1; transform: scale(1.2) rotate(-8deg); } 70% { opacity: 1; transform: scale(1) rotate(-8deg) translateY(-6px); } 100% { opacity: 0; transform: scale(1) rotate(-8deg) translateY(-18px); } }

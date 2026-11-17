@@ -756,7 +756,7 @@
   };
   after.gstampDone = (el) => {
     const g = S.gs, next = GS.findIndex((_, j) => !g.done.includes(j));
-    el.querySelector(".gsd-stamp img").animate([{ transform: "rotate(-4deg) scale(2.2)", opacity: 0 }, { transform: "rotate(-4deg) scale(.94)", opacity: 1, offset: .6 }, { transform: "rotate(-4deg) scale(1)" }], { duration: 650, easing: "cubic-bezier(.2,1.4,.4,1)" });
+    postageSlam(el);
     navigator.vibrate?.(40);
     const backToMap = () => { stack.pop(); render("goesan", true); toast(`${GS[g.done[g.done.length - 1]].short} 스탬프 완료!`); };
     el.querySelector('[data-act="close"]').onclick = backToMap;
@@ -911,6 +911,31 @@
       if (b <= sb - 4) return; }
   }
 
+  // 우표 '쾅!' — 위에서 크게 떨어져 내리꽂히고, 화면 흔들림·충격파·먼지·'쾅!' 글자
+  function postageSlam(el) {
+    const box = el.querySelector(".gsd-stamp"), img = box.querySelector("img"), zz = box.querySelector(".zzan");
+    img.style.opacity = "0"; zz && (zz.style.opacity = "0");
+    el.querySelectorAll(".gsd-title, .gsd-name, .gsd-course, .gsd-next, .bottom-row").forEach((n, i) => n.animate([{ opacity: 0, transform: "translateY(16px)" }, { opacity: 1, transform: "none" }], { duration: 420, delay: 760 + i * 70, easing: "cubic-bezier(.2,.9,.3,1)", fill: "backwards" }));
+    setTimeout(() => {
+      img.style.opacity = "";
+      img.animate([
+        { transform: "translateY(-120px) rotate(-16deg) scale(2.6)", opacity: 0, filter: "drop-shadow(0 60px 40px rgba(11,43,94,.05))" },
+        { transform: "translateY(-40px) rotate(-10deg) scale(1.7)", opacity: 1, offset: 0.55 },
+        { transform: "translateY(0) rotate(-4deg) scale(.9, .86)", offset: 0.78, filter: "drop-shadow(0 4px 6px rgba(11,43,94,.3))" },
+        { transform: "translateY(0) rotate(-4deg) scale(1.04)", offset: 0.9 },
+        { transform: "translateY(0) rotate(-4deg) scale(1)", filter: "drop-shadow(0 10px 18px rgba(11,43,94,.18))" },
+      ], { duration: 620, easing: "cubic-bezier(.55,0,.9,.4)" });
+    }, 120);
+    setTimeout(() => {   // 쾅!
+      navigator.vibrate?.([60, 30, 30]);
+      el.animate([{ transform: "translate(0,0)" }, { transform: "translate(-7px,5px)" }, { transform: "translate(6px,-4px)" }, { transform: "translate(-4px,3px)" }, { transform: "translate(2px,-1px)" }, { transform: "none" }], { duration: 380, easing: "ease-out" });
+      const fx = document.createElement("div"); fx.className = "slam-fx";
+      fx.innerHTML = `<i class="slam-flash"></i><i class="slam-ring"></i><i class="slam-ring r2"></i>${Array.from({ length: 14 }, (_, i) => { const a = (i / 14) * Math.PI * 2 + Math.random() * .3, d = 90 + Math.random() * 70; return `<b class="slam-dust" style="--dx:${(Math.cos(a) * d).toFixed(0)}px;--dy:${(Math.sin(a) * d * .7).toFixed(0)}px;--sz:${(5 + Math.random() * 7).toFixed(1)}px;--c:${["#ffd23f", "#ff8fa3", "#7cc6ff", "#9be38a", "#fff"][i % 5]}"></b>`; }).join("")}<span class="slam-text">쾅!</span>`;
+      box.appendChild(fx);
+      setTimeout(() => fx.remove(), 1300);
+    }, 120 + 485);
+    setTimeout(() => zz && zz.animate([{ opacity: 0, transform: "scale(.3) rotate(-20deg)" }, { opacity: 1, transform: "scale(1.15) rotate(6deg)", offset: .6 }, { opacity: 1, transform: "scale(1) rotate(0)" }], { duration: 450, easing: "cubic-bezier(.3,1.6,.5,1)", fill: "forwards" }), 1050);
+  }
   // 스탬프 찍기: 누르면 '꾹' 찍히는 동작 → '도장 완료'로 바뀜 → 잠시 뒤 완료 화면
   function stampPress(btn, mark, next) {
     if (btn.disabled || btn.classList.contains("pressing")) return;
@@ -1009,7 +1034,7 @@
   };
   after.cjStampDone = (el) => {
     const g = S.cj, next = CJ.findIndex((_, j) => !g.done.includes(j));
-    el.querySelector(".gsd-stamp img").animate([{ transform: "rotate(-4deg) scale(2.2)", opacity: 0 }, { transform: "rotate(-4deg) scale(.94)", opacity: 1, offset: .6 }, { transform: "rotate(-4deg) scale(1)" }], { duration: 650, easing: "cubic-bezier(.2,1.4,.4,1)" });
+    postageSlam(el);
     navigator.vibrate?.(40);
     const backToMap = () => { stack.pop(); render(stack[stack.length - 1]?.name || "cheongju", true); toast(`${CJ[g.done[g.done.length - 1]].name} 스탬프 완료!`); };
     el.querySelector('[data-act="close"]').onclick = backToMap;
