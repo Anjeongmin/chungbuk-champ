@@ -87,22 +87,25 @@ h1,h2,h3{text-wrap:balance;line-height:1.3;letter-spacing:-.02em}
 @media(prefers-reduced-motion:reduce){.c,.b,.glow,.wv,.wv2,.wb,.wb2,.lid,.lidb,.in,.rays,.sp,.tw{animation:none}.rays{opacity:.6}}
 
 
-/* 폰 화면 인터랙션 */
-.pw{perspective:900px;flex:none}
-.ph{cursor:zoom-in;transition:transform .18s ease-out,box-shadow .25s;will-change:transform;touch-action:manipulation}
-.ph:hover,.ph:focus-visible{box-shadow:0 36px 60px -24px rgba(18,38,74,.65)}
-.ph img{pointer-events:none;user-select:none}
+/* 폰 안에서 실제 앱 실행 */
+.pw{flex:none}
+.ph{position:relative}
+.scr{position:relative;width:100%;aspect-ratio:393/852;overflow:hidden;background:#cde9fb;border-radius:28px}
+.scr .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:opacity .5s}
+.scr .live{position:absolute;left:0;top:0;width:393px;height:852px;border:0;transform-origin:0 0;opacity:0;transition:opacity .5s;pointer-events:none;background:#cde9fb}
+.ph.on .live{opacity:1}
+.ph.on .poster{opacity:0}
+.ph.manual .live{pointer-events:auto}
+.tap{position:absolute;left:0;top:0;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;background:rgba(255,255,255,.88);border:3px solid #0081EE;box-shadow:0 4px 12px rgba(0,60,160,.35);opacity:0;pointer-events:none;z-index:5;transition:transform .7s cubic-bezier(.4,.1,.2,1),opacity .3s}
+.tap.show{opacity:1}
+.tap.press{animation:press .35s ease-out}
+@keyframes press{0%{box-shadow:0 0 0 0 rgba(0,129,238,.5)}100%{box-shadow:0 0 0 22px rgba(0,129,238,0)}}
+.hint{position:absolute;left:50%;bottom:14px;transform:translateX(-50%);z-index:6;border:0;background:rgba(18,38,74,.82);color:#fff;font:700 12px/1 var(--font);padding:8px 14px;border-radius:999px;cursor:pointer;opacity:.0;transition:opacity .25s;white-space:nowrap}
+.ph:hover .hint,.hint:focus-visible{opacity:1}
+.ph.manual .hint{display:none}
 .js .rv{opacity:0;translate:0 46px;transition:opacity .8s ease,translate .9s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i,0) * 120ms)}
 .js .rv.in{opacity:1;translate:0 0}
-.js .pw.in{animation:pfloat 6s ease-in-out 1s infinite}
-.js .pw.in:nth-child(2){animation-delay:-2s}
-@keyframes pfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
-.lb{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(10,24,50,.72);backdrop-filter:blur(6px);padding:24px;cursor:zoom-out}
-.lb.on{display:grid;animation:lbin .25s ease-out}
-.lb img{max-height:92vh;max-width:min(92vw,520px);width:auto;border-radius:36px;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:lbpop .35s cubic-bezier(.2,.9,.3,1.2)}
-@keyframes lbin{from{opacity:0}to{opacity:1}}
-@keyframes lbpop{from{transform:scale(.85)}to{transform:scale(1)}}
-@media(prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none;transition:none}.js .pw.in{animation:none}.ph{transition:none}}
+@media(prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none;transition:none}.tap{display:none}}
 
 /* blue band with cards */
 .band{background:var(--blue);padding:84px 0 96px;color:#fff}
@@ -138,7 +141,6 @@ h1,h2,h3{text-wrap:balance;line-height:1.3;letter-spacing:-.02em}
 
 /* phone */
 .ph{width:232px;height:auto;background:#fff;border:7px solid var(--navy);border-radius:36px;position:relative;overflow:hidden;flex:none;box-shadow:0 26px 44px -22px rgba(18,38,74,.55)}
-.ph img{display:block;width:100%;height:auto}
 .ph::before{display:none;content:"";position:absolute;top:7px;left:50%;width:62px;height:18px;margin-left:-31px;background:var(--navy);border-radius:10px;z-index:6}
 .sc{position:absolute;inset:0;padding:38px 12px 10px;display:flex;flex-direction:column;gap:9px;font-size:11px;line-height:1.4}
 .sc.sky{background:#EAF4FF}
@@ -280,24 +282,24 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
     <div class="step">
       <div class="txt rv"><span class="no" aria-hidden="true">01</span><h3>나이대와 아픈 곳을<br>골라 진단받으세요.</h3><p>두더지 의사가 말을 걸어요. 나이대를 고르고, 몸에서 아픈 곳을 직접 눌러 보세요. 누르기만 하면 돼요.</p><div class="tags"><span>나이대</span><span>아픈 곳</span><span>성향</span><span>취향</span></div></div>
       <div class="phones">
-        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="진단 질문 1 나이대 화면 확대해서 보기"><img src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy" draggable="false"></div></div>
-        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="진단 질문 2 아픈 곳 화면 확대해서 보기"><img src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy" draggable="false"></div></div>
+        <div class="pw rv"><div class="ph" data-demo="age" role="group" aria-label="진단 질문 1 나이대 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy" draggable="false"><iframe class="live" title="진단 질문 1 나이대 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div><button class="hint" type="button">눌러서 직접 써보기</button></div></div>
+        <div class="pw rv"><div class="ph" data-demo="body" role="group" aria-label="진단 질문 2 아픈 곳 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy" draggable="false"><iframe class="live" title="진단 질문 2 아픈 곳 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div><button class="hint" type="button">눌러서 직접 써보기</button></div></div>
       </div>
     </div>
 
     <div class="step rev">
       <div class="txt rv"><span class="no" aria-hidden="true">02</span><h3>처방전을 받고<br>장소를 확인하세요.</h3><p>진단이 끝나면 발급번호와 붉은 도장이 찍힌 처방전이 나와요. 왜 이 장소를 처방했는지 근거도 함께 보여 줘요. 마음에 드는 장소를 눌러 자세히 볼 수 있어요.</p><div class="tags"><span>처방전</span><span>처방 근거</span><span>처방 장소 4곳</span></div></div>
       <div class="phones">
-        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="처방전 화면 확대해서 보기"><img src="img/rx.jpg" alt="처방전 화면" loading="lazy" draggable="false"></div></div>
-        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="처방 장소 화면 확대해서 보기"><img src="img/places.jpg" alt="처방 장소 화면" loading="lazy" draggable="false"></div></div>
+        <div class="pw rv"><div class="ph" data-demo="rx" role="group" aria-label="처방전 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/rx.jpg" alt="처방전 화면" loading="lazy" draggable="false"><iframe class="live" title="처방전 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div><button class="hint" type="button">눌러서 직접 써보기</button></div></div>
+        <div class="pw rv"><div class="ph" data-demo="places" role="group" aria-label="처방 장소 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/places.jpg" alt="처방 장소 화면" loading="lazy" draggable="false"><iframe class="live" title="처방 장소 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div><button class="hint" type="button">눌러서 직접 써보기</button></div></div>
       </div>
     </div>
 
     <div class="step">
       <div class="txt rv"><span class="no" aria-hidden="true">03</span><h3>지도를 탐험하고<br>우표를 모으세요.</h3><p>처음에는 지도가 안개로 덮여 있어요. 지역을 눌러 안개를 걷고, 장소에 가면 우표가 찍혀요. 다녀온 곳, 지금 갈 곳, 아직 모르는 곳이 내 코스에 한눈에 보여요.</p><div class="tags"><span>안개 탐험</span><span>우표 모으기</span><span>내 코스</span></div></div>
       <div class="phones">
-        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="탐험 지도 화면 확대해서 보기"><img src="img/map.jpg" alt="탐험 지도 화면" loading="lazy" draggable="false"></div></div>
-        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="내 코스 화면 확대해서 보기"><img src="img/course.jpg" alt="내 코스 화면" loading="lazy" draggable="false"></div></div>
+        <div class="pw rv"><div class="ph" data-demo="explore" role="group" aria-label="탐험 지도 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/map.jpg" alt="탐험 지도 화면" loading="lazy" draggable="false"><iframe class="live" title="탐험 지도 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div><button class="hint" type="button">눌러서 직접 써보기</button></div></div>
+        <div class="pw rv"><div class="ph" data-demo="mycourse" role="group" aria-label="내 코스 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/course.jpg" alt="내 코스 화면" loading="lazy" draggable="false"><iframe class="live" title="내 코스 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div><button class="hint" type="button">눌러서 직접 써보기</button></div></div>
       </div>
     </div>
   </div>
@@ -324,7 +326,6 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
 
 <footer>충북챔 · 충청북도 여행 처방 앱<br>졸업작품 UX/UI · 디자인 안정민<br>© 2026 안정민</footer>
 
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="앱 화면 크게 보기"><img id="lbimg" alt=""></div>
 <script>
 (function(){
   var c=document.getElementById('cards'),n=document.getElementById('next');
@@ -341,21 +342,146 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
     var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.18});
     rv.forEach(function(el){io.observe(el)});
   }else{rv.forEach(function(el){el.classList.add('in')})}
-  var fine=window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches;
+})();
+
+/* ── 폰 안에서 실제 앱을 자동으로 눌러 보여주기 ── */
+(function(){
   var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
-  var lb=document.getElementById('lb'),lbi=document.getElementById('lbimg'),last=null;
-  function open(ph){var im=ph.querySelector('img');lbi.src=im.src;lbi.alt=im.alt;lb.classList.add('on');last=ph;document.body.style.overflow='hidden'}
-  function close(){lb.classList.remove('on');document.body.style.overflow='';if(last)last.focus()}
-  [].forEach.call(document.querySelectorAll('.ph'),function(ph){
-    if(fine&&!calm){
-      ph.addEventListener('pointermove',function(e){var r=ph.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;ph.style.transform='rotateY('+(x*16)+'deg) rotateX('+(-y*12)+'deg) scale(1.04)'});
-      ph.addEventListener('pointerleave',function(){ph.style.transform=''});
+  if(calm||!('IntersectionObserver' in window))return;
+  var sleep=function(ms){return new Promise(function(r){setTimeout(r,ms)})};
+  var APP_W=393,APP_H=852;
+  function Fail(m){this.message=m}
+  async function waitFor(ph,fn,to){
+    var t0=Date.now();to=to||9000;
+    while(Date.now()-t0<to){
+      if(ph._dead)throw new Fail('dead');
+      try{var v=fn(ph._doc());if(v)return v}catch(e){}
+      await sleep(60);
     }
-    ph.addEventListener('click',function(){open(ph)});
-    ph.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(ph)}});
+    throw new Fail('timeout');
+  }
+  function scr(d){
+    if(d.querySelector('.onb2'))return'onboarding';
+    if(d.querySelector('.terms'))return'terms';
+    if(d.querySelector('[data-act="begin"]'))return'diagnose';
+    if(d.querySelector('[data-age]'))return'age';
+    if(d.querySelector('.spot'))return'body';
+    if(d.querySelector('[data-ans]'))return'q';
+    if(d.querySelector('#barI'))return'brewing';
+    if(d.querySelector('#paper'))return'rx';
+    if(d.querySelector('[data-pick]'))return'places';
+    if(d.querySelector('.screen.done'))return'done';
+    return'other';
+  }
+  var tabOn=function(d){var b=d.querySelector('#tabbar.show button.on');return b&&b.dataset.tab};
+  async function click(ph,el){await sleep(90);el.click();await sleep(140)}
+  async function enabled(ph,sel){return waitFor(ph,function(d){var b=d.querySelector(sel);return b&&!b.disabled&&b},4000)}
+  /* 목표 화면까지 사용자 몰래 빠르게 진행 */
+  async function ffTo(ph,target){
+    for(var k=0;k<60;k++){
+      var d=ph._doc(),s=scr(d);
+      if(target==='age'&&s==='age')return;
+      if(target==='body'&&s==='body')return;
+      if(target==='rx'&&s==='rx')return;
+      if(target==='places'&&s==='places')return;
+      if((target==='explore'&&tabOn(d)==='탐험')||(target==='mycourse'&&tabOn(d)==='내 코스'))return;
+      if(s==='onboarding'){await click(ph,d.querySelector('.hot'));await sleep(500)}
+      else if(s==='terms'){await click(ph,d.querySelector('[data-act="skip"]'))}
+      else if(s==='diagnose'){await click(ph,d.querySelector('[data-act="begin"]'))}
+      else if(s==='age'){await click(ph,d.querySelectorAll('[data-age]')[1]);await click(ph,await enabled(ph,'[data-act="next"]'))}
+      else if(s==='body'){await click(ph,d.querySelector('.spot[data-part="waist"]'));await click(ph,await enabled(ph,'[data-act="next"]'))}
+      else if(s==='q'){await click(ph,d.querySelector('[data-ans]'));await click(ph,await enabled(ph,'[data-act="next"]'))}
+      else if(s==='brewing'){await waitFor(ph,function(d){return d.querySelector('#paper')},12000)}
+      else if(s==='rx'){await click(ph,d.querySelector('[data-act="places"]'))}
+      else if(s==='places'){var pk=d.querySelectorAll('[data-pick]');await click(ph,pk[0]);d=ph._doc();pk=d.querySelectorAll('[data-pick]');await click(ph,pk[1]);await click(ph,await enabled(ph,'[data-act="save"]'))}
+      else if(s==='done'){var want=target==='explore'?'탐험':'내 코스';await click(ph,d.querySelector('#tabbar [data-tab="'+want+'"]'))}
+      else await sleep(150);
+      await sleep(60);
+    }
+    throw new Fail('ff');
+  }
+  /* 눈에 보이는 손가락 */
+  async function tapAt(ph,x,y,after){
+    var d=ph._doc(),t=ph._tap,k=ph._k;
+    t.classList.add('show');
+    t.style.transform='translate('+(x*k)+'px,'+(y*k)+'px)';
+    await sleep(780);
+    t.classList.remove('press');void t.offsetWidth;t.classList.add('press');
+    var el=d.elementFromPoint(x,y);if(el)el.click();
+    await sleep(after||900);
+  }
+  async function tapEl(ph,el,after){
+    var r=el.getBoundingClientRect();
+    await tapAt(ph,r.left+r.width/2,r.top+r.height/2,after);
+  }
+  async function demo(ph,kind){
+    var d=ph._doc(),t=ph._tap,k=ph._k;
+    t.style.transition='none';t.style.transform='translate('+(APP_W*.5*k)+'px,'+(APP_H*1.02*k)+'px)';void t.offsetWidth;t.style.transition='';
+    await sleep(700);
+    if(kind==='age'){
+      await tapEl(ph,d.querySelectorAll('[data-age]')[1],700);
+      await tapEl(ph,await enabled(ph,'[data-act="next"]'),1900);
+    }else if(kind==='body'){
+      await tapEl(ph,d.querySelector('.spot[data-part="waist"]'),900);
+      await tapEl(ph,await enabled(ph,'[data-act="next"]'),1900);
+    }else if(kind==='rx'){
+      await sleep(2600);
+      await tapEl(ph,d.querySelector('[data-act="places"]'),1900);
+    }else if(kind==='places'){
+      var pk=d.querySelectorAll('[data-pick]');
+      await tapEl(ph,pk[0],600);
+      d=ph._doc();pk=d.querySelectorAll('[data-pick]');await tapEl(ph,pk[1],700);
+      await tapEl(ph,await enabled(ph,'[data-act="save"]'),2200);
+    }else if(kind==='explore'){
+      await sleep(900);
+      await tapAt(ph,78,438,2600);
+    }else if(kind==='mycourse'){
+      await sleep(900);
+      await tapAt(ph,196,290,2600);
+    }
+    t.classList.remove('show');
+  }
+  function layout(ph){
+    var w=ph._scr.clientWidth;if(!w)return;
+    ph._k=w/APP_W;
+    ph._if.style.transform='scale('+ph._k+')';
+  }
+  async function loop(ph){
+    while(!ph._dead){
+      try{
+        await ph._visible();
+        ph.classList.remove('on');
+        ph._if.src='../';
+        await new Promise(function(res,rej){ph._if.onload=res;setTimeout(function(){rej(new Fail('load'))},15000)});
+        layout(ph);
+        await ffTo(ph,ph.dataset.demo);
+        if(ph._dead)return;
+        await sleep(250);
+        ph.classList.add('on');
+        await sleep(500);
+        await demo(ph,ph.dataset.demo);
+        await sleep(600);
+      }catch(e){
+        if(ph._dead)return;
+        ph.classList.remove('on');ph._tap.classList.remove('show');
+        ph._fails=(ph._fails||0)+1;
+        if(ph._fails>=2)return;   // 실패하면 사진 그대로 두기
+        await sleep(1500);
+      }
+    }
+  }
+  [].forEach.call(document.querySelectorAll('.ph[data-demo]'),function(ph){
+    ph._scr=ph.querySelector('.scr');ph._if=ph.querySelector('iframe');ph._tap=ph.querySelector('.tap');
+    ph._doc=function(){return ph._if.contentDocument};
+    ph._vis=false;ph._waiters=[];
+    ph._visible=function(){return ph._vis?Promise.resolve():new Promise(function(r){ph._waiters.push(r)})};
+    new IntersectionObserver(function(es){es.forEach(function(e){ph._vis=e.isIntersecting;if(ph._vis){var w=ph._waiters.splice(0);w.forEach(function(r){r()})}})},{rootMargin:'200px'}).observe(ph);
+    window.addEventListener('resize',function(){layout(ph)});
+    ph.querySelector('.hint').addEventListener('click',function(){
+      ph._dead=true;ph._tap.classList.remove('show');ph.classList.add('manual');ph.classList.add('on');
+    });
+    loop(ph);
   });
-  lb.addEventListener('click',close);
-  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('on'))close()});
 })();
 </script>
 </body>
