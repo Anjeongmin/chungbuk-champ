@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<script>document.documentElement.classList.add("js")</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>충북챔</title>
@@ -85,6 +86,24 @@ h1,h2,h3{text-wrap:balance;line-height:1.3;letter-spacing:-.02em}
 @keyframes tw{from{transform:scale(.6) rotate(0)}to{transform:scale(1.15) rotate(20deg)}}
 @media(prefers-reduced-motion:reduce){.c,.b,.glow,.wv,.wv2,.wb,.wb2,.lid,.lidb,.in,.rays,.sp,.tw{animation:none}.rays{opacity:.6}}
 
+
+/* 폰 화면 인터랙션 */
+.pw{perspective:900px;flex:none}
+.ph{cursor:zoom-in;transition:transform .18s ease-out,box-shadow .25s;will-change:transform;touch-action:manipulation}
+.ph:hover,.ph:focus-visible{box-shadow:0 36px 60px -24px rgba(18,38,74,.65)}
+.ph img{pointer-events:none;user-select:none}
+.js .rv{opacity:0;translate:0 46px;transition:opacity .8s ease,translate .9s cubic-bezier(.2,.8,.2,1);transition-delay:calc(var(--i,0) * 120ms)}
+.js .rv.in{opacity:1;translate:0 0}
+.js .pw.in{animation:pfloat 6s ease-in-out 1s infinite}
+.js .pw.in:nth-child(2){animation-delay:-2s}
+@keyframes pfloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-12px)}}
+.lb{position:fixed;inset:0;z-index:100;display:none;place-items:center;background:rgba(10,24,50,.72);backdrop-filter:blur(6px);padding:24px;cursor:zoom-out}
+.lb.on{display:grid;animation:lbin .25s ease-out}
+.lb img{max-height:92vh;max-width:min(92vw,520px);width:auto;border-radius:36px;box-shadow:0 30px 80px rgba(0,0,0,.5);animation:lbpop .35s cubic-bezier(.2,.9,.3,1.2)}
+@keyframes lbin{from{opacity:0}to{opacity:1}}
+@keyframes lbpop{from{transform:scale(.85)}to{transform:scale(1)}}
+@media(prefers-reduced-motion:reduce){.js .rv{opacity:1;translate:none;transition:none}.js .pw.in{animation:none}.ph{transition:none}}
+
 /* blue band with cards */
 .band{background:var(--blue);padding:84px 0 96px;color:#fff}
 .band h2{text-align:center;font-size:clamp(26px,3.4vw,34px);font-weight:700;margin-bottom:10px}
@@ -115,7 +134,7 @@ h1,h2,h3{text-wrap:balance;line-height:1.3;letter-spacing:-.02em}
 .txt .tags{position:relative;display:flex;gap:8px;flex-wrap:wrap}
 .txt .tags span{background:#fff;border:1.5px solid #cfe0f5;color:var(--blue);font-weight:700;font-size:13.5px;padding:4px 14px;border-radius:999px}
 .phones{display:flex;gap:26px;justify-content:center;align-items:flex-start}
-.phones .ph:nth-child(2){margin-top:44px}
+.phones .pw:nth-child(2){margin-top:44px}
 
 /* phone */
 .ph{width:232px;height:auto;background:#fff;border:7px solid var(--navy);border-radius:36px;position:relative;overflow:hidden;flex:none;box-shadow:0 26px 44px -22px rgba(18,38,74,.55)}
@@ -196,7 +215,7 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
 @media(max-width:560px){
   .phones{gap:12px}
   .ph{width:164px;border-width:5px;border-radius:26px}
-  .phones .ph:nth-child(2){margin-top:28px}
+  .phones .pw:nth-child(2){margin-top:28px}
   .rx{flex-basis:260px}
   .arrow{display:none}
 }
@@ -259,26 +278,26 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
     <h2 class="t">충북챔 이용 방법</h2>
 
     <div class="step">
-      <div class="txt"><span class="no" aria-hidden="true">01</span><h3>나이대와 아픈 곳을<br>골라 진단받으세요.</h3><p>두더지 의사가 말을 걸어요. 나이대를 고르고, 몸에서 아픈 곳을 직접 눌러 보세요. 누르기만 하면 돼요.</p><div class="tags"><span>나이대</span><span>아픈 곳</span><span>성향</span><span>취향</span></div></div>
+      <div class="txt rv"><span class="no" aria-hidden="true">01</span><h3>나이대와 아픈 곳을<br>골라 진단받으세요.</h3><p>두더지 의사가 말을 걸어요. 나이대를 고르고, 몸에서 아픈 곳을 직접 눌러 보세요. 누르기만 하면 돼요.</p><div class="tags"><span>나이대</span><span>아픈 곳</span><span>성향</span><span>취향</span></div></div>
       <div class="phones">
-        <div class="ph"><img src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy"></div>
-        <div class="ph"><img src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy"></div>
+        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="진단 질문 1 나이대 화면 확대해서 보기"><img src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy" draggable="false"></div></div>
+        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="진단 질문 2 아픈 곳 화면 확대해서 보기"><img src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy" draggable="false"></div></div>
       </div>
     </div>
 
     <div class="step rev">
-      <div class="txt"><span class="no" aria-hidden="true">02</span><h3>처방전을 받고<br>장소를 확인하세요.</h3><p>진단이 끝나면 발급번호와 붉은 도장이 찍힌 처방전이 나와요. 왜 이 장소를 처방했는지 근거도 함께 보여 줘요. 마음에 드는 장소를 눌러 자세히 볼 수 있어요.</p><div class="tags"><span>처방전</span><span>처방 근거</span><span>처방 장소 4곳</span></div></div>
+      <div class="txt rv"><span class="no" aria-hidden="true">02</span><h3>처방전을 받고<br>장소를 확인하세요.</h3><p>진단이 끝나면 발급번호와 붉은 도장이 찍힌 처방전이 나와요. 왜 이 장소를 처방했는지 근거도 함께 보여 줘요. 마음에 드는 장소를 눌러 자세히 볼 수 있어요.</p><div class="tags"><span>처방전</span><span>처방 근거</span><span>처방 장소 4곳</span></div></div>
       <div class="phones">
-        <div class="ph"><img src="img/rx.jpg" alt="처방전 화면" loading="lazy"></div>
-        <div class="ph"><img src="img/places.jpg" alt="처방 장소 화면" loading="lazy"></div>
+        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="처방전 화면 확대해서 보기"><img src="img/rx.jpg" alt="처방전 화면" loading="lazy" draggable="false"></div></div>
+        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="처방 장소 화면 확대해서 보기"><img src="img/places.jpg" alt="처방 장소 화면" loading="lazy" draggable="false"></div></div>
       </div>
     </div>
 
     <div class="step">
-      <div class="txt"><span class="no" aria-hidden="true">03</span><h3>지도를 탐험하고<br>우표를 모으세요.</h3><p>처음에는 지도가 안개로 덮여 있어요. 지역을 눌러 안개를 걷고, 장소에 가면 우표가 찍혀요. 다녀온 곳, 지금 갈 곳, 아직 모르는 곳이 내 코스에 한눈에 보여요.</p><div class="tags"><span>안개 탐험</span><span>우표 모으기</span><span>내 코스</span></div></div>
+      <div class="txt rv"><span class="no" aria-hidden="true">03</span><h3>지도를 탐험하고<br>우표를 모으세요.</h3><p>처음에는 지도가 안개로 덮여 있어요. 지역을 눌러 안개를 걷고, 장소에 가면 우표가 찍혀요. 다녀온 곳, 지금 갈 곳, 아직 모르는 곳이 내 코스에 한눈에 보여요.</p><div class="tags"><span>안개 탐험</span><span>우표 모으기</span><span>내 코스</span></div></div>
       <div class="phones">
-        <div class="ph"><img src="img/map.jpg" alt="탐험 지도 화면" loading="lazy"></div>
-        <div class="ph"><img src="img/course.jpg" alt="내 코스 화면" loading="lazy"></div>
+        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="탐험 지도 화면 확대해서 보기"><img src="img/map.jpg" alt="탐험 지도 화면" loading="lazy" draggable="false"></div></div>
+        <div class="pw rv"><div class="ph" tabindex="0" role="button" aria-label="내 코스 화면 확대해서 보기"><img src="img/course.jpg" alt="내 코스 화면" loading="lazy" draggable="false"></div></div>
       </div>
     </div>
   </div>
@@ -289,11 +308,11 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
     <h2>하단 메뉴 다섯 칸으로 끝나요</h2>
     <p class="sub">진단을 마치면 아래 탭으로 어디서든 이동할 수 있어요.</p>
     <div class="tabgrid">
-      <div class="tc"><div class="ic" style="--a:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-diag"/></svg></div><h3>진단</h3><p>처방을 보관하고 새 진단을 시작해요.</p></div>
-      <div class="tc"><div class="ic" style="--n:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-expl"/></svg></div><h3>탐험</h3><p>안개를 걷고 충북 지도를 탐험해요.</p></div>
-      <div class="tc"><div class="ic"><svg viewBox="0 0 28 28"><use href="#i-home"/></svg></div><h3>홈</h3><p>진행 중인 코스와 최근 우표를 모아 봐요.</p></div>
-      <div class="tc"><div class="ic" style="--a:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-course"/></svg></div><h3>내 코스</h3><p>다녀온 곳, 갈 곳을 한 지도에서 관리해요.</p></div>
-      <div class="tc"><div class="ic"><svg viewBox="0 0 28 28"><use href="#i-my"/></svg></div><h3>마이</h3><p>우표첩과 내 정보를 확인해요.</p></div>
+      <div class="tc rv"><div class="ic" style="--a:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-diag"/></svg></div><h3>진단</h3><p>처방을 보관하고 새 진단을 시작해요.</p></div>
+      <div class="tc rv"><div class="ic" style="--n:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-expl"/></svg></div><h3>탐험</h3><p>안개를 걷고 충북 지도를 탐험해요.</p></div>
+      <div class="tc rv"><div class="ic"><svg viewBox="0 0 28 28"><use href="#i-home"/></svg></div><h3>홈</h3><p>진행 중인 코스와 최근 우표를 모아 봐요.</p></div>
+      <div class="tc rv"><div class="ic" style="--a:#FF4D3D"><svg viewBox="0 0 28 28"><use href="#i-course"/></svg></div><h3>내 코스</h3><p>다녀온 곳, 갈 곳을 한 지도에서 관리해요.</p></div>
+      <div class="tc rv"><div class="ic"><svg viewBox="0 0 28 28"><use href="#i-my"/></svg></div><h3>마이</h3><p>우표첩과 내 정보를 확인해요.</p></div>
     </div>
   </div>
 </section>
@@ -305,6 +324,7 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
 
 <footer>충북챔 · 충청북도 여행 처방 앱<br>졸업작품 UX/UI · 디자인 안정민<br>© 2026 안정민</footer>
 
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="앱 화면 크게 보기"><img id="lbimg" alt=""></div>
 <script>
 (function(){
   var c=document.getElementById('cards'),n=document.getElementById('next');
@@ -312,6 +332,30 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
     var end=c.scrollLeft+c.clientWidth>=c.scrollWidth-4;
     c.scrollTo({left:end?0:c.scrollLeft+320,behavior:'smooth'});
   });}
+})();
+
+(function(){
+  var rv=[].slice.call(document.querySelectorAll('.rv'));
+  rv.forEach(function(el){var sibs=[].slice.call(el.parentNode.children).filter(function(c){return c.classList.contains('rv')});el.style.setProperty('--i',sibs.indexOf(el))});
+  if('IntersectionObserver' in window){
+    var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}})},{threshold:.18});
+    rv.forEach(function(el){io.observe(el)});
+  }else{rv.forEach(function(el){el.classList.add('in')})}
+  var fine=window.matchMedia&&matchMedia('(hover:hover) and (pointer:fine)').matches;
+  var calm=window.matchMedia&&matchMedia('(prefers-reduced-motion:reduce)').matches;
+  var lb=document.getElementById('lb'),lbi=document.getElementById('lbimg'),last=null;
+  function open(ph){var im=ph.querySelector('img');lbi.src=im.src;lbi.alt=im.alt;lb.classList.add('on');last=ph;document.body.style.overflow='hidden'}
+  function close(){lb.classList.remove('on');document.body.style.overflow='';if(last)last.focus()}
+  [].forEach.call(document.querySelectorAll('.ph'),function(ph){
+    if(fine&&!calm){
+      ph.addEventListener('pointermove',function(e){var r=ph.getBoundingClientRect(),x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;ph.style.transform='rotateY('+(x*16)+'deg) rotateX('+(-y*12)+'deg) scale(1.04)'});
+      ph.addEventListener('pointerleave',function(){ph.style.transform=''});
+    }
+    ph.addEventListener('click',function(){open(ph)});
+    ph.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();open(ph)}});
+  });
+  lb.addEventListener('click',close);
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&lb.classList.contains('on'))close()});
 })();
 </script>
 </body>
