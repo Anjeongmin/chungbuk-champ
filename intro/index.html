@@ -93,7 +93,8 @@ h1,h2,h3{text-wrap:balance;line-height:1.3;letter-spacing:-.02em}
 .scr{position:relative;width:100%;aspect-ratio:393/852;overflow:hidden;background:#cde9fb;border-radius:28px}
 .scr .poster{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:top;display:block;transition:opacity .5s}
 .scr .live{position:absolute;left:0;top:0;width:393px;height:852px;border:0;transform-origin:0 0;opacity:0;transition:opacity .5s;pointer-events:none;background:#cde9fb}
-.ph.on .live{opacity:1}
+.scr .live.vis{opacity:1;z-index:2}
+.scr .live.old{opacity:1;z-index:1}
 .ph.on .poster{opacity:0}
 .tap{position:absolute;left:0;top:0;width:36px;height:36px;margin:-18px 0 0 -18px;border-radius:50%;background:rgba(255,255,255,.88);border:3px solid #0081EE;box-shadow:0 4px 12px rgba(0,60,160,.35);opacity:0;pointer-events:none;z-index:5;transition:transform .7s cubic-bezier(.4,.1,.2,1),opacity .3s}
 .tap.show{opacity:1}
@@ -279,24 +280,24 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
     <div class="step">
       <div class="txt rv"><span class="no" aria-hidden="true">01</span><h3>나이대와 아픈 곳을<br>골라 진단받으세요.</h3><p>두더지 의사가 말을 걸어요. 나이대를 고르고, 몸에서 아픈 곳을 직접 눌러 보세요. 누르기만 하면 돼요.</p><div class="tags"><span>나이대</span><span>아픈 곳</span><span>성향</span><span>취향</span></div></div>
       <div class="phones">
-        <div class="pw rv"><div class="ph" data-demo="age" role="group" aria-label="진단 질문 1 나이대 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy" draggable="false"><iframe class="live" title="진단 질문 1 나이대 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
-        <div class="pw rv"><div class="ph" data-demo="body" role="group" aria-label="진단 질문 2 아픈 곳 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy" draggable="false"><iframe class="live" title="진단 질문 2 아픈 곳 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
+        <div class="pw rv"><div class="ph" data-demo="age" role="group" aria-label="진단 질문 1 나이대 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/q1.jpg" alt="진단 질문 1 나이대 화면" loading="lazy" draggable="false"><iframe class="live" title="진단 질문 1 나이대 화면" tabindex="-1" aria-hidden="true"></iframe><iframe class="live" title="" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
+        <div class="pw rv"><div class="ph" data-demo="body" role="group" aria-label="진단 질문 2 아픈 곳 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/q2.jpg" alt="진단 질문 2 아픈 곳 화면" loading="lazy" draggable="false"><iframe class="live" title="진단 질문 2 아픈 곳 화면" tabindex="-1" aria-hidden="true"></iframe><iframe class="live" title="" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
       </div>
     </div>
 
     <div class="step rev">
       <div class="txt rv"><span class="no" aria-hidden="true">02</span><h3>처방전을 받고<br>장소를 확인하세요.</h3><p>진단이 끝나면 발급번호와 붉은 도장이 찍힌 처방전이 나와요. 왜 이 장소를 처방했는지 근거도 함께 보여 줘요. 마음에 드는 장소를 눌러 자세히 볼 수 있어요.</p><div class="tags"><span>처방전</span><span>처방 근거</span><span>처방 장소 4곳</span></div></div>
       <div class="phones">
-        <div class="pw rv"><div class="ph" data-demo="rx" role="group" aria-label="처방전 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/rx.jpg" alt="처방전 화면" loading="lazy" draggable="false"><iframe class="live" title="처방전 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
-        <div class="pw rv"><div class="ph" data-demo="places" role="group" aria-label="처방 장소 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/places.jpg" alt="처방 장소 화면" loading="lazy" draggable="false"><iframe class="live" title="처방 장소 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
+        <div class="pw rv"><div class="ph" data-demo="rx" role="group" aria-label="처방전 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/rx.jpg" alt="처방전 화면" loading="lazy" draggable="false"><iframe class="live" title="처방전 화면" tabindex="-1" aria-hidden="true"></iframe><iframe class="live" title="" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
+        <div class="pw rv"><div class="ph" data-demo="places" role="group" aria-label="처방 장소 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/places.jpg" alt="처방 장소 화면" loading="lazy" draggable="false"><iframe class="live" title="처방 장소 화면" tabindex="-1" aria-hidden="true"></iframe><iframe class="live" title="" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
       </div>
     </div>
 
     <div class="step">
       <div class="txt rv"><span class="no" aria-hidden="true">03</span><h3>지도를 탐험하고<br>우표를 모으세요.</h3><p>처음에는 지도가 안개로 덮여 있어요. 지역을 눌러 안개를 걷고, 장소에 가면 우표가 찍혀요. 다녀온 곳, 지금 갈 곳, 아직 모르는 곳이 내 코스에 한눈에 보여요.</p><div class="tags"><span>안개 탐험</span><span>우표 모으기</span><span>내 코스</span></div></div>
       <div class="phones">
-        <div class="pw rv"><div class="ph" data-demo="explore" role="group" aria-label="탐험 지도 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/map.jpg" alt="탐험 지도 화면" loading="lazy" draggable="false"><iframe class="live" title="탐험 지도 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
-        <div class="pw rv"><div class="ph" data-demo="mycourse" role="group" aria-label="내 코스 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/course.jpg" alt="내 코스 화면" loading="lazy" draggable="false"><iframe class="live" title="내 코스 화면" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
+        <div class="pw rv"><div class="ph" data-demo="explore" role="group" aria-label="탐험 지도 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/map.jpg" alt="탐험 지도 화면" loading="lazy" draggable="false"><iframe class="live" title="탐험 지도 화면" tabindex="-1" aria-hidden="true"></iframe><iframe class="live" title="" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
+        <div class="pw rv"><div class="ph" data-demo="mycourse" role="group" aria-label="내 코스 화면 · 실제 앱 실행 화면"><div class="scr"><img class="poster" src="img/course.jpg" alt="내 코스 화면" loading="lazy" draggable="false"><iframe class="live" title="내 코스 화면" tabindex="-1" aria-hidden="true"></iframe><iframe class="live" title="" tabindex="-1" aria-hidden="true"></iframe><i class="tap" aria-hidden="true"></i></div></div></div>
       </div>
     </div>
   </div>
@@ -441,35 +442,51 @@ footer{background:#10213f;color:#97a7c6;text-align:center;font-size:13px;padding
   function layout(ph){
     var w=ph._scr.clientWidth;if(!w)return;
     ph._k=w/APP_W;
-    ph._if.style.transform='scale('+ph._k+')';
+    ph._frames.forEach(function(f){f.style.transform='scale('+ph._k+')'});
+  }
+  function mkctx(ph,fr){
+    return {_doc:function(){return fr.contentDocument},_tap:ph._tap,dataset:ph.dataset,
+      get _k(){return ph._k},get _dead(){return ph._dead}};
+  }
+  async function prepare(ph,ctx,fr){
+    fr.classList.remove('vis','old');
+    fr.src='../';
+    await new Promise(function(res,rej){fr.onload=res;setTimeout(function(){rej(new Fail('load'))},15000)});
+    layout(ph);
+    await ffTo(ctx,ph.dataset.demo);
+    await sleep(200);
+  }
+  function show(ph,i){
+    var cur=ph._frames[i],oth=ph._frames[1-i];
+    oth.classList.remove('vis');oth.classList.add('old');
+    cur.classList.remove('old');cur.classList.add('vis');
+    ph.classList.add('on');
+    setTimeout(function(){oth.classList.remove('old')},700);
   }
   async function loop(ph){
-    while(!ph._dead){
-      try{
+    var ctx=[mkctx(ph,ph._frames[0]),mkctx(ph,ph._frames[1])],cur=0;
+    try{
+      await ph._visible();
+      await prepare(ph,ctx[0],ph._frames[0]);
+      show(ph,0);
+      await sleep(500);
+      while(!ph._dead){
         await ph._visible();
-        ph.classList.remove('on');
-        ph._if.src='../';
-        await new Promise(function(res,rej){ph._if.onload=res;setTimeout(function(){rej(new Fail('load'))},15000)});
-        layout(ph);
-        await ffTo(ph,ph.dataset.demo);
-        if(ph._dead)return;
-        await sleep(250);
-        ph.classList.add('on');
-        await sleep(500);
-        await demo(ph,ph.dataset.demo);
-        await sleep(600);
-      }catch(e){
-        if(ph._dead)return;
-        ph.classList.remove('on');ph._tap.classList.remove('show');
-        ph._fails=(ph._fails||0)+1;
-        if(ph._fails>=2)return;   // 실패하면 사진 그대로 두기
-        await sleep(1500);
+        var nxt=prepare(ph,ctx[1-cur],ph._frames[1-cur]);
+        nxt.catch(function(){});
+        await demo(ctx[cur],ph.dataset.demo);
+        await sleep(900);
+        await nxt;
+        show(ph,1-cur);cur=1-cur;
+        await sleep(900);
       }
+    }catch(e){
+      ph._tap.classList.remove('show');
+      /* 실패하면 사진 그대로 두기 (이미 보이던 화면은 유지) */
     }
   }
   [].forEach.call(document.querySelectorAll('.ph[data-demo]'),function(ph){
-    ph._scr=ph.querySelector('.scr');ph._if=ph.querySelector('iframe');ph._tap=ph.querySelector('.tap');
-    ph._doc=function(){return ph._if.contentDocument};
+    ph._scr=ph.querySelector('.scr');ph._frames=[].slice.call(ph.querySelectorAll('iframe'));ph._tap=ph.querySelector('.tap');
     ph._vis=false;ph._waiters=[];
     ph._visible=function(){return ph._vis?Promise.resolve():new Promise(function(r){ph._waiters.push(r)})};
     new IntersectionObserver(function(es){es.forEach(function(e){ph._vis=e.isIntersecting;if(ph._vis){var w=ph._waiters.splice(0);w.forEach(function(r){r()})}})},{rootMargin:'200px'}).observe(ph);
