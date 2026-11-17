@@ -618,27 +618,33 @@
 
   // ── 처방 도장: 화면 가운데 '쾅' → 원래 도장 자리로 이동 ──
   function slamStamp(stamp, paper) {
+    // 날아오는 도장은 3배 크기로 그려 두고 줄이면서 움직임 → 확대해도 흐려지지 않음
+    const Z = 3;
+    const wrap = document.createElement("div"); wrap.className = "stamp-fly-wrap";
     const big = stamp.cloneNode(true);
-    big.removeAttribute("id"); big.className = "stamp stamp-fly";
-    app.appendChild(big);
+    big.removeAttribute("id"); big.className = "stamp stamp-fly-in";
+    big.style.cssText = `zoom:${Z};left:-52px;top:-52px;right:auto;opacity:1;transform:none`;
+    wrap.appendChild(big); app.appendChild(wrap);
     const appBox = app.getBoundingClientRect(), k = appBox.width / 393;
     const t = stamp.getBoundingClientRect();
     const tx = (t.left - appBox.left) / k + t.width / k / 2, ty = (t.top - appBox.top) / k + t.height / k / 2;
     const cx = 393 / 2, cy = 852 / 2 - 40;
-    big.style.left = cx - 52 + "px"; big.style.top = cy - 52 + "px";
+    wrap.style.left = cx + "px"; wrap.style.top = cy + "px";
     const flash = document.createElement("div"); flash.className = "stamp-flash"; app.appendChild(flash);
-    big.animate([
-      { transform: "rotate(-12deg) scale(3.2)", opacity: 0 },
-      { transform: "rotate(-12deg) scale(1.75)", opacity: 1, offset: 0.1 },
-      { transform: "rotate(-12deg) scale(1.95)", opacity: 1, offset: 0.16 },
-      { transform: "rotate(-12deg) scale(1.9)", opacity: 1, offset: 0.55 },
-      { transform: `translate(${tx - cx}px, ${ty - cy}px) rotate(-12deg) scale(1)`, opacity: 1 },
+    const sc = (v) => `scale(${(v / Z).toFixed(4)})`;
+    wrap.animate([
+      { transform: `rotate(-12deg) ${sc(3.2)}`, opacity: 0 },
+      { transform: `rotate(-12deg) ${sc(1.75)}`, opacity: 1, offset: 0.1 },
+      { transform: `rotate(-12deg) ${sc(1.95)}`, opacity: 1, offset: 0.16 },
+      { transform: `rotate(-12deg) ${sc(1.9)}`, opacity: 1, offset: 0.55 },
+      { transform: `translate(${tx - cx}px, ${ty - cy}px) rotate(-12deg) ${sc(1)}`, opacity: 1 },
     ], { duration: 1400, easing: "cubic-bezier(.3,.7,.2,1)", fill: "forwards" }).onfinish = () => {
-      stamp.classList.add("placed"); big.remove(); flash.remove();
+      stamp.classList.add("placed"); wrap.remove(); flash.remove();
       paper.classList.add("shake"); navigator.vibrate?.(30);
     };
     setTimeout(() => { flash.classList.add("on"); navigator.vibrate?.(50); }, 130);
   }
+
 
   // ── 안개가 서서히 걷히는 연출 ──
   function fogReveal(el, cx = 194, cy = 380) {
@@ -726,7 +732,7 @@
     return `
     <section class="screen gsd">
       <div class="title-row"><button class="back-btn" data-act="back" aria-label="뒤로">${I.back}</button><h1 style="text-align:center;margin-right:52px">스탬프</h1></div>
-      <div class="gsd-stamp"><img src="assets/map/stamp-goesan-${p.lm}.png" alt="${p.name} 우표"><span class="zzan">짠!</span></div>
+      <div class="gsd-stamp"><img src="assets/stamps/goesan-${p.lm}.png" alt="${p.name} 우표"><span class="zzan">짠!</span></div>
       ${mole("gsd-mole")}
       <h2 class="gsd-title">스탬프<b>완료!</b></h2>
       <div class="gsd-name"><b>${p.name}</b><span>☁ 안개가 걷혔어요</span></div>
@@ -924,10 +930,10 @@
   chain("home", (el) => { overlay(el, "home", 22, 52, 82, 37, '<img class="cb-word" src="assets/logo/chungbukcham-tight.svg" alt="충북챔">', "home-mark").style.pointerEvents = "none"; });
   // ── 청주 지도: 장소마다 눌러서 고르기 → 카드 바뀜 → 스탬프 ──
   const CJ = [
-    { name: "운보의집", img: "l-unbo", box: [86, 315, 85, 63], dist: "350m · 도보 5분", rate: "4.8", stamp: "assets/cj/past1.png" },
-    { name: "문의문화재단지", img: "l-munui", box: [194, 299, 129, 63], dist: "2.1km · 차 6분", rate: "4.7", stamp: "assets/mc/s1.png" },
-    { name: "초정행궁", img: "l-chojeong", box: [172, 376, 87, 94], dist: "9.4km · 차 15분", rate: "4.6", stamp: "assets/mc/s2.png" },
-    { name: "초정스파텔", img: "l-spa", box: [49, 390, 100, 94], dist: "9.6km · 차 16분", rate: "4.5", stamp: "assets/mc/s3.png" },
+    { name: "운보의집", img: "l-unbo", box: [86, 315, 85, 63], dist: "350m · 도보 5분", rate: "4.8", stamp: "assets/stamps/cj-unbo.png" },
+    { name: "문의문화재단지", img: "l-munui", box: [194, 299, 129, 63], dist: "2.1km · 차 6분", rate: "4.7", stamp: "assets/stamps/cj-munui.png" },
+    { name: "초정행궁", img: "l-chojeong", box: [172, 376, 87, 94], dist: "9.4km · 차 15분", rate: "4.6", stamp: "assets/stamps/cj-chojeong.png" },
+    { name: "초정스파텔", img: "l-spa", box: [49, 390, 100, 94], dist: "9.6km · 차 16분", rate: "4.5", stamp: "assets/stamps/cj-spa.png" },
   ];
   S.cj = { cur: 0, done: [2, 3] }; CJ[2].baked = CJ[3].baked = true; // 초정행궁·초정스파텔은 그림에 도장 핀이 이미 있음
   // 청주 지도 — 괴산과 같은 방식: 장소 누르면 이름표 파란 테두리 + 두더지가 그 장소로 이동 + 카드 바뀜

@@ -774,3 +774,6 @@ button:focus, button:focus-visible, .ov:focus { outline: none; }
 .home-logo .cb-logo { display: block; width: 66px; height: 46px; filter: drop-shadow(0 3px 6px rgba(51,154,241,.18)); }
 .home-mark .cb-mark { display: block; width: 29px; height: 31px; }
 .home-mark .cb-word { display: block; width: 82px; height: 37px; }
+.stamp-fly-wrap { position: absolute; z-index: 60; width: 0; height: 0; opacity: 0; filter: drop-shadow(0 6px 14px rgba(229,72,77,.25)); }
+.stamp-fly-in { position: absolute !important; animation: none !important; }
+.gsd-stamp img { image-rendering: auto; }
