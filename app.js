@@ -591,9 +591,9 @@
       if (t === "clear" && w.day) layer.innerHTML = '<div class="wx-sun"><i></i></div>';
       if (t === "clear" && !w.day) layer.innerHTML = '<div class="wx-moon"></div><canvas width="393" height="' + APPH + '"></canvas>';
       if (t === "cloud") layer.innerHTML = [[90, 150, .9, 0], [230, 120, .8, -14], [330, 170, .8, -7], [430, 110, .7, -20]].map(([y, w2, sc, dl]) => `<div class="wx-cl" style="top:${y}px;--s:${sc};animation-delay:${dl}s"><div class="cloud" style="position:relative;left:0;top:0;width:${w2}px;height:${w2 * 0.42}px"></div></div>`).join("");
-      if (t === "rain" || t === "snow") layer.innerHTML = `<canvas width="393" height="${APPH}"></canvas>`;
+      if (t === "rain" || t === "snow") layer.innerHTML = `${t === "rain" ? '<i class="wx-dim"></i>' + [[14, 150, .95, 0], [120, 190, .9, -9], [250, 160, .95, -4]].map(([x, w2, sc, dl]) => `<div class="wx-rcl" style="left:${x}px;--s:${sc};animation-delay:${dl}s"><div class="cloud" style="position:relative;left:0;top:0;width:${w2}px;height:${w2 * 0.42}px"></div></div>`).join("") : ""}<canvas width="393" height="${APPH}"></canvas>`;
       if (layer.innerHTML) scr.appendChild(layer);
-      if (t === "rain" || t === "snow") particles(layer.firstChild, t, t === "rain" ? 90 : 60);
+      if (t === "rain" || t === "snow") particles(layer.querySelector("canvas"), t, t === "rain" ? (w.type === "storm" ? 190 : 140) : 60);
       if (t === "clear" && !w.day) particles(layer.querySelector("canvas"), "clear", 46);
     });
   }
@@ -602,14 +602,24 @@
     const ctx = cv.getContext("2d"), W = 393, H = cv.height;
     const P = Array.from({ length: n }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 0, r: 0, s: Math.random() }));
     P.forEach((p) => { p.v = type === "snow" ? 0.4 + p.s * 0.9 : type === "clear" ? 0 : 7 + p.s * 6; p.r = type === "snow" ? 1.5 + p.s * 2.6 : 1; });
-    let t = 0;
+    let t = 0; const splash = [];
+    P.forEach((p) => (p.land = H * (0.25 + Math.random() * 0.75)));
     (function loop() {
       if (!cv.isConnected) return;
       t++; ctx.clearRect(0, 0, W, H);
+      for (let i = splash.length - 1; i >= 0; i--) { const q = splash[i]; q.a -= 0.06; if (q.a <= 0) { splash.splice(i, 1); continue; }
+        const r = (1 - q.a) * 9; ctx.strokeStyle = `rgba(60,120,195,${q.a * 0.55})`; ctx.lineWidth = 1.2; ctx.beginPath(); ctx.ellipse(q.x, q.y, r, r * 0.38, 0, 0, 7); ctx.stroke(); }
       for (const p of P) {
         if (type === "snow") { p.y += p.v; p.x += Math.sin((t + p.s * 300) / 40) * 0.5; ctx.fillStyle = "rgba(255,255,255,.95)"; ctx.strokeStyle = "rgba(120,160,210,.45)"; ctx.lineWidth = 1; ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, 7); ctx.fill(); ctx.stroke(); }
         else if (type === "clear") { const a = 0.3 + 0.7 * Math.abs(Math.sin((t / 60) + p.s * 6)); if (p.y < H * 0.6) { const x = p.x, y = p.y * 0.6, r = 2 + p.s * 3.2; ctx.fillStyle = `rgba(255,205,60,${a})`; ctx.beginPath(); ctx.moveTo(x, y - r); ctx.quadraticCurveTo(x, y, x + r, y); ctx.quadraticCurveTo(x, y, x, y + r); ctx.quadraticCurveTo(x, y, x - r, y); ctx.quadraticCurveTo(x, y, x, y - r); ctx.fill(); } }
-        else { p.y += p.v; p.x -= p.v * 0.18; ctx.strokeStyle = "rgba(60,125,205,.5)"; ctx.lineWidth = 1.6; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + 2.2, p.y - 12); ctx.stroke(); }
+        else {
+          // 빗줄기: 앞(굵고 진함)·뒤(가늘고 연함) 두 겹 + 땅에 닿으면 물방울 튐
+          p.y += p.v; p.x -= p.v * 0.2;
+          const near = p.s > 0.55, len = near ? 20 : 13;
+          ctx.strokeStyle = near ? "rgba(40,100,180,.62)" : "rgba(70,130,200,.38)"; ctx.lineWidth = near ? 2 : 1.3; ctx.lineCap = "round";
+          ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + len * 0.2, p.y - len); ctx.stroke();
+          if (p.y > p.land) { splash.push({ x: p.x, y: p.land, a: 1 }); p.y = -20 - Math.random() * 60; p.x = Math.random() * (W + 80); p.land = H * (0.25 + Math.random() * 0.75); }
+        }
         if (p.y > H + 12) { p.y = -12; p.x = Math.random() * (W + 60); }
       }
       requestAnimationFrame(loop);
