@@ -1147,7 +1147,7 @@
     document.documentElement.classList.add("ios-browser");
     const hint = document.createElement("div"); hint.className = "fs-hint"; hint.textContent = "↑ 화면을 위로 살짝 밀면 전체 화면";
     const h0 = innerHeight; let shown = false;
-    setTimeout(() => { if (innerHeight <= h0 + 20) { document.body.appendChild(hint); shown = true; } }, 3000);
+    // 안내 문구는 제목과 겹쳐서 띄우지 않음
     const done = () => { if (innerHeight > h0 + 20 || scrollY > 30) { hint.remove(); } };
     addEventListener("scroll", done, { passive: true }); addEventListener("resize", done);
     setTimeout(() => hint.remove(), 15000);
